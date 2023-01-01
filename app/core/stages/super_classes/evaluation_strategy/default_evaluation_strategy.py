@@ -17,13 +17,16 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
 
     """
 
-    def evaluate(self, pipeline: Pipeline,
-                 X: pd.DataFrame,
-                 y: pd.Series,
-                 context: Context,
-                 return_estimator: bool = False,
-                 cv: int = 5,
-                 threshold: float = None):
+    def evaluate(
+        self,
+        pipeline: Pipeline,
+        X: pd.DataFrame,
+        y: pd.Series,
+        context: Context,
+        return_estimator: bool = False,
+        cv: int = 5,
+        threshold: float = None,
+    ):
         from sklearn.model_selection import cross_validate
         import numpy as np
 

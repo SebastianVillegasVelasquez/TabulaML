@@ -31,11 +31,10 @@ class StageResult(BaseModel):
 
     name: Stages
     artifacts_path: str | None = None
-    results: list[Any] | dict[str, Any] = field(default_factory=list)
+    results: list[Any] | dict[str, Any] | None = None
     best_pipeline_path: str | Path = None
-    feature_importance: dict[str, float] = field(default_factory=dict)
     best_experiment: Any | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: list[Any] | dict[str, Any] | None = None
 
 
 class ProjectConfig(BaseModel):

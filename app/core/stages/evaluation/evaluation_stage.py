@@ -28,12 +28,13 @@ class EvaluationStage:
 
         experiments = self._get_experiments()
 
-        logger.debug(f"Experiments: {experiments}")
-
         # Delegate to stage-specific evaluator
         evaluator = EvaluatorFactory.create(self.stage, self.context)
 
-        evaluator.evaluate(experiments)
+        try:
+            evaluator.evaluate(experiments)
+        except Exception as e:
+            logger.error(f"Error during evaluation: {e}")
 
         logger.info(
             f"Metadata from {self.stage}: {self.context.stage_results[self.stage].metadata}"

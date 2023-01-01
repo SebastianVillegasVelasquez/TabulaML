@@ -428,6 +428,6 @@ class ExperimentComposer:
                 "selectors": [s.name for s in chain.selectors],
                 "model": model.name,
                 "model_type": model.spec_type,
-                "model_based": model.type
+                "model_based": model.type,
             },
         )

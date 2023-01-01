@@ -21,6 +21,6 @@ class ExperimentDefinition(BaseModel):
     evaluation_type: EvaluationType = EvaluationType.DEFAULT
     use_threshold: bool = False
     threshold: float = 0.5
-    metadata: Dict[str, Any] | None = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
     model_config = {"arbitrary_types_allowed": True}

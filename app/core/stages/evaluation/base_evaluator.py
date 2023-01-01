@@ -10,6 +10,8 @@ Design Pattern: Template Method + Strategy
 """
 
 from abc import ABC, abstractmethod
+from typing import Any
+
 from app.core.context.context import Context
 from app.core.enums import Stages
 from experiments import ExperimentResult
@@ -58,7 +60,6 @@ class BaseEvaluator(ABC):
         sorted_results = self._sort_results(results)
 
         best_experiment = sorted_results[0] if sorted_results else None
-        logger.debug(f"Best experiment in evaluate method: {best_experiment}")
 
         if not best_experiment:
             logger.warning(f"No results to evaluate for {self.stage.value}")
@@ -68,14 +69,13 @@ class BaseEvaluator(ABC):
 
         self._update_context(sorted_results, best_experiment, stage_specific_data)
 
-        logger.info(f"Evaluation completed for {self.stage.value}")
 
     # ========== Hook Methods (Override in Subclasses) ==========
 
     @abstractmethod
     def _extract_stage_specific_data(
         self, sorted_results: list[ExperimentResult], best_experiment: ExperimentResult
-    ) -> dict:
+    ) -> dict[str, Any] | list[dict[str, Any]] :
         """
         Extract stage-specific data from results.
 
@@ -98,7 +98,7 @@ class BaseEvaluator(ABC):
         self,
         sorted_results: list[ExperimentResult],
         best_experiment: ExperimentResult,
-        stage_specific_data: dict,
+        stage_specific_data: dict[str, Any] | list[dict[str, Any]],
     ) -> None:
         """
         Update pipeline context with evaluation results.

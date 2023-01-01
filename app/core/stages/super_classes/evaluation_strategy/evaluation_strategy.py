@@ -12,11 +12,14 @@ class EvaluationStrategy(ABC):
     """
 
     @abstractmethod
-    def evaluate(self, pipeline:Pipeline,
-                 X: pd.DataFrame,
-                 y: pd.Series,
-                 context: Context,
-                 return_estimator:bool=False,
-                 cv: int=5,
-                 threshold:float=None):
+    def evaluate(
+        self,
+        pipeline: Pipeline,
+        X: pd.DataFrame,
+        y: pd.Series,
+        context: Context,
+        return_estimator: bool = False,
+        cv: int = 5,
+        threshold: float = None,
+    ):
         pass
