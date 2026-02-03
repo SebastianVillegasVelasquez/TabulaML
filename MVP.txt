@@ -1,0 +1,72 @@
+1️⃣ MVP de TabulaML (checklist clara y accionable)
+
+Piensa el MVP como “lo mínimo que me permitiría defender esto en una entrevista”.
+
+🧱 Funcionalidades obligatorias (MVP real)
+📥 Input
+
+Subida de archivo CSV
+
+Validaciones básicas:
+
+No vacío
+
+Tamaño máximo
+
+Target existe
+
+Tipo de problema válido
+
+⚙️ Configuración del experimento
+
+Tipo de problema:
+
+classification
+
+regression
+
+Variable objetivo
+
+(Opcional MVP+) Métrica principal seleccionable
+
+🧠 Core AutoML (simplificado)
+
+Split:
+
+train / test (estratificado si aplica)
+
+Preprocesamiento con Pipeline:
+
+Numéricas → scaler
+
+Categóricas → encoder
+
+Entrenamiento automático de:
+
+3–4 modelos por tipo de problema
+
+Sin tuning pesado (solo defaults o grids pequeños)
+
+📊 Evaluación
+
+Métricas claras:
+
+Clasificación → accuracy, precision, recall, F1
+
+Regresión → RMSE, MAE, R²
+
+Comparativa entre modelos
+
+Selección del mejor modelo según métrica principal
+
+📦 Output
+
+Nombre del mejor modelo
+
+Métricas de todos los modelos
+
+Pipeline entrenado
+
+Resumen textual del proceso (JSON o texto plano)
+
+👉 Eso es el MVP. Nada más.
