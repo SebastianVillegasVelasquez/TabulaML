@@ -1,0 +1,24 @@
+[project]
+name = "automl-sebastian"
+version = "0.1.0"
+description = """
+Automated machine learning (AutoML) system that simplifies the process of building and deploying machine learning models.
+It provides a user-friendly interface for data preprocessing, model selection, hyperparameter tuning, and model evaluation,
+making it accessible to both beginners and experienced practitioners in the field of machine learning.
+"""
+authors = [
+    { name = "Sebastian Villegas", email = "villegasvelasquezs@gmail.com" }
+]
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "numpy",
+]
+
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 90
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

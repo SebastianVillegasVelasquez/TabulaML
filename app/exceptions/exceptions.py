@@ -1,0 +1,2 @@
+class FileIsEmptyException(Exception):
+    pass
