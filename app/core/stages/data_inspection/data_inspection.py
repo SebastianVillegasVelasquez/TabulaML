@@ -13,6 +13,8 @@ class DataInspectionStage:
         self.context = context
 
     def run(self):
+        from app.utils.logger import logger
+        logger.info("Running data inspection stage...")
         self._inspect_data()
 
     def _inspect_data(self) -> None:

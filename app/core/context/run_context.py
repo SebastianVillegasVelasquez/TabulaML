@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from app.core.context.project_config import ProjectConfig
@@ -10,7 +11,9 @@ class StageResult:
     name: Stages | str = None
     artifacts_path: str | None = None
     results: list[Any] | dict[str, Any] = field(default_factory=list)
-    best_pipeline_path: str | None = None
+    best_pipeline_path: str | Path = None
+    feature_importance: dict[str, float] = field(default_factory=dict)
+    best_experiment: Any | None = None
 
 
 @dataclass
@@ -18,7 +21,7 @@ class RunContext:
     """
     Stores the state of a full experimentation workflow.
     """
-    config: ProjectConfig
+    config: ProjectConfig | None = None
 
     current_stage: Stages | None = None
 

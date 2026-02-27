@@ -1,9 +1,10 @@
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import cross_validate
 
+from app.core.context.run_context import RunContext
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.ml.pipeline_builder import PipelineBuilder
 
@@ -27,21 +28,20 @@ class Experiment:
             self,
             name: str,
             pipeline_builder: PipelineBuilder,
-            scoring: List[str],
+            context: RunContext,
             cv: int = 5,
             metadata: Dict[str, Any] | None = None
     ):
         """
         :param name: Unique experiment name.
         :param pipeline_builder: Responsible for constructing the sklearn pipeline.
-        :param scoring: Scoring metrics for cross-validation.
         :param cv: Number of cross-validation folds.
         :param metadata: Optional experiment configuration for tracking.
         """
         self.name = name
         self.pipeline_builder = pipeline_builder
-        self.scoring = scoring
         self.cv = cv
+        self.context = context
         self.metadata = metadata or {}
 
     def run(self,
@@ -59,10 +59,10 @@ class Experiment:
             pipeline,
             X,
             y,
-            scoring=self.scoring,
+            scoring=self.context.config.scoring,
             cv=self.cv,
             n_jobs=-1,
-            return_train_score=True
+            return_train_score=True,
         )
 
         # Aggregate metrics properly
@@ -84,14 +84,15 @@ class Experiment:
         # Fit the final pipeline on full dataset (artifact ready)
         pipeline.fit(X, y)
 
-        return ExperimentResult(
+        experiment_result = ExperimentResult(
             name=self.name,
             pipeline=pipeline,
             metrics=mean_metrics,
             config={
                 "cv": self.cv,
-                "scoring": self.scoring,
+                "scoring": self.context.config.scoring,
                 **self.metadata
-            },
-            coef=pipeline.named_steps["model"].coef_
+            }
         )
+
+        return experiment_result

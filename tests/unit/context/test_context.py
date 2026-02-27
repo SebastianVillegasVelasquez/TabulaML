@@ -32,10 +32,15 @@ def test_context_init_context(problem_type, expected_metrics):
     assert context is not None
     assert context.config.problem_type == problem_type
     assert context.config.scoring == expected_metrics
+    assert context.config.random_state == 42
 
     assert hasattr(context, "update_context")
 
     assert context.stage_results == {}
-    assert context.metadata == {}
-    assert context.metadata == {}
+    assert context.metadata == {
+        "original_columns": f"{list(X_train.columns)}",
+        "total_columns": f"{len(X_train.columns)}",
+        "total_rows": f"{len(X_train)}",
+        "original_shape": f"{X_train.shape}"
+    }
     assert context.current_stage is None

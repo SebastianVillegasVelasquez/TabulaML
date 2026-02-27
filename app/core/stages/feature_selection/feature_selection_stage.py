@@ -3,6 +3,7 @@ from app.core.context.stages import Stages
 from app.core.domain.experiments.experiment import Experiment
 from app.core.ml.preprocessing_stage import PreprocessingBuilder
 from app.core.stages.registry import get_stage_experiments
+from app.utils.logger import logger
 
 
 class FeatureSelectionStage:
@@ -11,6 +12,7 @@ class FeatureSelectionStage:
         self.context = context
 
     def run(self):
+        logger.info("Running feature selection stage...")
         definitions = get_stage_experiments(Stages.FEATURE_SELECTION)
         preprocessing = PreprocessingBuilder(
             feature_configs=self.context.stage_results[Stages.DATA_HANDLER].results["feature_configs"]
@@ -23,12 +25,13 @@ class FeatureSelectionStage:
             experiment = Experiment(
                 name=str(self.context.current_stage) + "_" + definition.name,
                 pipeline_builder=builder,
-                scoring=self.context.config.scoring,
+                context=self.context,
                 cv=5,
                 metadata=definition.metadata
             )
 
             results.append(experiment
                        .run(self.context.config.X_train, self.context.config.y_train))
+            logger.info(f"Finished experiment {experiment.name}")
 
         return results

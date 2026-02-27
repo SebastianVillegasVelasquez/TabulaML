@@ -2,7 +2,7 @@ from typing import List
 
 from app.core.context.stages import Stages
 from app.core.domain.experiments.experiment_definition import ExperimentDefinition
-from app.core.domain.experiments.feature_selection import FEATURE_SELECTION_EXPERIMENTS
+from app.core.stages.feature_selection.feature_selection import FEATURE_SELECTION_EXPERIMENTS
 from app.core.domain.experiments.model_selection import MODEL_SELECTION_EXPERIMENTS
 
 _STAGE_REGISTRY = {
