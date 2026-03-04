@@ -20,23 +20,23 @@ class EvaluationStage:
         self.config = context.config
         self.registry = registry or ModelRegistry()
 
-    def run(self) -> ExperimentResult:
-        logger.info(f"Running evaluation stage for {self.stage.name}...")
+    def run(self) -> None:
         experiments = self._get_experiments()
-        logger.info(f"Found {len(experiments)} experiments for stage {self.stage.name}")
-
         best_experiment = self._evaluate(experiments)
-        logger.info(f"Best experiment for stage {self.stage.name}: {best_experiment.name}")
         self._handle_stage_specific_logic(best_experiment)
-        logger.info(f"Finished evaluation stage for {self.stage.name}")
+
+        if self.stage == Stages.FEATURE_SELECTION:
+            stage_result = self.context.stage_results[self.stage]
+            stage_result.metadata['selector'] = best_experiment.config.get('selector')
+            stage_result.metadata['predictor'] = best_experiment.config.get('predictor')
+            self.context.update_context(self.stage, stage_result)
+            self.context.stage_results[self.stage].results = None
+            logger.info(f"Updated context, final context results {self.context.stage_results[self.stage]}")
 
         artifact_path = self._persist(best_experiment)
-        logger.info(f"Persisted best experiment for stage {self.stage.name} to {artifact_path}")
 
         self._update_context(best_experiment, artifact_path)
-        logger.info(f"Updated context for stage {self.stage.name}")
-
-        return best_experiment
+        return None
 
     def _get_experiments(self) -> list[ExperimentResult]:
         stage_result = self.context.stage_results.get(self.stage)
@@ -54,7 +54,6 @@ class EvaluationStage:
     ) -> ExperimentResult:
         priority = self.config.priority_metrics
 
-        # Determinar modo automáticamente
         if self.config.problem_type == ProblemsType.REGRESSION:
             mode = "min"
         else:
@@ -123,13 +122,12 @@ class EvaluationStage:
             experiment: ExperimentResult,
             artifact_path: str
     ):
+        if self.stage == Stages.FEATURE_SELECTION:
+            return
+
         stage_result = self.context.stage_results[self.stage]
 
         stage_result.best_pipeline_path = artifact_path
         stage_result.best_experiment = experiment
 
-        self.context.stage_metrics[self.stage.name] = experiment.metrics
-
         self.context.update_context(self.stage, stage_result)
-        logger.info(f"Updated context for stage {self.stage.name}")
-        logger.info(f"Context after update: {self.context}")

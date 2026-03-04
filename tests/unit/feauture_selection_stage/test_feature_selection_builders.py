@@ -5,11 +5,11 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import ElasticNet
 
 from app.core.ml.pipeline_builder import PipelineBuilder
-from app.core.stages.feature_selection.feature_selection import elasticnet_non_linear_model_builder, \
+from app.core.stages.feature_selection.feature_selection_experiments import elasticnet_non_linear_model_builder, \
     FEATURE_SELECTION_EXPERIMENTS
-from app.core.stages.feature_selection.feature_selection import elasticnet_selector_linear_model_builder
-from app.core.stages.feature_selection.feature_selection import extra_trees_selector_linear_model_builder
-from app.core.stages.feature_selection.feature_selection import extra_trees_selector_non_linear_model_builder
+from app.core.stages.feature_selection.feature_selection_experiments import elasticnet_selector_linear_model_builder
+from app.core.stages.feature_selection.feature_selection_experiments import extra_trees_selector_linear_model_builder
+from app.core.stages.feature_selection.feature_selection_experiments import extra_trees_selector_non_linear_model_builder
 
 
 class TestFeatureSelectionBuilders:

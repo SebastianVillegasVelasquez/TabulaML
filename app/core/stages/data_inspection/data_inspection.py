@@ -3,6 +3,7 @@ import pandas as pd
 from app.core.context.run_context import RunContext, StageResult
 from app.core.context.stages import Stages
 from app.core.domain.feature_config import FeatureConfig
+from app.core.ml.preprocessing_stage import PreprocessingBuilder
 from app.core.stages.data_inspection.ordinal_keywords import ORDINAL_KEYWORDS
 
 
@@ -82,7 +83,7 @@ class DataInspectionStage:
                 stage_result=StageResult(
                     name=Stages.DATA_HANDLER.value,
                     results={
-                        "feature_configs": self.feature_configs
+                        "preprocessing": PreprocessingBuilder(self.feature_configs).build()
                     }
                 )
             )
@@ -91,7 +92,7 @@ class DataInspectionStage:
     def _drop_redundant_columns(
             df: pd.DataFrame,
             null_threshold: float = 0.9,
-            unique_ratio_threshold: float = 0.95,
+            unique_ratio_threshold: float = 0.90,
     ):
         columns_to_drop = []
 

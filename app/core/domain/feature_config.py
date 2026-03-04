@@ -2,7 +2,10 @@
 This class is only data stored, the reason to not use a data type it is because
 they easily access using a class
 """
+import dataclasses
 
+
+@dataclasses.dataclass
 class FeatureConfig:
     __slots__ = (
         "name",
@@ -44,16 +47,3 @@ class FeatureConfig:
         self.skewness = skewness
         self.zero_ratio = zero_ratio
         self.suggested_transformation = suggested_transformation
-
-    def __str__(self) -> str:
-        return (
-            f"FeatureConfig("
-            f"name={self.name}, "
-            f"type={self.feature_type}, "
-            f"dtype={self.dtype}, "
-            f"cardinality={self.cardinality}, "
-            f"encoding={self.encoding}, "
-            f"skewness={self.skewness}, "
-            f"transformation={self.suggested_transformation}"
-            f")"
-        )

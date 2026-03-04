@@ -14,6 +14,7 @@ class StageResult:
     best_pipeline_path: str | Path = None
     feature_importance: dict[str, float] = field(default_factory=dict)
     best_experiment: Any | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -28,8 +29,6 @@ class RunContext:
     stage_results: dict[Stages, StageResult] = field(default_factory=dict)
 
     metadata: dict[str, Any] = field(default_factory=dict)
-
-    stage_metrics: dict[str, dict[str, float]] = field(default_factory=dict)
 
     def update_context(self, stage, stage_result: StageResult):
         if stage not in Stages.__members__.values():

@@ -1,4 +1,4 @@
-from app.core.context.run_context import RunContext, StageResult
+from app.core.context.run_context import RunContext
 from app.core.context.stages import Stages
 
 
@@ -20,17 +20,14 @@ class Orchestrator:
     def feature_selection_stage(self):
         from app.core.stages.feature_selection.feature_selection_stage import FeatureSelectionStage
 
-        self.context.current_stage = Stages.FEATURE_SELECTION
-
-        f_selection_stage_results = FeatureSelectionStage(context=self.context).run()
-
-        self.context.stage_results[Stages.FEATURE_SELECTION] = (StageResult
-            (
-            name=Stages.FEATURE_SELECTION,
-            results=f_selection_stage_results
-        ))
+        FeatureSelectionStage(context=self.context).run()
 
         self.evaluation_stage(Stages.FEATURE_SELECTION)
+
+    def model_selection_stage(self):
+        from app.core.stages.model_selection.model_selection_stage import ModelSelectionStage
+
+        ModelSelectionStage(context=self.context).run()
 
     def evaluation_stage(self, stage: Stages):
         from app.core.stages.evaluation.evaluation_stage import EvaluationStage

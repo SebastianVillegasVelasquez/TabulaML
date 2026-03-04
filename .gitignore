@@ -17,10 +17,13 @@ env/
 .pytest_cache/
 
 # Jupyter Notebook
+notebooks/
 .ipynb_checkpoints/
+
 
 # Logs
 app/logs/
+logs/
 
 # OS
 .DS_Store
