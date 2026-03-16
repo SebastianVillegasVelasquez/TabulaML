@@ -50,7 +50,7 @@ Resource Optimization:
 def get_model_selection_experiments(context: RunContext):
     """
     Dynamically generate model selection experiments based on top-k selectors
-    from feature selection stage.
+    from the feature selection stage.
     """
     logger.info("Generating model selection experiments from top-k selectors...")
 
@@ -106,7 +106,7 @@ def _generate_experiments_for_selector(selector_name, selector_pipeline_step):
     # Model builders
     models = {
         # Linear models
-        "logistic_regression": LogisticRegression(max_iter=2000, random_state=42, n_jobs=-1),
+        "logistic_regression": LogisticRegression(max_iter=2000, random_state=42),
         "ridge_classifier": RidgeClassifier(random_state=42),
         "sgd_classifier": SGDClassifier(max_iter=1000, random_state=42, n_jobs=-1),
 
@@ -146,7 +146,7 @@ def _generate_experiments_for_selector(selector_name, selector_pipeline_step):
         def builder(preprocessing, sel=selector_pipeline_step, mod=model):
             steps = [("preprocessing", preprocessing)]
 
-            # Add selector if it exists
+            # Add a selector if it exists
             if sel is not None:
                 steps.append(("feature_selection", sel))
 

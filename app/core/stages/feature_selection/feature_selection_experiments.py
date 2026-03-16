@@ -7,7 +7,7 @@ from app.core.domain.experiments.experiment_definition import ExperimentDefiniti
 from app.core.ml.pipeline_builder import PipelineBuilder
 
 """
-Enhanced Feature Selection Stage - Resource Optimized
+Feature Selection Stage
 
 The purpose of this stage is to identify the BEST SELECTOR, not the best final model.
 We use lightweight predictors to validate different feature selection approaches.
@@ -38,7 +38,7 @@ Resource Optimization:
 def build_base_linear_model():
     """Lightweight linear model for feature validation"""
     return LogisticRegression(
-        max_iter=1000,  # Reduced from 5000
+        max_iter=3000,  # Reduced from 5000
         C=1.0,
         solver="lbfgs",
         random_state=42
@@ -48,9 +48,9 @@ def build_base_linear_model():
 def build_base_non_linear_model():
     """Lightweight non-linear model for feature validation"""
     return RandomForestClassifier(
-        n_estimators=100,  # Reduced from 200 for speed
-        max_depth=10,      # Limit depth to reduce overfitting and computation
-        min_samples_split=10,  # Prevent deep trees
+        n_estimators=100,
+        max_depth=10,
+        min_samples_split=10,
         random_state=42,
         n_jobs=-1
     )
@@ -61,7 +61,7 @@ def build_base_non_linear_model():
 # ============================================================================
 
 def no_selector_linear_builder(preprocessing):
-    """Baseline: all features with linear model"""
+    """Baseline: all features with a linear model"""
     return PipelineBuilder(
         steps=[
             ("preprocessing", preprocessing),
@@ -71,7 +71,7 @@ def no_selector_linear_builder(preprocessing):
 
 
 def no_selector_nonlinear_builder(preprocessing):
-    """Baseline: all features with non-linear model"""
+    """Baseline: all features with a non-linear model"""
     return PipelineBuilder(
         steps=[
             ("preprocessing", preprocessing),
@@ -98,7 +98,7 @@ def selectkbest_f_classif_linear_builder(preprocessing):
 
 
 def selectkbest_f_classif_nonlinear_builder(preprocessing):
-    """SelectKBest with F-test validated with non-linear model"""
+    """SelectKBest with F-test validated with a non-linear model"""
     selector = SelectKBest(score_func=f_classif, k=10)
 
     return PipelineBuilder(
@@ -124,7 +124,7 @@ def selectkbest_mutual_info_linear_builder(preprocessing):
 
 
 def selectkbest_mutual_info_nonlinear_builder(preprocessing):
-    """SelectKBest with mutual info validated with non-linear model"""
+    """SelectKBest with mutual info validated with a non-linear model"""
     selector = SelectKBest(score_func=mutual_info_classif, k=10)
 
     return PipelineBuilder(
@@ -143,7 +143,7 @@ def selectkbest_mutual_info_nonlinear_builder(preprocessing):
 def lasso_selector_linear_builder(preprocessing):
     """Lasso-based selection - fast L1 regularization"""
     selector = SelectFromModel(
-        Lasso(alpha=0.01, max_iter=1000, random_state=42),
+        Lasso(alpha=0.01, max_iter=3000, random_state=42),
         threshold="median"
     )
 
@@ -157,9 +157,9 @@ def lasso_selector_linear_builder(preprocessing):
 
 
 def lasso_selector_nonlinear_builder(preprocessing):
-    """Lasso-based selection validated with non-linear model"""
+    """Lasso-based selection validated with a non-linear model"""
     selector = SelectFromModel(
-        Lasso(alpha=0.01, max_iter=1000, random_state=42),
+        Lasso(alpha=0.01, max_iter=3000, random_state=42),
         threshold="median"
     )
 
@@ -175,7 +175,7 @@ def lasso_selector_nonlinear_builder(preprocessing):
 def elasticnet_selector_linear_builder(preprocessing):
     """ElasticNet-based selection - L1 + L2 regularization"""
     selector = SelectFromModel(
-        ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=1000, random_state=42),
+        ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=3000, random_state=42),
         threshold="median"
     )
 
@@ -189,9 +189,9 @@ def elasticnet_selector_linear_builder(preprocessing):
 
 
 def elasticnet_selector_nonlinear_builder(preprocessing):
-    """ElasticNet-based selection validated with non-linear model"""
+    """ElasticNet-based selection validated with a non-linear model"""
     selector = SelectFromModel(
-        ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=1000, random_state=42),
+        ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=3000, random_state=42),
         threshold="median"
     )
 
@@ -230,10 +230,10 @@ def extratrees_selector_linear_builder(preprocessing):
 
 
 def extratrees_selector_nonlinear_builder(preprocessing):
-    """ExtraTrees-based selection validated with non-linear model"""
+    """ExtraTrees-based selection validated with a non-linear model"""
     selector = SelectFromModel(
         ExtraTreesClassifier(
-            n_estimators=50,  # Reduced from 200
+            n_estimators=50,
             max_depth=10,
             random_state=42,
             n_jobs=-1
@@ -257,7 +257,7 @@ def extratrees_selector_nonlinear_builder(preprocessing):
 def rfe_linear_builder(preprocessing):
     """RFE with linear estimator - recursive elimination"""
     selector = RFE(
-        estimator=LogisticRegression(max_iter=500, random_state=42),
+        estimator=LogisticRegression(max_iter=1500, random_state=42),
         n_features_to_select=10,
         step=0.2  # Remove 20% of features at each iteration
     )
@@ -272,7 +272,7 @@ def rfe_linear_builder(preprocessing):
 
 
 def rfe_nonlinear_builder(preprocessing):
-    """RFE with tree estimator validated with non-linear model"""
+    """RFE with tree estimator validated with a non-linear model"""
     selector = RFE(
         estimator=DecisionTreeClassifier(max_depth=5, random_state=42),
         n_features_to_select=10,

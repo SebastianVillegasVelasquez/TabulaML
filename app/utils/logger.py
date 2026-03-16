@@ -1,10 +1,3 @@
-"""
-Logger configuration using loguru.
-Easy to use, effective, and prepared for deployment.
-
-Installation: pip install loguru
-"""
-
 from loguru import logger
 import sys
 

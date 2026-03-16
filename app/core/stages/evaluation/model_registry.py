@@ -26,18 +26,41 @@ class ModelRegistry:
 
         joblib.dump(result.pipeline, model_dir / "pipeline.joblib")
 
-        metadata = {
-            "name": result.name,
-            "metrics": result.metrics,
-            "config": result.config,
-            "selected_features": result.selected_features,
-            "created_at": version
-        }
+        # Convert config to JSON-serializable format
+        # serializable_config = self._make_serializable(result.config)
+        serializable_metrics = self._make_serializable(result.metrics)
+
+        if result.feature_mask is not None or result.selected_features is not None:
+            serializable_selected_features = self._make_serializable(result.selected_features)
+            metadata = {
+                "name": result.name,
+                "metrics": serializable_metrics,
+                "selected_features": serializable_selected_features,
+                "created_at": version
+            }
+        else :
+            metadata = {
+                "name": result.name,
+                "metrics": serializable_metrics,
+                "created_at": version
+            }
 
         with open(model_dir / "metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)
 
         return str(model_dir)
+
+    def _make_serializable(self, obj):
+        """Convert non-JSON-serializable objects to strings recursively."""
+        if isinstance(obj, dict):
+            return {k: self._make_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._make_serializable(item) for item in obj]
+        elif isinstance(obj, type):
+            return f"{obj.__module__}.{obj.__name__}"
+        elif hasattr(obj, "__class__") and not isinstance(obj, (str, int, float, bool, type(None))):
+            return str(obj)
+        return obj
 
     def load(self, name: str):
         return joblib.load(self.base_path / name / "pipeline.joblib")

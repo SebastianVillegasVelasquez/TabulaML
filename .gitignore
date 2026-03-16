@@ -33,6 +33,11 @@ Thumbs.db
 MVP.txt
 Engineering.txt
 documentation
+LEEME_DOCUMENTACION.md
+RESUMEN_IMPLEMENTACION.md
+DOCUMENTACION_ORCHESTRATOR.md
+GUIA_RAPIDA_ORCHESTRATOR.md
+PATRONES_MANTENIMIENTO_ORCHESTRATOR.md
 
 # Heavy data files (like datasets, models, etc.)
 data/

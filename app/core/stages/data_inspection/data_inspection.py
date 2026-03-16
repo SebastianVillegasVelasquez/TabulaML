@@ -113,7 +113,7 @@ class DataInspectionStage:
 
             # ID-like detection (it is supposed ONLY for object or integer types)
             if pd.api.types.is_object_dtype(series) or pd.api.types.is_integer_dtype(series):
-                unique_ratio = series.nunique() / n_rows
+                unique_ratio = float(series.nunique()) / float(n_rows)
                 if unique_ratio > unique_ratio_threshold:
                     columns_to_drop.append(col)
                     continue

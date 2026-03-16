@@ -72,7 +72,7 @@ class Experiment:
 
             if metric_name.startswith("train_") or metric_name.startswith("test_"):
 
-                mean_value = float(np.mean(values))
+                mean_value = (np.mean(values))
 
                 # Fix sklearn negative regression metrics
                 if metric_name.endswith(("neg_mean_squared_error",

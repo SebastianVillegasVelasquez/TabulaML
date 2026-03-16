@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
-from app.core.context.project_config import ProjectConfig
+import pandas as pd
+
+from app.core.context.problems_type import ProblemsType
 from app.core.context.stages import Stages
 
 
@@ -17,10 +19,23 @@ class StageResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class ProjectConfig:
+    problem_type: ProblemsType
+    X_train: pd.DataFrame
+    y_train: pd.Series
+    X_test: pd.DataFrame
+    y_test: pd.Series
+    scoring: list[str]
+    random_state: int
+    priority_metrics: Union[str, list[str]] = None
+
+
 @dataclass
 class RunContext:
     """
     Stores the state of a full experimentation workflow.
+    It is used to pass data between stages.
     """
     config: ProjectConfig | None = None
 

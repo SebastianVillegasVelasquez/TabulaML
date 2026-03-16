@@ -4,7 +4,7 @@ import pandas as pd
 
 from app.core.context.metrics import DEFAULT_METRICS
 from app.core.context.problems_type import ProblemsType
-from app.core.context.project_config import ProjectConfig
+from app.core.context.run_context import ProjectConfig
 from app.core.context.run_context import RunContext
 
 

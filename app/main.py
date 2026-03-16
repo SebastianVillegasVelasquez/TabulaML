@@ -1,21 +1,35 @@
 from app.core.context.init_context import init_context
-from app.core.orchestrator import Orchestrator
+from app.core.orchestrator.orchestrator import Orchestrator
 from app.services.loader import load_data
 from app.utils.logger import logger
 
 
-# Initialize any global context, configurations, or resources here
 def main():
-    # TODO: After implementing the data loading and preprocessing,
-    #  replace the hardcoded dataset with the actual data loading logic.
-    # (X_train, y_train), (X_test, y_test)
+    """
+    Main entry point for the ML pipeline.
+    
+    Responsibilities:
+    - Loads training data
+    - Initializes pipeline context with configuration
+    - Orchestrates execution of pipeline stages
+    - Logs execution results
+    """
+    # Load dataset
     X, y = load_data('C:\\WorkSpace\\TabulaML\\data_test\\train.csv', 'Survived')
 
+    # Initialize pipeline context
     context = init_context(X=X, y=y)
     if context:
         logger.info("Context initialized successfully.")
 
-    Orchestrator(context).run()
+    # Run a pipeline with an orchestrator
+    orchestrator = Orchestrator(context, max_retries=2)
+    summary = orchestrator.run()
+
+    # Log execution report
+    logger.info("\nExecution Report:")
+    logger.info(orchestrator.get_execution_report_json())
+
 
 if __name__ == '__main__':
     main()
