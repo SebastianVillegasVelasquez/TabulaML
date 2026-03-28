@@ -7,10 +7,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 
-from app.core.stages.evaluation.model_selection_evaluator import ModelSelectionEvaluator
+from app.core.stages.evaluation.evaluators.model_selection_evaluator import ModelSelectionEvaluator
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.context.run_context import RunContext, StageResult, ProjectConfig
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 
 
 class TestModelSelectionEvaluator:

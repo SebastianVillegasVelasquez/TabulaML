@@ -4,8 +4,8 @@ from typing import Any, Union
 
 import pandas as pd
 
-from app.core.context.problems_type import ProblemsType
-from app.core.context.stages import Stages
+from app.core.enums.problems_type import ProblemsType
+from app.core.enums.stages import Stages
 
 
 @dataclass

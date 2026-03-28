@@ -7,7 +7,7 @@ before attempting to execute.
 
 from typing import Optional, Tuple
 from app.core.context.run_context import RunContext
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.orchestrator.stage_validator import StageValidator
 
 
@@ -64,6 +64,22 @@ class FineTuningValidator(StageValidator):
         if Stages.MODEL_SELECTION not in context.stage_results:
             return False, "MODEL_SELECTION stage not completed"
         
+        # All preconditions met
+        return True, None
+
+
+class ModelEnsembleValidator(StageValidator):
+    """
+    Validates that ModelEnsemble can be executed.
+
+    Preconditions:
+    - FINE_TUNING stage must be completed
+    """
+
+    def validate(self, context: RunContext) -> Tuple[bool, Optional[str]]:
+        # Check if MODEL_SELECTION stage exists in context
+        if Stages.FINE_TUNING not in context.stage_results:
+            return False, "FINE_TUNING stages not completed"
         # All preconditions met
         return True, None
 

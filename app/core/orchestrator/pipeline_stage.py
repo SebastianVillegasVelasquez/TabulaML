@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from app.core.context.run_context import RunContext
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.orchestrator.stage_validator import StageValidator
 
 
@@ -16,6 +16,9 @@ class PipelineStage(ABC):
     - Validator for preconditions
     - Execute method for business logic
     """
+
+    def __init__(self, context: RunContext):
+        self.context = context
     
     @abstractmethod
     def get_stage_type(self) -> Stages:

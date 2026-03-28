@@ -1,17 +1,15 @@
 from sklearn.ensemble import (
     RandomForestClassifier,
     GradientBoostingClassifier,
-    ExtraTreesClassifier,
-    AdaBoostClassifier
+    ExtraTreesClassifier
 )
 from sklearn.linear_model import LogisticRegression, RidgeClassifier, SGDClassifier
-from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
 from app.core.context.run_context import RunContext
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.domain.experiments.experiment_definition import ExperimentDefinition
 from app.core.ml.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger

@@ -3,15 +3,15 @@
 import pytest
 import numpy as np
 import pandas as pd
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import SelectKBest, f_classif
 
-from app.core.stages.evaluation.feature_selection_evaluator import FeatureSelectionEvaluator
+from app.core.stages.evaluation.evaluators.feature_selection_evaluator import FeatureSelectionEvaluator
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.context.run_context import RunContext, StageResult, ProjectConfig
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 
 
 class TestFeatureSelectionEvaluator:

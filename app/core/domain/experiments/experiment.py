@@ -54,7 +54,12 @@ class Experiment:
         :param y: Target series.
         :return: ExperimentResult object.
         """
-        pipeline = self.pipeline_builder.build()
+        if isinstance(self.pipeline_builder, PipelineBuilder):
+            pipeline = self.pipeline_builder.build()
+        else:
+            pipeline = self.pipeline_builder
+
+
         scores = cross_validate(
             pipeline,
             X,
@@ -63,6 +68,7 @@ class Experiment:
             cv=self.cv,
             n_jobs=-1,
             return_train_score=True,
+            error_score="raise"
         )
 
         # Aggregate metrics properly
@@ -74,7 +80,7 @@ class Experiment:
 
                 mean_value = (np.mean(values))
 
-                # Fix sklearn negative regression metrics
+                # Fix the sklearn convention for MSE and MAE
                 if metric_name.endswith(("neg_mean_squared_error",
                                          "neg_mean_absolute_error")):
                     mean_value = -mean_value

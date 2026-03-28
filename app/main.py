@@ -1,6 +1,6 @@
-from app.core.context.init_context import init_context
-from app.core.orchestrator.orchestrator import Orchestrator
-from app.services.loader import load_data
+from app.core.context import init_context
+from app.core.orchestrator import Orchestrator
+from app.services import load_data
 from app.utils.logger import logger
 
 
@@ -20,11 +20,11 @@ def main():
     # Initialize pipeline context
     context = init_context(X=X, y=y)
     if context:
-        logger.info("Context initialized successfully.")
+        logger.info("RunContext initialized successfully.")
 
     # Run a pipeline with an orchestrator
     orchestrator = Orchestrator(context, max_retries=2)
-    summary = orchestrator.run()
+    orchestrator.run()
 
     # Log execution report
     logger.info("\nExecution Report:")

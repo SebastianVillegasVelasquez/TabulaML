@@ -1,11 +1,11 @@
 """Tests for BaseEvaluator abstract class and template method pattern."""
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.stages.evaluation.base_evaluator import BaseEvaluator
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.context.run_context import RunContext, StageResult, ProjectConfig

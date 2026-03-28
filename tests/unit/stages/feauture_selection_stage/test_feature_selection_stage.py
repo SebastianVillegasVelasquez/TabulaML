@@ -1,11 +1,3 @@
-from unittest.mock import MagicMock
-
-import pandas as pd
-import pytest
-from app.core.context.stages import Stages
-from app.core.stages.feature_selection.feature_selection_stage import FeatureSelectionStage
-
-
 # @pytest.fixture
 # def mock_context():
 #     context = MagicMock()

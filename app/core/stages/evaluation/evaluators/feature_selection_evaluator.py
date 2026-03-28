@@ -41,7 +41,8 @@ class FeatureSelectionEvaluator(BaseEvaluator):
                 'selector': stage_specific_data['best_selector'],
                 'predictor': stage_specific_data['best_predictor'],
                 'n_features_selected': stage_specific_data['n_features_selected'],
-                'total_experiments': stage_specific_data['total_experiments']
+                'total_experiments': stage_specific_data['total_experiments'],
+                'selector_estimator': best_experiment.pipeline.named_steps.get('feature_selection', None),
             }
         )
         

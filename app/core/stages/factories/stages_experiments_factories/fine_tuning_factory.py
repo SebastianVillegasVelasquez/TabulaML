@@ -10,6 +10,6 @@ class FineTuningExperimentsFactory(BaseExperimentFactory):
 
     def create_experiments(self, context: RunContext = None) -> List[ExperimentDefinition]:
         if context is None:
-            raise ValueError(f"Context parameter must not be None for FineTuningExperimentsFactory")
+            raise ValueError(f"RunContext parameter must not be None for FineTuningExperimentsFactory")
 
         return get_fine_tuning_experiments(context=context)

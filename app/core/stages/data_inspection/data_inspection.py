@@ -1,15 +1,29 @@
 import pandas as pd
 
 from app.core.context.run_context import RunContext, StageResult
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.domain.feature_config import FeatureConfig
 from app.core.ml.preprocessing_stage import PreprocessingBuilder
-from app.core.stages.data_inspection.ordinal_keywords import ORDINAL_KEYWORDS
 
 
 class DataInspectionStage:
+    ORDINAL_KEYWORDS: dict = {
+        "low": 0,
+        "medium": 1,
+        "high": 2,
+        "very low": -1,
+        "very high": 3,
+        "small": 0,
+        "large": 2,
+        "near": 0,
+        "far": 2,
+        "poor": 0,
+        "fair": 1,
+        "good": 2,
+        "excellent": 3
+    }
 
-    def __init__(self, context=RunContext):
+    def __init__(self, context:RunContext=RunContext):
         self.feature_configs = None
         self.context = context
 
@@ -209,7 +223,7 @@ class DataInspectionStage:
 
         matches = 0
         for val in values:
-            for keyword in ORDINAL_KEYWORDS:
+            for keyword in DataInspectionStage.ORDINAL_KEYWORDS:
                 if keyword in val:
                     matches += 1
                     break

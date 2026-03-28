@@ -16,9 +16,9 @@ class BaseExperimentFactory(ABC):
         Creates and returns all experiment definitions for this stage.
 
         Args:
-            context: El contexto de ejecución (puede ser None para stages simples)
+            context: RunContext containing pipeline configuration and state
 
         Returns:
-            Lista de ExperimentDefinition registrados para esta stage
+            ExperimentDefinition instances for this stage.
         """
         pass

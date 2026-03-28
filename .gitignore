@@ -1,45 +1,37 @@
-# Byte-compiled / optimized / DLL files
+# Development
+docs/
+notebooks/
+*.ipynb
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-
-# Virtual environments
+.pytest_cache/
+*.pyc
+*.pyo
+*.egg-info/
 .venv/
 venv/
-ENV/
-env/
-
-# IDE
+*.log
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+*.egg
 
 # Testing
-.pytest_cache/
+.coverage
+htmlcov/
 
-# Jupyter Notebook
-notebooks/
-.ipynb_checkpoints/
+# Environment
+.env
+.env.local
 
-
-# Logs
-app/logs/
-logs/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Self documented files
-MVP.txt
-Engineering.txt
-documentation
-LEEME_DOCUMENTACION.md
-RESUMEN_IMPLEMENTACION.md
-DOCUMENTACION_ORCHESTRATOR.md
-GUIA_RAPIDA_ORCHESTRATOR.md
-PATRONES_MANTENIMIENTO_ORCHESTRATOR.md
-
-# Heavy data files (like datasets, models, etc.)
-data/
+# Data
 models/
 data_test/
+logs/*.log
+logs/*.txt

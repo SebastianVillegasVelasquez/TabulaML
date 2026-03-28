@@ -5,9 +5,9 @@ from unittest.mock import Mock, patch
 
 from app.core.stages.evaluation.evaluator_factory import EvaluatorFactory
 from app.core.stages.evaluation.base_evaluator import BaseEvaluator
-from app.core.stages.evaluation.feature_selection_evaluator import FeatureSelectionEvaluator
-from app.core.stages.evaluation.model_selection_evaluator import ModelSelectionEvaluator
-from app.core.context.stages import Stages
+from app.core.stages.evaluation.evaluators.feature_selection_evaluator import FeatureSelectionEvaluator
+from app.core.stages.evaluation.evaluators.model_selection_evaluator import ModelSelectionEvaluator
+from app.core.enums.stages import Stages
 from app.core.context.run_context import RunContext
 
 

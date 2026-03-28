@@ -1,4 +1,6 @@
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
+from app.core.stages.evaluation.evaluators.fine_tuning_evaluation import FineTuningEvaluator
+from app.core.stages.evaluation.evaluators.model_ensemble_evaluator import ModelEnsembleEvaluator
 from app.utils.logger import logger
 
 
@@ -12,11 +14,14 @@ class EvaluatorFactory:
         """Register default evaluators."""
         if not cls._EVALUATORS:
             try:
-                from app.core.stages.evaluation.feature_selection_evaluator import FeatureSelectionEvaluator
-                from app.core.stages.evaluation.model_selection_evaluator import ModelSelectionEvaluator
+                from app.core.stages.evaluation.evaluators.feature_selection_evaluator import FeatureSelectionEvaluator
+                from app.core.stages.evaluation.evaluators.model_selection_evaluator import ModelSelectionEvaluator
                 cls._EVALUATORS = {
                     Stages.FEATURE_SELECTION: FeatureSelectionEvaluator,
                     Stages.MODEL_SELECTION: ModelSelectionEvaluator,
+                    Stages.FINE_TUNING: FineTuningEvaluator,
+                    Stages.MODEL_ENSEMBLE: ModelEnsembleEvaluator,
+
                 }
                 logger.debug("Default evaluators registered")
             except ImportError as e:
@@ -24,7 +29,7 @@ class EvaluatorFactory:
     
     @classmethod
     def create(cls, stage, context):
-        """Create evaluator for the given stage."""
+        """Create an evaluator for the given stage."""
         cls._register_defaults()
         evaluator_class = cls._EVALUATORS.get(stage)
         if not evaluator_class:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from app.core.context.run_context import RunContext, StageResult
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.domain.experiments.experiment import Experiment
 from app.core.stages.factories.registry import get_stage_experiments
 from app.utils.logger import logger
@@ -31,18 +31,15 @@ class Stage(ABC):
         """Execute experiments for this stage."""
         logger.info(f"Running {self.stage} stage...")
 
-        # Get preprocessing from the DATA_HANDLER stage
         preprocessing = self.context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
-
         results = []
-
-        # Run each experiment definition
         for definition in self.definitions:
-            pipeline_builder = definition.builder(preprocessing)
+
+            pipeline_or_builder = definition.builder(preprocessing)
 
             experiment = Experiment(
                 name=f"{self.stage.value}_{definition.name}",
-                pipeline_builder=pipeline_builder,
+                pipeline_builder=pipeline_or_builder,
                 context=self.context,
                 cv=5,
                 metadata=definition.metadata
@@ -52,7 +49,6 @@ class Stage(ABC):
             results.append(result)
             logger.info(f"Finished experiment {experiment.name}")
 
-        # Store raw results - evaluation/sorting is handled by EvaluationStage
         self.context.stage_results[self.stage] = StageResult(
             name=self.stage,
             results=results,

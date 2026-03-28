@@ -11,7 +11,7 @@ Design Pattern: Template Method + Strategy
 
 from abc import ABC, abstractmethod
 from app.core.context.run_context import RunContext
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.utils.logger import logger
 
@@ -46,7 +46,7 @@ class BaseEvaluator(ABC):
         Template method: Execute the evaluation workflow.
         
         This method orchestrates the complete evaluation process.
-        Subclasses should NOT override this, but should override
+        Subclasses should NOT override this but should override
         specific hook methods instead.
         
         Args:
@@ -57,7 +57,7 @@ class BaseEvaluator(ABC):
         # Step 1: Sort experiments by primary metric
         sorted_results = self._sort_results(results)
         
-        # Step 2: Extract best experiment
+        # Step 2: Extract the best experiment
         best_experiment = sorted_results[0] if sorted_results else None
         
         if not best_experiment:
@@ -138,22 +138,23 @@ class BaseEvaluator(ABC):
         logger.debug(f"Results sorted by {primary_metric}")
         
         return sorted_results
-    
-    def _get_model_family(self, experiment: ExperimentResult) -> str:
+
+    @staticmethod
+    def _get_model_family( experiment: ExperimentResult) -> str:
         """
-        Extract model family from experiment config.
-        
+        Extract the model family from experiment config.
+
         Examples: 'RandomForest', 'LogisticRegression', 'XGBoost'
-        
+
         Args:
             experiment: The experiment to extract from
-        
+
         Returns:
-            Model family name as string
+            Model family name as a string
         """
         model_name = experiment.config.get('model', 'unknown')
         return str(model_name)
-    
+
     def _extract_top_k_by_family(
         self,
         sorted_results: list[ExperimentResult],

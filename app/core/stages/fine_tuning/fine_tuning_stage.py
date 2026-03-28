@@ -1,6 +1,5 @@
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.stages.super_classes.stage import Stage
-from app.utils.logger import logger
 
 
 class FineTuningStage(Stage):

@@ -1,13 +1,13 @@
-from typing import Union, List
+from typing import List
 
-from app.core.context.stages import Stages
+from app.core.enums.stages import Stages
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.context.run_context import RunContext, StageResult
 
 
 class Evaluator:
 
-    def __init__(self,mode: str = "max",
+    def __init__(self, mode: str = "max",
                  results: List[ExperimentResult] = None,
                  context: RunContext = None):
         if mode not in ("max", "min"):
