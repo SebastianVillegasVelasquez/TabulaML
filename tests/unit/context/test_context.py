@@ -54,14 +54,14 @@ class TestRunContext:
             X, y = sample_data
             context = init_context(ProblemsType.CLASSIFICATION, X, y)
 
-            assert context.config.priority_metrics == "test_f1"
+            assert context.config.priority_metric == "test_f1"
 
         @pytest.mark.unit
         def test_default_priority_metric_regression(self, sample_data):
             X, y = sample_data
             context = init_context(ProblemsType.REGRESSION, X, y)
 
-            assert context.config.priority_metrics == "test_neg_mean_squared_error"
+            assert context.config.priority_metric == "test_neg_mean_squared_error"
 
         @pytest.mark.unit
         def test_custom_priority_metric(self, sample_data):
@@ -70,10 +70,22 @@ class TestRunContext:
                 ProblemsType.CLASSIFICATION,
                 X,
                 y,
-                priority_metrics="accuracy"
+                priority_metric="accuracy"
             )
 
-            assert context.config.priority_metrics == "accuracy"
+            assert context.config.priority_metric == "test_accuracy"
+
+        @pytest.mark.unit
+        def test_custom_priority_metric_normalized(self, sample_data):
+            X, y = sample_data
+            context = init_context(
+                ProblemsType.CLASSIFICATION,
+                X,
+                y,
+                priority_metric="accuracy"
+            )
+
+            assert context.config.priority_metric_normalized == "accuracy"
 
         @pytest.mark.unit
         def test_metadata_generation(self, sample_data):
