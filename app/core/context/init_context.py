@@ -11,7 +11,7 @@ from app.core.context.run_context import RunContext
 def init_context(problem_type: ProblemsType = ProblemsType.CLASSIFICATION,
                  X: Tuple[pd.DataFrame, pd.Series] = None,
                  y: Tuple[pd.DataFrame, pd.Series] = None,
-                 priority_metrics: str | List[str] = None) -> RunContext:
+                 priority_metric: str = None) -> RunContext:
 
     if X is None or y is None:
         raise ValueError("X and y must not be None")
@@ -32,9 +32,8 @@ def init_context(problem_type: ProblemsType = ProblemsType.CLASSIFICATION,
         y_test,
         DEFAULT_METRICS[problem_type],
         random_state=42,
-        priority_metrics=_get_priority_metric(problem_type, priority_metrics)
-        if priority_metrics is None
-        else priority_metrics
+        priority_metric=_get_priority_metric(problem_type, priority_metric),
+        priority_metric_normalized = priority_metric
     )
     context.metadata = _get_metadata(X_train)
 

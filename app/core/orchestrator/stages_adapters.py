@@ -12,6 +12,7 @@ Design pattern: Adapter Pattern
 """
 
 from typing import Optional
+
 from app.core.context.run_context import RunContext
 from app.core.enums.stages import Stages
 from app.core.orchestrator.pipeline_stage import PipelineStage
@@ -19,7 +20,7 @@ from app.core.orchestrator.stage_validator import StageValidator
 from app.core.orchestrator.validators import (
     FeatureSelectionValidator,
     ModelSelectionValidator,
-    FineTuningValidator, ModelEnsembleValidator
+    FineTuningValidator, ModelEnsembleValidator, ModelThresholdExtractionValidator
 )
 from app.utils.logger import logger
 
@@ -36,17 +37,16 @@ class DataInspectionStageAdapter(PipelineStage):
     No preconditions: This is the first stage in the pipeline.
     """
 
-    
     def get_stage_type(self) -> Stages:
         return Stages.DATA_HANDLER
-    
+
     def get_validator(self) -> Optional[StageValidator]:
         # First stage - no preconditions required
         return None
-    
+
     def execute(self, context: RunContext) -> None:
         from app.core.stages.data_inspection.data_inspection import DataInspectionStage
-        
+
         logger.debug("Executing data inspection stage...")
         DataInspectionStage(context=context).run()
 
@@ -62,16 +62,16 @@ class FeatureSelectionStageAdapter(PipelineStage):
     
     Precondition: DATA_HANDLER stage must be completed successfully.
     """
-    
+
     def get_stage_type(self) -> Stages:
         return Stages.FEATURE_SELECTION
-    
+
     def get_validator(self) -> Optional[StageValidator]:
         return FeatureSelectionValidator()
-    
+
     def execute(self, context: RunContext) -> None:
         from app.core.stages.feature_selection.feature_selection_stage import FeatureSelectionStage
-        
+
         logger.debug("Executing feature selection stage...")
         FeatureSelectionStage(context=context).run()
 
@@ -87,16 +87,16 @@ class ModelSelectionStageAdapter(PipelineStage):
     
     Precondition: FEATURE_SELECTION stage must be completed successfully.
     """
-    
+
     def get_stage_type(self) -> Stages:
         return Stages.MODEL_SELECTION
-    
+
     def get_validator(self) -> Optional[StageValidator]:
         return ModelSelectionValidator()
-    
+
     def execute(self, context: RunContext) -> None:
         from app.core.stages.model_selection.model_selection_stage import ModelSelectionStage
-        
+
         logger.debug("Executing model selection stage...")
         ModelSelectionStage(context=context).run()
 
@@ -112,16 +112,16 @@ class FineTuningStageAdapter(PipelineStage):
     
     Precondition: MODEL_SELECTION stage must be completed successfully.
     """
-    
+
     def get_stage_type(self) -> Stages:
         return Stages.FINE_TUNING
-    
+
     def get_validator(self) -> Optional[StageValidator]:
         return FineTuningValidator()
-    
+
     def execute(self, context: RunContext) -> None:
         from app.core.stages.fine_tuning.fine_tuning_stage import FineTuningStage
-        
+
         logger.debug("Executing fine-tuning stage...")
         FineTuningStage(context=context).run()
 
@@ -152,3 +152,28 @@ class ModelEnsambleStageAdapter(PipelineStage):
         ModelEnsembleStage(context=context).run()
 
 
+class ModelThresholdExtractorAdapter(PipelineStage):
+    """
+    Adapter for model threshold extraction stage.
+
+    Responsibilities:
+    - Extracts optimal decision thresholds for classification models
+    - Evaluates thresholds using validation data
+    - Prepares thresholded model for deployment
+
+    Precondition: MODEL_SELECTION and FINE_TUNING stages must be completed successfully.
+    """
+
+    def get_stage_type(self) -> Stages:
+        return Stages.MODEL_THRESHOLD_EXTRACTION
+
+    def get_validator(self) -> Optional[StageValidator]:
+        # Threshold extraction can be done after model selection, no strict preconditions
+        return ModelThresholdExtractionValidator()
+
+    def execute(self, context: RunContext) -> None:
+        from app.core.stages.threshold_optimizer import ThresholdOptimizer
+
+        logger.debug("Executing model threshold extraction stage...")
+
+        ThresholdOptimizer(context=context)

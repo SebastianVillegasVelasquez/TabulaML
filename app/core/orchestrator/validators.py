@@ -6,7 +6,9 @@ before attempting to execute.
 """
 
 from typing import Optional, Tuple
+
 from app.core.context.run_context import RunContext
+from app.core.enums import ProblemsType
 from app.core.enums.stages import Stages
 from app.core.orchestrator.stage_validator import StageValidator
 
@@ -19,17 +21,17 @@ class FeatureSelectionValidator(StageValidator):
     - DATA_HANDLER stage must be completed
     - DATA_HANDLER must have produced results
     """
-    
+
     def validate(self, context: RunContext) -> Tuple[bool, Optional[str]]:
         # Check if DATA_HANDLER stage exists in context
         if Stages.DATA_HANDLER not in context.stage_results:
             return False, "DATA_HANDLER stage not completed"
-        
+
         # Check if DATA_HANDLER produced any results
         data_handler_result = context.stage_results[Stages.DATA_HANDLER]
         if not data_handler_result.results:
             return False, "DATA_HANDLER produced no results"
-        
+
         # All preconditions met
         return True, None
 
@@ -41,12 +43,12 @@ class ModelSelectionValidator(StageValidator):
     Preconditions:
     - FEATURE_SELECTION stage must be completed
     """
-    
+
     def validate(self, context: RunContext) -> Tuple[bool, Optional[str]]:
         # Check if FEATURE_SELECTION stage exists in context
         if Stages.FEATURE_SELECTION not in context.stage_results:
             return False, "FEATURE_SELECTION stage not completed"
-        
+
         # All preconditions met
         return True, None
 
@@ -58,12 +60,12 @@ class FineTuningValidator(StageValidator):
     Preconditions:
     - MODEL_SELECTION stage must be completed
     """
-    
+
     def validate(self, context: RunContext) -> Tuple[bool, Optional[str]]:
         # Check if MODEL_SELECTION stage exists in context
         if Stages.MODEL_SELECTION not in context.stage_results:
             return False, "MODEL_SELECTION stage not completed"
-        
+
         # All preconditions met
         return True, None
 
@@ -83,3 +85,19 @@ class ModelEnsembleValidator(StageValidator):
         # All preconditions met
         return True, None
 
+
+class ModelThresholdExtractionValidator(StageValidator):
+    """
+    Validates that ModelThresholdExtraction can be executed.
+
+    Preconditions:
+    - The problem has to be classification
+
+    """
+
+    def validate(self, context: RunContext) -> Tuple[bool, Optional[str]]:
+        # Check if MODEL_SELECTION stage exists in context
+        if context.config.problem_type != ProblemsType.CLASSIFICATION:
+            return False, "FINE_TUNING stages not completed"
+        # All preconditions met
+        return True, None

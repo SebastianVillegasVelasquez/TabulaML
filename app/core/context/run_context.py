@@ -26,9 +26,10 @@ class ProjectConfig:
     y_train: pd.Series
     X_test: pd.DataFrame
     y_test: pd.Series
-    scoring: list[str]
-    random_state: int
-    priority_metrics: Union[str, list[str]] = None
+    scoring: list[str] = field(default_factory=list)
+    random_state: int = 42
+    priority_metric: str | None = None
+    priority_metric_normalized: str | None = None
 
 
 @dataclass

@@ -16,7 +16,7 @@ class Evaluator:
         self.mode = mode
         self.results = results if results is not None else []
         self.context = context
-        self.priority_metric = self.context.config.priority_metrics
+        self.priority_metric = self.context.config.priority_metric
         self.stage = self.context.current_stage
 
     def add_result(self, result: ExperimentResult):

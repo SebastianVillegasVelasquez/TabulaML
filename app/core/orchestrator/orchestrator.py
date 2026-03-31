@@ -21,8 +21,9 @@ from datetime import datetime
 from typing import List, Dict, Any
 
 from app.core.context.run_context import RunContext
-from app.core.enums.stages import Stages
+from app.core.enums import ProblemsType
 from app.core.enums.execution_status import ExecutionStatus
+from app.core.enums.stages import Stages
 from app.core.orchestrator.pipeline_stage import PipelineStage
 from app.core.orchestrator.stage_execution import StageExecution
 from app.core.orchestrator.stages_adapters import (
@@ -31,6 +32,7 @@ from app.core.orchestrator.stages_adapters import (
     ModelSelectionStageAdapter,
     FineTuningStageAdapter,
     ModelEnsambleStageAdapter
+    #ModelThresholdExtractorAdapter
 )
 from app.utils.logger import logger
 
@@ -76,7 +78,8 @@ class Orchestrator:
             FeatureSelectionStageAdapter(self.context),
             ModelSelectionStageAdapter(self.context),
             FineTuningStageAdapter(self.context),
-            ModelEnsambleStageAdapter(self.context)
+            ModelEnsambleStageAdapter(self.context),
+
         ]
 
     def run(self) -> Dict[str, Any]:

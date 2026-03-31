@@ -9,6 +9,7 @@ class ModelEnsembleEvaluator(BaseEvaluator):
 
         return {
             'best_model': best_experiment.config.get('model', 'unknown'),
+            'results': sorted_results,
             'total_experiments': len(sorted_results),
         }
 
@@ -21,6 +22,7 @@ class ModelEnsembleEvaluator(BaseEvaluator):
             best_experiment=best_experiment,
             metadata={
                 'best_model': stage_specific_data['best_model'],
+                'results': stage_specific_data['results'],
                 'total_experiments': stage_specific_data['total_experiments'],
             }
         )

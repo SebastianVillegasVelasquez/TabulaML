@@ -9,6 +9,7 @@ making it accessible to both beginners and experienced practitioners in the fiel
 authors = [
     { name = "Sebastian Villegas", email = "villegasvelasquezs@gmail.com" }
 ]
+
 dependencies = [
     "pandas",
     "scikit-learn",

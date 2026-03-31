@@ -2,14 +2,14 @@ from typing import List, Tuple, Any
 
 from sklearn.base import BaseEstimator
 
+from app.core.domain.experiments import ExperimentDefinition
 from app.core.enums.problems_type import ProblemsType
 from app.core.context.run_context import RunContext
 from app.core.enums.stages import Stages
-from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.ml.pipeline_builder import PipelineBuilder
 
 
-def get_model_ensemble_experiments(context: RunContext) -> list[tuple[str, BaseEstimator]]:
+def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefinition]:
     """Builds ensemble experiment definitions using shared preprocessing and feature selection.
 
     This function constructs ensemble-based experiments (e.g., voting and stacking)
@@ -32,16 +32,15 @@ def get_model_ensemble_experiments(context: RunContext) -> list[tuple[str, BaseE
             - Problem type configuration
 
     Returns:
-        list[ExperimentDefinition]: A list of experiment definitions, where each
-        definition contains:
-            - A unique experiment name
-            - A pipeline builder function
-            - Metadata describing the model
+        PipelineBuilder: A pipeline builder instance that constructs a pipeline with the following steps:
+            - Preprocessing
+            - Feature Selection
+            - Ensemble Model (voting or stacking)
     """
     from app.core.domain.experiments.experiment_definition import ExperimentDefinition
 
     fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
-    preprocessing_step = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
+    # preprocessing_step = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
     feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata["selector_estimator"]
 
     results = []
@@ -52,15 +51,43 @@ def get_model_ensemble_experiments(context: RunContext) -> list[tuple[str, BaseE
     )
 
     for name, model in models:
+
+        def _build_pipeline(preprocessing_step, feature_selection_step=feature_selection_step, model=model) -> PipelineBuilder:
+            """Constructs a unified pipeline for an ensemble model.
+
+            This pipeline applies a shared preprocessing and feature selection
+            workflow before passing the transformed data to the ensemble model.
+
+            The design ensures that all ensemble models operate under the same
+            data transformation conditions used during previous training stages,
+            improving consistency and comparability of results.
+
+            This may changed in a futuro for better individualization of the models,
+            each having it's own preprocessing and feature selection steps.
+
+            Args:
+                preprocessing_step: A scikit-learn compatible transformer for data preprocessing.
+                feature_selection_step: A scikit-learn compatible transformer for feature selection.
+                model: An instantiated ensemble model (e.g., VotingClassifier, StackingRegressor)
+                coming from the 'get_models' function.
+
+            Returns:
+                PipelineBuilder: A pipeline builder instance that constructs a pipeline with the following steps:
+                    - Preprocessing
+                    - Feature Selection
+                    - Ensemble Model
+            """
+            steps = [("preprocessing", preprocessing_step)]
+            steps.append(("selector", feature_selection_step))
+            steps.append(("model", model))
+
+            return PipelineBuilder(steps=steps)
+
         results.append(
             ExperimentDefinition(
-                name=name,
-                stage="model_selection",
-                builder=lambda m=model: _build_pipeline_builder(
-                    m,
-                    preprocessing_step,
-                    feature_selection_step,
-                ),
+                name=f"{name}_{context.config.problem_type.value}",
+                stage="model_ensemble",
+                builder=_build_pipeline,
                 metadata={"model": name},
             )
         )
@@ -68,32 +95,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[tuple[str, BaseE
     return results
 
 
-def _build_pipeline_builder(model, preprocessing_step, feature_selection_step) -> PipelineBuilder:
-    """Creates a PipelineBuilder instance for an ensemble model.
-
-    This function defines a standardized pipeline structure using:
-    - Shared preprocessing
-    - Shared feature selection
-    - The provided ensemble model
-
-    Args:
-        model (BaseEstimator): The ensemble model.
-        preprocessing_step (BaseEstimator): Preprocessing transformer.
-        feature_selection_step (BaseEstimator): Feature selector.
-
-    Returns:
-        PipelineBuilder: Configured pipeline builder instance.
-    """
-    return PipelineBuilder(
-        steps=[
-            ("preprocessing", preprocessing_step),
-            ("selector", feature_selection_step),
-            ("model", model),
-        ]
-    )
-
-
-def get_models(problem_type: ProblemsType, results):
+def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
     """Builds ensemble models based on the problem type and training results.
 
     This function orchestrates the creation of ensemble models by:

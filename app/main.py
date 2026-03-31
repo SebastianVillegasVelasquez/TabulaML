@@ -18,7 +18,7 @@ def main():
     X, y = load_data('C:\\WorkSpace\\TabulaML\\data_test\\train.csv', 'Survived')
 
     # Initialize pipeline context
-    context = init_context(X=X, y=y)
+    context = init_context(X=X, y=y, priority_metric="f1")
     if context:
         logger.info("RunContext initialized successfully.")
 
