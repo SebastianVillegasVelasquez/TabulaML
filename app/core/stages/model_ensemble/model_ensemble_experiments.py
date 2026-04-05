@@ -40,7 +40,6 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
     from app.core.domain.experiments.experiment_definition import ExperimentDefinition
 
     fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
-    # preprocessing_step = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
     feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata["selector_estimator"]
 
     results = []

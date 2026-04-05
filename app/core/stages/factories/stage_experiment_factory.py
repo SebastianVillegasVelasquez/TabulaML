@@ -4,6 +4,7 @@ from app.core.stages.factories.stages_experiments_factories.feature_selection_fa
 from app.core.stages.factories.stages_experiments_factories.fine_tuning_factory import FineTuningExperimentsFactory
 from app.core.stages.factories.stages_experiments_factories.model_selection_factory import ModelSelectionExperimentsFactory
 from app.core.stages.factories.stages_experiments_factories.model_ensemble_experiment_factory import ModelEnsembleExperimentFactory
+from app.core.stages.factories.stages_experiments_factories.final_evaluation_factory import FinalEvaluationFactory
 from app.utils.logger import logger
 
 
@@ -13,6 +14,7 @@ class StageExperimentFactory:
         Stages.MODEL_SELECTION: ModelSelectionExperimentsFactory,
         Stages.FINE_TUNING: FineTuningExperimentsFactory,
         Stages.MODEL_ENSEMBLE: ModelEnsembleExperimentFactory,
+        Stages.FINAL_EVALUATION: FinalEvaluationFactory
     }
 
     @classmethod

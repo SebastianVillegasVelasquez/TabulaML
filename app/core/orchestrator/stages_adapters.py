@@ -22,6 +22,7 @@ from app.core.orchestrator.validators import (
     ModelSelectionValidator,
     FineTuningValidator, ModelEnsembleValidator, ModelThresholdExtractionValidator
 )
+# from app.core.stages.final_evaluation.final_evaluation import FinalEvaluationStage
 from app.utils.logger import logger
 
 
@@ -177,3 +178,26 @@ class ModelThresholdExtractorAdapter(PipelineStage):
         logger.debug("Executing model threshold extraction stage...")
 
         ThresholdOptimizer(context=context)
+
+
+# class FinalEvaluationAdapter(PipelineStage):
+#     """
+#     Adapter for retrieving the final model after all stages are completed.
+#
+#     Responsibilities:
+#     - Retrieves the best performing model from the context
+#     - Prepares the model for deployment or further analysis
+#
+#     Precondition: All previous stages (feature selection, model selection, fine-tuning) must be completed successfully.
+#     """
+#
+#     def get_stage_type(self) -> Stages:
+#         return Stages.FINAL_EVALUATION
+#
+#     def get_validator(self) -> Optional[StageValidator]:
+#         # Final model retrieval can be done after all previous stages, no strict preconditions
+#         return None
+#
+#     def execute(self, context: RunContext) -> None:
+#         logger.debug("Executing retrieve final model stage...")
+#         FinalEvaluationStage(context=context).run()

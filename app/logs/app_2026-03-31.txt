@@ -1,0 +1,169 @@
+2026-03-31 16:16:37 | INFO     | __main__:main:23 - RunContext initialized successfully.
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:105 - ================================================================================
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:106 - PIPELINE ORCHESTRATION STARTED
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:107 - ================================================================================
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[data_handler] Validating preconditions...
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:143 - [data_handler] Preconditions validated ✓
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:207 - [data_handler] Execution attempt 1/2
+2026-03-31 16:16:37 | INFO     | app.core.stages.data_inspection.data_inspection:run:32 - Running data inspection stage...
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:217 - [data_handler] Completed successfully (0.01s)
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:_run_evaluation:260 - [EVALUATION] Evaluating data_handler results...
+2026-03-31 16:16:37 | INFO     | app.core.stages.evaluation.evaluation_stage:run:29 - Running evaluation stage: Stages.DATA_HANDLER...
+2026-03-31 16:16:37 | ERROR    | app.core.orchestrator.orchestrator:_run_evaluation:270 - [EVALUATION] Evaluation failed for data_handler: 'str' object has no attribute 'metrics'
+2026-03-31 16:16:37 | ERROR    | app.core.orchestrator.orchestrator:run:153 - [data_handler] Evaluation failed: 'str' object has no attribute 'metrics'
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[feature_selection] Validating preconditions...
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:run:143 - [feature_selection] Preconditions validated ✓
+2026-03-31 16:16:37 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:207 - [feature_selection] Execution attempt 1/2
+2026-03-31 16:16:37 | INFO     | app.core.stages.super_classes.stage:run:33 - Running Stages.FEATURE_SELECTION stage...
+2026-03-31 16:16:47 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:217 - [feature_selection] Completed successfully (10.27s)
+2026-03-31 16:16:47 | INFO     | app.core.orchestrator.orchestrator:_run_evaluation:260 - [EVALUATION] Evaluating feature_selection results...
+2026-03-31 16:16:47 | INFO     | app.core.stages.evaluation.evaluation_stage:run:29 - Running evaluation stage: Stages.FEATURE_SELECTION...
+2026-03-31 16:16:48 | ERROR    | app.core.orchestrator.orchestrator:run:153 - [feature_selection] Evaluation failed: '<Stages'
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[model_selection] Validating preconditions...
+2026-03-31 16:16:48 | WARNING  | app.core.orchestrator.orchestrator:run:135 - [model_selection] Precondition failed: FEATURE_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[fine_tuning] Validating preconditions...
+2026-03-31 16:16:48 | WARNING  | app.core.orchestrator.orchestrator:run:135 - [fine_tuning] Precondition failed: MODEL_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[model_ensemble] Validating preconditions...
+2026-03-31 16:16:48 | WARNING  | app.core.orchestrator.orchestrator:run:135 - [model_ensemble] Precondition failed: FINE_TUNING stages not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:run:128 - 
+[final_evaluation] Validating preconditions...
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:run:143 - [final_evaluation] Preconditions validated ✓
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:207 - [final_evaluation] Execution attempt 1/2
+2026-03-31 16:16:48 | INFO     | app.core.stages.super_classes.stage:run:33 - Running Stages.FINAL_EVALUATION stage...
+2026-03-31 16:16:48 | WARNING  | app.core.orchestrator.orchestrator:_execute_with_retry:225 - [final_evaluation] Attempt 1 failed: 'NoneType' object is not iterable
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_execute_with_retry:207 - [final_evaluation] Execution attempt 2/2
+2026-03-31 16:16:48 | INFO     | app.core.stages.super_classes.stage:run:33 - Running Stages.FINAL_EVALUATION stage...
+2026-03-31 16:16:48 | WARNING  | app.core.orchestrator.orchestrator:_execute_with_retry:225 - [final_evaluation] Attempt 2 failed: 'NoneType' object is not iterable
+2026-03-31 16:16:48 | ERROR    | app.core.orchestrator.orchestrator:_execute_with_retry:238 - [final_evaluation] Failed after 2 attempts
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:285 - 
+================================================================================
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:286 - EXECUTION SUMMARY
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:287 - ================================================================================
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:313 - ✓ data_handler         | Status: success    | Duration:    0.01s
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:313 - ✓ feature_selection    | Status: success    | Duration:   10.27s
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ model_selection      | Status: skipped    | Duration:    0.00s | Reason: FEATURE_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ model_selection      | Status: skipped    | Duration:    0.00s | Reason: FEATURE_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ fine_tuning          | Status: skipped    | Duration:    0.00s | Reason: MODEL_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ fine_tuning          | Status: skipped    | Duration:    0.00s | Reason: MODEL_SELECTION stage not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ model_ensemble       | Status: skipped    | Duration:    0.00s | Reason: FINE_TUNING stages not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:311 - ⊘ model_ensemble       | Status: skipped    | Duration:    0.00s | Reason: FINE_TUNING stages not completed
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:306 - ✗ final_evaluation     | Status: failed     | Duration:    0.00s | Error: 'NoneType' object is not iterable
+2026-03-31 16:16:48 | ERROR    | app.core.orchestrator.orchestrator:_log_summary:308 - 
+Traceback for final_evaluation:
+Traceback (most recent call last):
+  File "C:\WorkSpace\TabulaML\app\core\orchestrator\orchestrator.py", line 210, in _execute_with_retry
+    stage.execute(self.context)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\WorkSpace\TabulaML\app\core\orchestrator\stages_adapters.py", line 203, in execute
+    FinalEvaluationStage(context=context).run()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\WorkSpace\TabulaML\app\core\stages\super_classes\stage.py", line 38, in run
+    for definition in self.definitions:
+                      ^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:315 - ================================================================================
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:316 - ✓ Successful: 2
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:317 - ✗ Failed:     1
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:318 - ⊘ Skipped:    3
+2026-03-31 16:16:48 | INFO     | app.core.orchestrator.orchestrator:_log_summary:319 - ================================================================================
+
+2026-03-31 16:16:48 | INFO     | __main__:main:30 - 
+Execution Report:
+2026-03-31 16:16:48 | INFO     | __main__:main:31 - [
+  {
+    "stage": "data_handler",
+    "status": "success",
+    "duration_seconds": 0.01,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": "2026-03-31T16:16:37.720066",
+    "retry_count": 1,
+    "skip_reason": null
+  },
+  {
+    "stage": "feature_selection",
+    "status": "success",
+    "duration_seconds": 10.27,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": "2026-03-31T16:16:37.733583",
+    "retry_count": 1,
+    "skip_reason": null
+  },
+  {
+    "stage": "model_selection",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "FEATURE_SELECTION stage not completed"
+  },
+  {
+    "stage": "model_selection",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "FEATURE_SELECTION stage not completed"
+  },
+  {
+    "stage": "fine_tuning",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "MODEL_SELECTION stage not completed"
+  },
+  {
+    "stage": "fine_tuning",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "MODEL_SELECTION stage not completed"
+  },
+  {
+    "stage": "model_ensemble",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "FINE_TUNING stages not completed"
+  },
+  {
+    "stage": "model_ensemble",
+    "status": "skipped",
+    "duration_seconds": 0.0,
+    "error": null,
+    "error_traceback": null,
+    "timestamp": null,
+    "retry_count": 0,
+    "skip_reason": "FINE_TUNING stages not completed"
+  },
+  {
+    "stage": "final_evaluation",
+    "status": "failed",
+    "duration_seconds": 0.0,
+    "error": "'NoneType' object is not iterable",
+    "error_traceback": "Traceback (most recent call last):\n  File \"C:\\WorkSpace\\TabulaML\\app\\core\\orchestrator\\orchestrator.py\", line 210, in _execute_with_retry\n    stage.execute(self.context)\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\WorkSpace\\TabulaML\\app\\core\\orchestrator\\stages_adapters.py\", line 203, in execute\n    FinalEvaluationStage(context=context).run()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\WorkSpace\\TabulaML\\app\\core\\stages\\super_classes\\stage.py\", line 38, in run\n    for definition in self.definitions:\n                      ^^^^^^^^^^^^^^^^\nTypeError: 'NoneType' object is not iterable\n",
+    "timestamp": "2026-03-31T16:16:48.011177",
+    "retry_count": 2,
+    "skip_reason": null
+  }
+]

@@ -35,7 +35,7 @@ from app.core.enums import ProblemsType
         ProblemsType.REGRESSION
     ]
 )
-def run_context_params(request, sample_data):
+def run_context(request, sample_data):
     X, y = sample_data
 
     return init_context(
@@ -43,13 +43,3 @@ def run_context_params(request, sample_data):
         X=X,
         y=y
     )
-
-# @pytest.fixture
-# def run_context(sample_data):
-#     X, y = sample_data
-#
-#     return init_context(
-#         problem_type=request,
-#         X=X,
-#         y=y
-#     )

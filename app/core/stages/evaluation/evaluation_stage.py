@@ -1,3 +1,5 @@
+from typing import Any
+
 from app.core.enums.problems_type import ProblemsType
 from app.core.context.run_context import RunContext
 from app.core.enums.stages import Stages
@@ -41,7 +43,7 @@ class EvaluationStage:
         logger.info(f"Metadata from {self.stage}: {self.context.stage_results[self.stage].metadata}")
 
 
-    def _get_experiments(self) -> list[ExperimentResult]:
+    def _get_experiments(self) -> list[Any] | dict[str, Any]:
         """Get experiments from context."""
         stage_result = self.context.stage_results.get(self.stage, {})
 

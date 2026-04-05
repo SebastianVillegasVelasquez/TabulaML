@@ -1,0 +1,305 @@
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:00 | WARNING  | app.core.stages.evaluation.base_evaluator:evaluate:64 - No results to evaluate for model_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: best_model (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.evaluator_factory:register:43 - Registered: CustomEvaluator
+2026-04-03 16:12:00 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:12:00 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:12:00 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:12:00 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: test (accuracy=0.9000)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:12:00 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: real_test (accuracy=0.9500)
+2026-04-03 16:12:00 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest (accuracy=0.9500)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_9 (accuracy=0.8900)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_0.92 (accuracy=0.9200)
+2026-04-03 16:12:01 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:12:01 | INFO     | app.core.stages.threshold_optimizer.threshold_optimizer:find_best_threshold:26 - Model is not probabilistic, cannot optimize threshold.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | WARNING  | app.core.stages.evaluation.base_evaluator:evaluate:64 - No results to evaluate for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: best_model (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.evaluator_factory:register:43 - Registered: CustomEvaluator
+2026-04-03 16:50:16 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:50:16 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:50:16 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:50:16 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: test (accuracy=0.9000)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:50:16 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: real_test (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest (accuracy=0.9500)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_9 (accuracy=0.8900)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_0.92 (accuracy=0.9200)
+2026-04-03 16:50:16 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:50:16 | INFO     | app.core.stages.threshold_optimizer.threshold_optimizer:find_best_threshold:27 - Model is not probabilistic, cannot optimize threshold.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | WARNING  | app.core.stages.evaluation.base_evaluator:evaluate:64 - No results to evaluate for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: best_model (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.evaluator_factory:register:43 - Registered: CustomEvaluator
+2026-04-03 16:51:10 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:51:10 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:51:10 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:51:10 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: test (accuracy=0.9000)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:51:10 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: real_test (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest (accuracy=0.9500)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_9 (accuracy=0.8900)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_0.92 (accuracy=0.9200)
+2026-04-03 16:51:10 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:51:10 | INFO     | app.core.stages.threshold_optimizer.threshold_optimizer:find_best_threshold:27 - Model is not probabilistic, cannot optimize threshold.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | WARNING  | app.core.stages.evaluation.base_evaluator:evaluate:64 - No results to evaluate for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: best_model (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.evaluator_factory:register:43 - Registered: CustomEvaluator
+2026-04-03 16:52:45 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:52:45 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:52:45 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:52:45 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: test (accuracy=0.9000)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:52:45 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: real_test (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest (accuracy=0.9500)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_9 (accuracy=0.8900)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_0.92 (accuracy=0.9200)
+2026-04-03 16:52:45 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:52:46 | INFO     | app.core.stages.threshold_optimizer.threshold_optimizer:find_best_threshold:27 - Model is not probabilistic, cannot optimize threshold.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | WARNING  | app.core.stages.evaluation.base_evaluator:evaluate:64 - No results to evaluate for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: best_model (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.evaluator_factory:register:43 - Registered: CustomEvaluator
+2026-04-03 16:54:29 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:54:29 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:54:29 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:54:29 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_SelectKBest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: test (accuracy=0.9000)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:54:29 | ERROR    | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:98 - Error extracting feature data: This SelectKBest instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator.
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating feature_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.evaluators.feature_selection_evaluator:_extract_feature_data:90 - Selected 2 features out of 4
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best feature_selection: real_test (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for feature_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest_0.95 (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_2 (accuracy=0.9100)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_RandomForest (accuracy=0.9500)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_9 (accuracy=0.8900)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:55 - Evaluating model_selection results...
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:_log_best_experiment:200 - Best model_selection: exp_0.92 (accuracy=0.9200)
+2026-04-03 16:54:29 | INFO     | app.core.stages.evaluation.base_evaluator:evaluate:73 - Evaluation completed for model_selection
+2026-04-03 16:54:30 | INFO     | app.core.stages.threshold_optimizer.threshold_optimizer:find_best_threshold:27 - Model is not probabilistic, cannot optimize threshold.

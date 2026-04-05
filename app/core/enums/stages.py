@@ -10,5 +10,7 @@ class Stages(Enum):
     FINE_TUNING = "fine_tuning"
     MODEL_ENSEMBLE = "model_ensemble"
     MODEL_THRESHOLD_EXTRACTION = "threshold_selection"
+    FINAL_EVALUATION = "final_evaluation"
+    DEPLOYMENT = "deployment"
     EVALUATION = "evaluation"
 

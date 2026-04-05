@@ -23,7 +23,7 @@ class DataInspectionStage:
         "excellent": 3
     }
 
-    def __init__(self, context:RunContext=RunContext):
+    def __init__(self, context:RunContext):
         self.feature_configs = None
         self.context = context
 

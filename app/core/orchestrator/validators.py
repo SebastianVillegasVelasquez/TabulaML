@@ -29,7 +29,7 @@ class FeatureSelectionValidator(StageValidator):
 
         # Check if DATA_HANDLER produced any results
         data_handler_result = context.stage_results[Stages.DATA_HANDLER]
-        if not data_handler_result.results:
+        if data_handler_result.results is None or len(data_handler_result.results) == 0:
             return False, "DATA_HANDLER produced no results"
 
         # All preconditions met

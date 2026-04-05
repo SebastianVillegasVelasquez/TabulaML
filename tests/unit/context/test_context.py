@@ -4,13 +4,11 @@ import pytest
 from app.core.context import init_context, RunContext, ProjectConfig
 from app.core.context.init_context import _decouple_tuples, _get_priority_metric, _get_metadata
 from app.core.enums import ProblemsType
-from tests.conftest import run_context_params
+from tests.conftest import run_context
 
 
 class TestRunContext:
     """Test suite for RunContext."""
-
-
     class TestInitContext:
 
         @pytest.mark.unit
@@ -21,16 +19,16 @@ class TestRunContext:
                 init_context("INVALID", X, y)
 
         @pytest.mark.unit
-        def test_context_instance(self, run_context_params):
-            assert isinstance(run_context_params, RunContext)
+        def test_context_instance(self, run_context):
+            assert isinstance(run_context, RunContext)
 
         @pytest.mark.unit
-        def test_config_instance(self, run_context_params):
-            assert isinstance(run_context_params.config, ProjectConfig)
+        def test_config_instance(self, run_context):
+            assert isinstance(run_context.config, ProjectConfig)
 
         @pytest.mark.unit
-        def test_problem_type_assignment(self, run_context_params):
-            assert run_context_params.config.problem_type in [
+        def test_problem_type_assignment(self, run_context):
+            assert run_context.config.problem_type in [
                 ProblemsType.CLASSIFICATION,
                 ProblemsType.REGRESSION,
             ]
@@ -46,8 +44,8 @@ class TestRunContext:
             assert context.config.y_test.equals(y[1])
 
         @pytest.mark.unit
-        def test_default_random_state(self, run_context_params):
-            assert run_context_params.config.random_state == 42
+        def test_default_random_state(self, run_context):
+            assert run_context.config.random_state == 42
 
         @pytest.mark.unit
         def test_default_priority_metric_classification(self, sample_data):
@@ -110,12 +108,12 @@ class TestRunContext:
             assert metadata["total_rows"] == len(X_train)
 
         @pytest.mark.unit
-        def test_empty_stage_results(self, run_context_params):
-            assert run_context_params.stage_results == {}
+        def test_empty_stage_results(self, run_context):
+            assert run_context.stage_results == {}
 
         @pytest.mark.unit
-        def test_current_stage_is_none(self, run_context_params):
-            assert run_context_params.current_stage is None
+        def test_current_stage_is_none(self, run_context):
+            assert run_context.current_stage is None
 
 
 class TestHelpers:

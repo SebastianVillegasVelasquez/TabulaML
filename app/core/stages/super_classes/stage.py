@@ -1,16 +1,15 @@
 from abc import ABC, abstractmethod
 
 from app.core.context.run_context import RunContext, StageResult
-from app.core.enums.stages import Stages
 from app.core.domain.experiments.experiment import Experiment
-from app.core.stages.factories.registry import get_stage_experiments
+from app.core.enums.stages import Stages
 from app.utils.logger import logger
 
 
 class Stage(ABC):
     """
     Base class for pipeline stages.
-    
+
     Responsibilities:
     - Run experiments for different configurations
     - Store raw results in context
@@ -18,6 +17,7 @@ class Stage(ABC):
     """
 
     def __init__(self, context: RunContext):
+        from app.core.stages.factories.registry import get_stage_experiments
         self.context = context
         self.stage = self.get_stage_type()
         self.definitions = get_stage_experiments(self.stage, context=self.context)
@@ -35,14 +35,34 @@ class Stage(ABC):
         results = []
         for definition in self.definitions:
 
-            pipeline_or_builder = definition.builder(preprocessing)
+            logger.debug(f"builder: {definition.builder}")
+            logger.debug(f"builder type: {type(definition.builder)}")
+            logger.debug(f"builder callable: {callable(definition.builder)}")
+            logger.debug(f"builder has __call__: {hasattr(definition.builder, '__call__')}")
+            logger.debug(f"parameters: {dir(definition.builder)}")
+
+
+            try:
+                if callable(definition.builder) and hasattr(definition.builder, '__call__'):
+                    pipeline_or_builder = definition.builder(preprocessing).build()
+            except AttributeError:
+                logger.debug(f"It is not a PipelineBuilder function but a Pipeline")
+                pipeline_or_builder = definition.builder
+
+
+            # if callable(definition.builder) and hasattr(definition.builder, 'build'):
+            #     pipeline_or_builder = definition.builder(preprocessing).build()
+            # else:
+            #     pipeline_or_builder = definition.builder
+
 
             experiment = Experiment(
                 name=f"{self.stage.value}_{definition.name}",
                 pipeline_builder=pipeline_or_builder,
                 context=self.context,
                 cv=5,
-                metadata=definition.metadata
+                metadata=definition.metadata,
+                evaluation_type=definition.evaluation_type
             )
 
             result = experiment.run(self.context.config.X_train, self.context.config.y_train)
