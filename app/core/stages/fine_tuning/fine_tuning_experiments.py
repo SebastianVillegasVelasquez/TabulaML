@@ -41,7 +41,7 @@ def get_fine_tuning_experiments(context: RunContext):
             experiments.append(ExperimentDefinition(
                 name=f'{model_name}_fine_tuning_{tuner_strategy.value}',
                 stage=Stages.FINE_TUNING,
-                builder=lambda prep, pipe=tuned_pipeline: pipe, # This returns the pipeline
+                pipeline_builder=lambda prep, pipe=tuned_pipeline: pipe, # This returns the pipeline
                 metadata={
                     'model': model_name,
                     'tuner_strategy': tuner_strategy.value,

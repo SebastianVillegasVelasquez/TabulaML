@@ -19,7 +19,7 @@ class ExperimentDefinition:
 
     name: str
     stage: str | Stages
-    builder: Callable[..., PipelineBuilder] | Pipeline
+    pipeline_builder: PipelineBuilder
     evaluation_type: EvaluationType = EvaluationType.DEFAULT
     use_threshold: bool  = False
     threshold: float = 0.5

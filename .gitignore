@@ -30,6 +30,8 @@ htmlcov/
 .env
 .env.local
 
+logs/
+
 # Data
 models/
 data_test/

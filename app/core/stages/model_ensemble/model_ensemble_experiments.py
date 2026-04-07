@@ -32,7 +32,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
             - Problem type configuration
 
     Returns:
-        PipelineBuilder: A pipeline builder instance that constructs a pipeline with the following steps:
+        PipelineBuilder: A pipeline pipeline_builder instance that constructs a pipeline with the following steps:
             - Preprocessing
             - Feature Selection
             - Ensemble Model (voting or stacking)
@@ -71,7 +71,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
                 coming from the 'get_models' function.
 
             Returns:
-                PipelineBuilder: A pipeline builder instance that constructs a pipeline with the following steps:
+                PipelineBuilder: A pipeline pipeline_builder instance that constructs a pipeline with the following steps:
                     - Preprocessing
                     - Feature Selection
                     - Ensemble Model
@@ -86,7 +86,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
             ExperimentDefinition(
                 name=f"{name}_{context.config.problem_type.value}",
                 stage="model_ensemble",
-                builder=_build_pipeline,
+                pipeline_builder=_build_pipeline,
                 metadata={"model": name},
             )
         )

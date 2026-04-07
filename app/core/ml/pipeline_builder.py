@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
@@ -12,7 +12,7 @@ class PipelineBuilder:
     to scikit-learn's expected format and allows incremental construction
     of pipelines.
 
-    The builder pattern enables deferred pipeline creation, which is useful
+    The pipeline_builder pattern enables deferred pipeline creation, which is useful
     in experiment tracking systems where pipelines must be instantiated
     multiple times or lazily.
 
@@ -23,7 +23,7 @@ class PipelineBuilder:
 
     def __init__(
             self,
-            steps: List[Tuple[str, BaseEstimator]],
+            steps: List[Tuple[str, BaseEstimator]] = None,
     ):
         """Initializes the PipelineBuilder with validated steps.
 
@@ -34,7 +34,7 @@ class PipelineBuilder:
             ValueError: If no steps are provided.
             TypeError: If any step name is not a string or estimator is not a BaseEstimator.
         """
-        self.steps = self._validate_steps(steps)
+        self.steps = self._validate_steps(steps) if steps else []
 
     def build(self) -> Pipeline:
         """Builds and returns a scikit-learn Pipeline instance.
@@ -44,13 +44,20 @@ class PipelineBuilder:
         """
         return Pipeline(self.steps)
 
-    def add_step(self, step: Tuple[str, BaseEstimator]) -> None:
+    def preprend_step(self,step: Tuple[str, BaseEstimator]) -> None:
+        """Adds a new step to the pipeline at the beginning."""
+        self.steps.insert(0, step)
+
+    def add_step(self,
+                 step: Tuple[str, BaseEstimator],
+                 at_index: Optional[int] = None) -> None:
         """Adds a new step to the pipeline.
 
         Args:
             step (Tuple[str, BaseEstimator]): A tuple containing:
                 - Step name (str)
                 - Estimator (BaseEstimator)
+            at_index (int, optional): Index at which to insert the step. Defaults to None.
 
         Raises:
             TypeError: If the step is not valid.
@@ -60,6 +67,10 @@ class PipelineBuilder:
             raise TypeError(f"Step name must be a string. Got {type(name)}")
         if not isinstance(estimator, BaseEstimator):
             raise TypeError(f"Step estimator must be a sklearn BaseEstimator. Got {type(estimator)}")
+
+        if at_index is not None:
+            self.steps.insert(at_index, step)
+            return
 
         self.steps.append(step)
 

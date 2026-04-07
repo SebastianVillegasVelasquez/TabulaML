@@ -27,7 +27,7 @@ class TestFeatureSelectionBuilders:
     def setup_method(self):
         self.preprocessing = BaseEstimator()
 
-    @pytest.mark.parametrize("builder,expected_steps", [
+    @pytest.mark.parametrize("pipeline_builder,expected_steps", [
         (no_selector_linear_builder, ["preprocessing", "model"]),
         (no_selector_nonlinear_builder, ["preprocessing", "model"]),
         (selectkbest_f_classif_linear_builder, ["preprocessing", "feature_selection", "model"]),
@@ -52,12 +52,12 @@ class TestFeatureSelectionBuilders:
 
     @pytest.mark.parametrize("experiment", FEATURE_SELECTION_EXPERIMENTS)
     def test_all_experiments_return_pipeline_builder(self, experiment):
-        pipeline_builder = experiment.builder(self.preprocessing)
+        pipeline_builder = experiment.pipeline_builder(self.preprocessing)
         assert isinstance(pipeline_builder, PipelineBuilder)
 
     @pytest.mark.parametrize("experiment", FEATURE_SELECTION_EXPERIMENTS)
     def test_feature_selector_step_matches_metadata(self, experiment):
-        pipeline_builder = experiment.builder(self.preprocessing)
+        pipeline_builder = experiment.pipeline_builder(self.preprocessing)
 
         # Convert steps to dict for easier access
         steps_dict = dict(pipeline_builder.steps)
@@ -108,7 +108,7 @@ class TestFeatureSelectionBuilders:
     @pytest.mark.parametrize("experiment", FEATURE_SELECTION_EXPERIMENTS)
     def test_all_experiments_have_model_step(self, experiment):
         """Test that all experiments have a model step"""
-        pipeline_builder = experiment.builder(self.preprocessing)
+        pipeline_builder = experiment.pipeline_builder(self.preprocessing)
         steps_dict = dict(pipeline_builder.steps)
         assert "model" in steps_dict
         assert steps_dict["model"] is not None

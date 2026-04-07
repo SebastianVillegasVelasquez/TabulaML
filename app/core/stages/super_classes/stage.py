@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 
+from sklearn.pipeline import Pipeline
+
 from app.core.context.run_context import RunContext, StageResult
 from app.core.domain.experiments.experiment import Experiment
 from app.core.enums.stages import Stages
+from app.core.ml import PipelineBuilder
 from app.utils.logger import logger
 
 
@@ -29,36 +32,37 @@ class Stage(ABC):
 
     def run(self):
         """Execute experiments for this stage."""
+
         logger.info(f"Running {self.stage} stage...")
 
         preprocessing = self.context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
         results = []
         for definition in self.definitions:
 
-            logger.debug(f"builder: {definition.builder}")
-            logger.debug(f"builder type: {type(definition.builder)}")
-            logger.debug(f"builder callable: {callable(definition.builder)}")
-            logger.debug(f"builder has __call__: {hasattr(definition.builder, '__call__')}")
-            logger.debug(f"parameters: {dir(definition.builder)}")
+            logger.debug(f"DEFINITION OBJECT:: {definition}")
 
+            logger.debug(f"builder: {definition.pipeline_builder}")
+            logger.debug(f"builder type: {type(definition.pipeline_builder)}")
+            logger.debug(f"builder callable: {callable(definition.pipeline_builder)}")
+            logger.debug(f"builder has __call__: {hasattr(definition.pipeline_builder, '__call__')}")
+            logger.debug(f"parameters: {dir(definition.pipeline_builder)}")
 
-            try:
-                if callable(definition.builder) and hasattr(definition.builder, '__call__'):
-                    pipeline_or_builder = definition.builder(preprocessing).build()
-            except AttributeError:
-                logger.debug(f"It is not a PipelineBuilder function but a Pipeline")
-                pipeline_or_builder = definition.builder
+            # TODO: Integrar el sistema para construir la pipeline a partir de un objeto PipelineBuilder
+            pipeline = definition.pipeline_builder
+            # try:
+            #     if isinstance(definition.pipeline_builder, PipelineBuilder):
+            #         pipeline =
+            #
+            # except AttributeError:
+            #     logger.debug(f"It is not a PipelineBuilder function but a Pipeline")
+            #     logger.debug(f"builder: {type(definition.pipeline_builder)}")
 
-
-            # if callable(definition.builder) and hasattr(definition.builder, 'build'):
-            #     pipeline_or_builder = definition.builder(preprocessing).build()
-            # else:
-            #     pipeline_or_builder = definition.builder
+            logger.debug(f"pipeline: {pipeline}")
 
 
             experiment = Experiment(
                 name=f"{self.stage.value}_{definition.name}",
-                pipeline_builder=pipeline_or_builder,
+                pipeline=pipeline,
                 context=self.context,
                 cv=5,
                 metadata=definition.metadata,

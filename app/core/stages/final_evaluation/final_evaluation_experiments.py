@@ -22,7 +22,7 @@ def get_final_evaluation_experiments(context: RunContext) -> list[ExperimentDefi
             ExperimentDefinition(
                 name=f"{item['model'].named_steps['model']}_{Stages.FINAL_EVALUATION}",
                 stage=Stages.FINAL_EVALUATION,
-                builder=builder,
+                pipeline_builder=builder,
                 use_threshold=use_threshold,
                 evaluation_type=EvaluationType.THRESHOLD,
                 threshold=threshold_value,

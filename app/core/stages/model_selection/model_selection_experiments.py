@@ -52,9 +52,6 @@ def get_model_selection_experiments(context: RunContext):
     """
     logger.info("Generating model selection experiments from top-k selectors...")
 
-    if Stages.FEATURE_SELECTION not in context.stage_results:
-        raise ValueError("Feature selection stage must be run before model selection stage.")
-
     fs_stage_result = context.stage_results[Stages.FEATURE_SELECTION]
     top_k_selectors = fs_stage_result.metadata.get("top_k_selectors", {})
 
@@ -156,7 +153,7 @@ def _generate_experiments_for_selector(selector_name, selector_pipeline_step):
             ExperimentDefinition(
                 name=exp_name,
                 stage="model_selection",
-                builder=builder,
+                pipeline_builder=builder,
                 metadata={
                     "selector": selector_name,
                     "model": model_name,

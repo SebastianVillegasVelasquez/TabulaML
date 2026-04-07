@@ -26,12 +26,12 @@
 #     mock.return_value = [
 #         MagicMock(
 #             name="experiment1",
-#             builder=lambda preprocessing: MagicMock(build=lambda: MagicMock()),
+#             pipeline_builder=lambda preprocessing: MagicMock(build=lambda: MagicMock()),
 #             metadata={"type": "dummy"}
 #         ),
 #         MagicMock(
 #             name="experiment2",
-#             builder=lambda preprocessing: MagicMock(build=lambda: MagicMock()),
+#             pipeline_builder=lambda preprocessing: MagicMock(build=lambda: MagicMock()),
 #             metadata={"type": "dummy"}
 #         ),
 #     ]

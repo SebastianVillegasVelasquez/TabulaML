@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union, Optional
+from typing import Dict, Any, Optional
 
 import pandas as pd
 from sklearn.pipeline import Pipeline
@@ -6,7 +6,6 @@ from sklearn.pipeline import Pipeline
 from app.core.context import RunContext
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.enums import EvaluationType
-from app.core.ml.pipeline_builder import PipelineBuilder
 from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
 from app.utils.logger import logger
 
@@ -29,7 +28,7 @@ class Experiment:
     def __init__(
             self,
             name: str,
-            pipeline_builder: Union[PipelineBuilder, Pipeline],
+            pipeline: Pipeline | None,
             context: RunContext,
             cv: int = 5,
             metadata: Dict[str, Any] | None = None,
@@ -46,7 +45,7 @@ class Experiment:
         :param evaluation_type: Type of evaluation to perform.
         """
         self.name = name
-        self.pipeline_builder = pipeline_builder
+        self.pipeline = pipeline
         self.cv = cv
         self.context = context
         self.metadata = metadata or {}
@@ -63,15 +62,9 @@ class Experiment:
         :param y: Target series.
         :return: ExperimentResult object.
         """
-        # if isinstance(self.pipeline_builder, PipelineBuilder):
-        #     pipeline = self.pipeline_builder.build()
-        # else:
-        #     pipeline = self.pipeline_builder
-
-
         evaluation = self._get_evaluation_type()
 
-        mean_metrics = evaluation.evaluate(self.pipeline_builder,
+        mean_metrics = evaluation.evaluate(self.pipeline,
                                            X,
                                            y,
                                            self.context,

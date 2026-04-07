@@ -11,7 +11,7 @@ class TestPreprocessingBuilder:
     """Test suite for PreprocessingBuilder class"""
 
     def test_preprocessing_builder_creates_correct_transformers(self):
-        """Test that the builder creates the correct number of transformers"""
+        """Test that the pipeline_builder creates the correct number of transformers"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical"),
             FeatureConfig(name="gender", dtype="object", feature_type="categorical", encoding="onehot"),
@@ -24,7 +24,7 @@ class TestPreprocessingBuilder:
         assert len(transformer.transformers) == 3
 
     def test_numerical_features_only(self):
-        """Test builder with only numerical features"""
+        """Test pipeline_builder with only numerical features"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
             FeatureConfig(name="salary", dtype="float64", feature_type="numerical", is_numerical=True, skewness=1.5),
@@ -45,7 +45,7 @@ class TestPreprocessingBuilder:
         assert isinstance(pipeline.steps[1][1], StandardScaler)
 
     def test_categorical_onehot_features_only(self):
-        """Test builder with only one-hot encoded categorical features"""
+        """Test pipeline_builder with only one-hot encoded categorical features"""
         feature_configs = [
             FeatureConfig(name="gender", dtype="object", feature_type="categorical",
                           encoding="onehot", is_categorical=True, cardinality=2),
@@ -69,7 +69,7 @@ class TestPreprocessingBuilder:
         assert pipeline.steps[1][1].handle_unknown == "ignore"
 
     def test_categorical_ordinal_features_only(self):
-        """Test builder with only ordinal encoded categorical features"""
+        """Test pipeline_builder with only ordinal encoded categorical features"""
         feature_configs = [
             FeatureConfig(name="education", dtype="object", feature_type="categorical",
                           encoding="ordinal", is_categorical=True, cardinality=5),
@@ -94,7 +94,7 @@ class TestPreprocessingBuilder:
         assert pipeline.steps[1][1].unknown_value == -1
 
     def test_mixed_feature_types(self):
-        """Test builder with mixed feature types"""
+        """Test pipeline_builder with mixed feature types"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
             FeatureConfig(name="gender", dtype="object", feature_type="categorical",
@@ -125,7 +125,7 @@ class TestPreprocessingBuilder:
         assert ordinal_transformer[2] == ["education"]
 
     def test_empty_feature_configs(self):
-        """Test builder with empty feature configs"""
+        """Test pipeline_builder with empty feature configs"""
         feature_configs = []
 
         builder = PreprocessingBuilder(feature_configs)
@@ -134,7 +134,7 @@ class TestPreprocessingBuilder:
         assert len(transformer.transformers) == 0
 
     def test_feature_with_suggested_transformation(self):
-        """Test builder handles features with suggested transformations"""
+        """Test pipeline_builder handles features with suggested transformations"""
         feature_configs = [
             FeatureConfig(name="income", dtype="float64", feature_type="numerical",
                           is_numerical=True, skewness=3.5,
@@ -150,7 +150,7 @@ class TestPreprocessingBuilder:
         assert transformer.transformers[0][2] == ["income", "age"]
 
     def test_feature_with_high_cardinality(self):
-        """Test builder handles high cardinality categorical features"""
+        """Test pipeline_builder handles high cardinality categorical features"""
         feature_configs = [
             FeatureConfig(name="user_id", dtype="object", feature_type="categorical",
                           encoding="onehot", is_categorical=True, cardinality=10000),
@@ -165,7 +165,7 @@ class TestPreprocessingBuilder:
         assert transformer.transformers[0][2] == ["user_id", "category"]
 
     def test_feature_with_zero_ratio(self):
-        """Test builder handles features with high zero ratio"""
+        """Test pipeline_builder handles features with high zero ratio"""
         feature_configs = [
             FeatureConfig(name="purchases", dtype="int64", feature_type="numerical",
                           is_numerical=True, zero_ratio=0.95),
@@ -180,7 +180,7 @@ class TestPreprocessingBuilder:
         assert transformer.transformers[0][2] == ["purchases", "clicks"]
 
     def test_categorical_without_encoding_specified(self):
-        """Test builder handles categorical features without encoding specification"""
+        """Test pipeline_builder handles categorical features without encoding specification"""
         feature_configs = [
             FeatureConfig(name="color", dtype="object", feature_type="categorical",
                           is_categorical=True, cardinality=3),
@@ -204,7 +204,7 @@ class TestPreprocessingBuilder:
         assert isinstance(transformer, ColumnTransformer)
 
     def test_builder_does_not_modify_feature_configs(self):
-        """Test that builder does not modify input feature configs"""
+        """Test that pipeline_builder does not modify input feature configs"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
             FeatureConfig(name="gender", dtype="object", feature_type="categorical",
