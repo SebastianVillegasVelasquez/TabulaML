@@ -54,6 +54,7 @@ class BaseModelRetriever(ABC):
         """
         self.models.append(model_spec)
 
+
     @abstractmethod
     def load_defaults(self) -> list[ModelSpec]:
         pass

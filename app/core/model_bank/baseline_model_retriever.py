@@ -1,6 +1,8 @@
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
 
+from app.core.enums import ModelSpecType
 from app.core.model_bank.base_model_retriever import BaseModelRetriever
 from app.core.model_bank.model_spects import ModelSpec
 
@@ -18,9 +20,32 @@ class BaselineModelRetriever(BaseModelRetriever):
     each representing a BaseModel with a name and a factory function for lazy loading.
     """
 
-
     def load_defaults(self) -> list[ModelSpec]:
         return [
-            ModelSpec(name="RandomForestClassifier", factory=RandomForestClassifier),
-            ModelSpec(name="LogisticRegression", factory=LogisticRegression),
+            ModelSpec(name="RandomForestClassifier",
+                      factory=self._build_randomforest,
+                      spec_type=ModelSpecType.NON_LINEAR,
+                      type=ModelSpecType.TREE),
+            ModelSpec(name="LogisticRegression",
+                      factory=self._build_logisticregression,
+                      spec_type=ModelSpecType.LINEAR,
+                      type=ModelSpecType.LINEAR),
         ]
+
+
+    @staticmethod
+    def _build_logisticregression():
+        return LogisticRegression(
+            solver="liblinear",
+            max_iter=3000,
+            random_state=42,
+        )
+
+    @staticmethod
+    def _build_randomforest():
+        return ExtraTreesClassifier(
+            n_estimators=50,
+            max_depth=10,
+            random_state=42,
+            n_jobs=-1,
+        )
