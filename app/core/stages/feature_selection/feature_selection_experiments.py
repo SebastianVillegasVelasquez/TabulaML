@@ -27,11 +27,13 @@ Resource Optimization:
 - Fast solvers where possible
 """
 
-
-# ============================================================================
-# EXPERIMENT DEFINITIONS
-# ============================================================================
 def get_feature_selection_experiments(context: RunContext | None):
+    """
+    This method generates feature selection experiments using the ExperimentComposer.
+    First, it retrieves the preprocessing pipeline from the data handler stage.
+    Then, it loads the default selectors and models for classification.
+
+    """
     preprocessing = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
 
     selectors = (ModelRetrieveFactory
@@ -49,6 +51,7 @@ def get_feature_selection_experiments(context: RunContext | None):
     experiments = []
 
     for exp in composer.generate():
+        logger.debug(f"Generated experiment: {exp}")
         builder = exp.pipeline_builder
         builder.steps.insert(0, ("preprocessing", preprocessing))
 

@@ -50,7 +50,7 @@ class Stage(ABC):
             # logger.debug(f"builder callable: {callable(definition.pipeline_builder)}")
             # logger.debug(f"builder has __call__: {hasattr(definition.pipeline_builder, '__call__')}")
             # logger.debug(f"parameters: {dir(definition.pipeline_builder)}")
-            logger.debug(f"pipeline before the handling: {definition.pipeline_builder.build()}")
+            # logger.debug(f"pipeline before the handling: {definition.pipeline_builder.build()}")
             pipeline = self._handle_pipeline_builder_callable(definition.pipeline_builder)
 
             experiment = Experiment(
@@ -75,17 +75,17 @@ class Stage(ABC):
         logger.info(f"Completed {len(results)} experiments for {self.stage.value}")
 
     @staticmethod
-    def _handle_pipeline_builder_callable(pipeline_builder: PipelineBuilder) -> Pipeline:
+    def _handle_pipeline_builder_callable(pipeline_builder: PipelineBuilder) -> Pipeline | None:
         pipeline = None
         try:
             if hasattr(pipeline_builder, '__call__'):
                 pipeline = pipeline_builder.build()
-                logger.debug(f"pipeline: {pipeline}")
+                # logger.debug(f"pipeline: {pipeline}")
             else:
                 pipeline = Pipeline(steps=pipeline_builder.steps)
 
         except AttributeError:
             logger.debug(f"It is not a PipelineBuilder function but a Pipeline")
             logger.debug(f"builder: {type(pipeline_builder)}")
-        logger.debug(f"pipeline after the handling: {pipeline}")
+        # logger.debug(f"pipeline after the handling: {pipeline}")
         return pipeline

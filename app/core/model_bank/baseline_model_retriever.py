@@ -1,5 +1,4 @@
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
 
 from app.core.enums import ModelSpecType
@@ -31,7 +30,6 @@ class BaselineModelRetriever(BaseModelRetriever):
                       spec_type=ModelSpecType.LINEAR,
                       type=ModelSpecType.LINEAR),
         ]
-
 
     @staticmethod
     def _build_logisticregression():

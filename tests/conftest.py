@@ -4,6 +4,10 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from app.core.context import init_context
+from app.core.enums import ProblemsType, ModelRetrieveType
+from app.core.model_bank import ModelRetrieveFactory
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT))
 
@@ -25,10 +29,6 @@ def sample_data():
     return (X_train, y_train), (X_test, y_test)
 
 
-from app.core.context import init_context
-from app.core.enums import ProblemsType
-
-
 @pytest.fixture(
     params=[
         ProblemsType.CLASSIFICATION,
@@ -43,3 +43,19 @@ def run_context(request, sample_data):
         X=X,
         y=y
     )
+
+
+@pytest.fixture
+def retrieve_models():
+    return (ModelRetrieveFactory
+            .create(model_retrieve_type=ModelRetrieveType.SELECTOR,
+                    problem_type=ProblemsType.CLASSIFICATION)
+            ).load_defaults()
+
+
+@pytest.fixture
+def retrieve_selectors():
+    return (ModelRetrieveFactory
+            .create(model_retrieve_type=ModelRetrieveType.BASELINE,
+                    problem_type=ProblemsType.CLASSIFICATION)
+            ).load_defaults()

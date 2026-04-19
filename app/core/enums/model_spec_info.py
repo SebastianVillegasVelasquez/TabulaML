@@ -21,6 +21,9 @@ class SelectorSpecInfo(Enum):
     L1_L2 = "l1_l2"
     TREE_BASED = "tree_based"
     WRAPPER = "wrapper"
+    FILTER = "filter"
+    EXPLAINABLE = "explainable"
+    SHAP = "shap"
 
 class EnsemblerSpecInfo(Enum):
     AVERAGE = "average"
