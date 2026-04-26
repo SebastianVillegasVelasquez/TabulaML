@@ -7,7 +7,7 @@ from app.services.loader import (
     validate_dataset,
     compute_test_percentage,
     split_dataset,
-    load_data
+    load_data,
 )
 
 
@@ -16,7 +16,7 @@ from app.services.loader import (
     [
         (100, 0.1),
         (2000, 0.2),
-    ]
+    ],
 )
 def test_compute_test_percentage_parametrized(dataset_size, expected):
     assert compute_test_percentage(dataset_size) == expected
@@ -35,10 +35,7 @@ class TestValidateDataset:
             validate_dataset(df, "target")
 
     def test_passes_when_valid_dataset(self):
-        df = pd.DataFrame({
-            "feature": [1, 2],
-            "target": [0, 1]
-        })
+        df = pd.DataFrame({"feature": [1, 2], "target": [0, 1]})
 
         # Should not raise
         validate_dataset(df, "target")
@@ -47,10 +44,7 @@ class TestValidateDataset:
 class TestSplitDataset:
 
     def test_split_preserves_total_length(self):
-        df = pd.DataFrame({
-            "feature": range(20),
-            "target": [0, 1] * 10
-        })
+        df = pd.DataFrame({"feature": range(20), "target": [0, 1] * 10})
 
         (X_train, y_train), (X_test, y_test) = split_dataset(df, "target")
 
@@ -58,10 +52,7 @@ class TestSplitDataset:
         assert len(y_train) + len(y_test) == 20
 
     def test_target_not_in_features(self):
-        df = pd.DataFrame({
-            "feature": range(20),
-            "target": [0, 1] * 10
-        })
+        df = pd.DataFrame({"feature": range(20), "target": [0, 1] * 10})
 
         (X_train, _), _ = split_dataset(df, "target")
 
@@ -71,10 +62,7 @@ class TestSplitDataset:
 class TestReadCsvFile:
 
     def test_reads_valid_csv(self, tmp_path):
-        df = pd.DataFrame({
-            "feature": [1, 2],
-            "target": [0, 1]
-        })
+        df = pd.DataFrame({"feature": [1, 2], "target": [0, 1]})
 
         file_path = tmp_path / "data.csv"
         df.to_csv(file_path, index=False)
@@ -92,10 +80,7 @@ class TestReadCsvFile:
 class TestLoadData:
 
     def test_load_data_full_flow(self, tmp_path):
-        df = pd.DataFrame({
-            "feature": range(50),
-            "target": [0, 1] * 25
-        })
+        df = pd.DataFrame({"feature": range(50), "target": [0, 1] * 25})
 
         file_path = tmp_path / "data.csv"
         df.to_csv(file_path, index=False)

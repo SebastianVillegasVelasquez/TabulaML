@@ -11,9 +11,7 @@ def read_csv_file(file_path: str) -> pd.DataFrame:
     try:
         return pd.read_csv(file_path)
     except FileNotFoundError:
-        raise FileNotFoundError(
-            f"The provided path {file_path} does not exist."
-        )
+        raise FileNotFoundError(f"The provided path {file_path} does not exist.")
 
 
 def validate_dataset(data: pd.DataFrame, target: str) -> None:
@@ -29,8 +27,8 @@ def compute_test_percentage(dataset_length: int) -> float:
 
 
 def split_dataset(
-        data: pd.DataFrame,
-        target: str,
+    data: pd.DataFrame,
+    target: str,
 ) -> Tuple[Tuple[pd.DataFrame, pd.Series], Tuple[pd.DataFrame, pd.Series]]:
     test_size = compute_test_percentage(len(data))
 
@@ -39,7 +37,7 @@ def split_dataset(
         data[target],
         test_size=test_size,
         shuffle=True,
-        random_state=42
+        random_state=42,
     )
 
     return (X_train, y_train), (X_test, y_test)

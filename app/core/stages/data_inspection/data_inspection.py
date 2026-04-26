@@ -1,7 +1,7 @@
 import pandas as pd
 
-from app.core.context.run_context import RunContext, StageResult
-from app.core.enums.stages import Stages
+from app.core.context.context import Context, StageResult
+from app.core.enums import Stages
 from app.core.domain.feature_config import FeatureConfig
 from app.core.ml.preprocessing_stage import PreprocessingBuilder
 
@@ -20,15 +20,16 @@ class DataInspectionStage:
         "poor": 0,
         "fair": 1,
         "good": 2,
-        "excellent": 3
+        "excellent": 3,
     }
 
-    def __init__(self, context:RunContext):
+    def __init__(self, context: Context):
         self.feature_configs = None
         self.context = context
 
     def run(self):
         from app.utils.logger import logger
+
         logger.info("Running data inspection stage...")
         self._inspect_data()
 
@@ -88,7 +89,7 @@ class DataInspectionStage:
                 is_numerical=is_numerical,
                 skewness=skewness,
                 zero_ratio=zero_ratio,
-                suggested_transformation=suggested_transformation
+                suggested_transformation=suggested_transformation,
             )
             self.feature_configs.append(feature_config)
 
@@ -96,17 +97,15 @@ class DataInspectionStage:
                 stage=Stages.DATA_HANDLER,
                 stage_result=StageResult(
                     name=Stages.DATA_HANDLER.value,
-                    results={
-                        "preprocessing": PreprocessingBuilder(self.feature_configs).build()
-                    }
-                )
+                    results={"preprocessing": PreprocessingBuilder(self.feature_configs).build()},
+                ),
             )
 
     @staticmethod
     def _drop_redundant_columns(
-            df: pd.DataFrame,
-            null_threshold: float = 0.9,
-            unique_ratio_threshold: float = 0.90,
+        df: pd.DataFrame,
+        null_threshold: float = 0.9,
+        unique_ratio_threshold: float = 0.90,
     ):
         columns_to_drop = []
 
@@ -135,9 +134,7 @@ class DataInspectionStage:
         return df.drop(columns_to_drop, axis=1)
 
     @staticmethod
-    def detect_feature_type(
-            series: pd.Series
-    ) -> str:
+    def detect_feature_type(series: pd.Series) -> str:
         """
         Detects the semantic type of feature.
 
@@ -188,10 +185,7 @@ class DataInspectionStage:
         return series.dropna().nunique()
 
     @staticmethod
-    def suggest_categorical_encoding(
-            cardinality: int,
-            onehot_max_cardinality: int = 10
-    ) -> str:
+    def suggest_categorical_encoding(cardinality: int, onehot_max_cardinality: int = 10) -> str:
         """
         Suggests an encoding technique for categorical features.
 
@@ -212,14 +206,7 @@ class DataInspectionStage:
         :param series: Pandas Series representing a categorical feature.
         :return: True if ordinal semantics are detected, False otherwise.
         """
-        values = (
-            series
-            .dropna()
-            .astype(str)
-            .str.lower()
-            .str.strip()
-            .unique()
-        )
+        values = series.dropna().astype(str).str.lower().str.strip().unique()
 
         matches = 0
         for val in values:
@@ -233,9 +220,7 @@ class DataInspectionStage:
 
     @staticmethod
     def decide_categorical_encoding(
-            series: pd.Series,
-            cardinality: int,
-            onehot_max_cardinality: int = 10
+        series: pd.Series, cardinality: int, onehot_max_cardinality: int = 10
     ) -> str:
         """
         Decides the categorical encoding strategy.
@@ -278,5 +263,5 @@ class DataInspectionStage:
         return {
             "skewness": skewness,
             "zero_ratio": zero_ratio,
-            "suggested_transformation": transformation
+            "suggested_transformation": transformation,
         }

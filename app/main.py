@@ -7,7 +7,7 @@ from app.utils.logger import logger
 def main():
     """
     Main entry point for the ML pipeline.
-    
+
     Responsibilities:
     - Loads training data
     - Initializes pipeline context with configuration
@@ -15,12 +15,12 @@ def main():
     - Logs execution results
     """
     # Load dataset
-    X, y = load_data('C:\\WorkSpace\\TabulaML\\data_test\\train.csv', 'Survived')
+    X, y = load_data("C:\\WorkSpace\\TabulaML\\data_test\\train.csv", "Survived")
 
     # Initialize pipeline context
     context = init_context(X=X, y=y, priority_metric="f1")
     if context:
-        logger.info("RunContext initialized successfully.")
+        logger.info("Context initialized successfully.")
 
     # Run a pipeline with an orchestrator
     orchestrator = Orchestrator(context, max_retries=2)
@@ -31,5 +31,5 @@ def main():
     logger.info(orchestrator.get_execution_report_json())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -3,7 +3,7 @@ from sklearn import clone
 from sklearn.base import BaseEstimator
 from sklearn.metrics import roc_curve
 
-from app.core.context import RunContext
+from app.core.context import Context
 from app.utils.logger import logger
 
 
@@ -18,12 +18,11 @@ class ThresholdOptimizer:
     - Returns the best threshold and corresponding metric score for deployment
     """
 
-    def __init__(self, context: RunContext):
+    def __init__(self, context: Context):
         self.context = context
 
     def find_best_threshold(self, model: BaseEstimator) -> dict:
         from sklearn.model_selection import train_test_split
-
 
         if not self._is_the_model_probabilistic(model):
             logger.info("Model is not probabilistic, cannot optimize threshold.")
@@ -57,8 +56,8 @@ class ThresholdOptimizer:
                 best_threshold = threshold
 
         return {
-            'best_threshold': best_threshold,
-            'best_score': best_score,
+            "best_threshold": best_threshold,
+            "best_score": best_score,
         }
 
     @staticmethod
@@ -76,12 +75,10 @@ class ThresholdOptimizer:
             bool: True if the model has a callable `predict_proba` method,
             False otherwise.
         """
-        return hasattr(model, 'predict_proba') and callable(model.predict_proba)
+        return hasattr(model, "predict_proba") and callable(model.predict_proba)
 
     @staticmethod
-    def _get_score(context: RunContext,
-                   y_val: np.ndarray,
-                   y_pred: np.ndarray) -> float:
+    def _get_score(context: Context, y_val: np.ndarray, y_pred: np.ndarray) -> float:
         """
         Computes the evaluation score based on the configured metric.
 

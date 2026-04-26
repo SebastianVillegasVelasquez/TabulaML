@@ -13,15 +13,18 @@ Design pattern: Adapter Pattern
 
 from typing import Optional
 
-from app.core.context.run_context import RunContext
-from app.core.enums.stages import Stages
+from app.core.context.context import Context
+from app.core.enums import Stages
 from app.core.orchestrator.pipeline_stage import PipelineStage
 from app.core.orchestrator.stage_validator import StageValidator
 from app.core.orchestrator.validators import (
     FeatureSelectionValidator,
     ModelSelectionValidator,
-    FineTuningValidator, ModelEnsembleValidator, ModelThresholdExtractionValidator
+    FineTuningValidator,
+    ModelEnsembleValidator,
+    ModelThresholdExtractionValidator,
 )
+
 # from app.core.stages.final_evaluation.final_evaluation import FinalEvaluationStage
 from app.utils.logger import logger
 
@@ -29,12 +32,12 @@ from app.utils.logger import logger
 class DataInspectionStageAdapter(PipelineStage):
     """
     Adapter for the data inspection stage.
-    
+
     Responsibilities:
     - Executes initial data loading and validation
     - Generates baseline statistics and data profiles
     - Prepares preprocessing transformers for downstream stages
-    
+
     No preconditions: This is the first stage in the pipeline.
     """
 
@@ -45,7 +48,7 @@ class DataInspectionStageAdapter(PipelineStage):
         # First stage - no preconditions required
         return None
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.data_inspection.data_inspection import DataInspectionStage
 
         logger.debug("Executing data inspection stage...")
@@ -55,12 +58,12 @@ class DataInspectionStageAdapter(PipelineStage):
 class FeatureSelectionStageAdapter(PipelineStage):
     """
     Adapter for the feature selection stage.
-    
+
     Responsibilities:
     - Identifies optimal feature subsets through experimentation
     - Evaluates multiple feature selection strategies
     - Selects best performing features for downstream modeling
-    
+
     Precondition: DATA_HANDLER stage must be completed successfully.
     """
 
@@ -70,7 +73,7 @@ class FeatureSelectionStageAdapter(PipelineStage):
     def get_validator(self) -> Optional[StageValidator]:
         return FeatureSelectionValidator()
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.feature_selection.feature_selection_stage import FeatureSelectionStage
 
         logger.debug("Executing feature selection stage...")
@@ -80,12 +83,12 @@ class FeatureSelectionStageAdapter(PipelineStage):
 class ModelSelectionStageAdapter(PipelineStage):
     """
     Adapter for the  model selection stage.
-    
+
     Responsibilities:
     - Trains and evaluates multiple ML algorithms
     - Compares model performance using configured metrics
     - Identifies and registers best performing model
-    
+
     Precondition: FEATURE_SELECTION stage must be completed successfully.
     """
 
@@ -95,7 +98,7 @@ class ModelSelectionStageAdapter(PipelineStage):
     def get_validator(self) -> Optional[StageValidator]:
         return ModelSelectionValidator()
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.model_selection.model_selection_stage import ModelSelectionStage
 
         logger.debug("Executing model selection stage...")
@@ -105,12 +108,12 @@ class ModelSelectionStageAdapter(PipelineStage):
 class FineTuningStageAdapter(PipelineStage):
     """
     Adapter for hyperparameter fine-tuning stage.
-    
+
     Responsibilities:
     - Performs hyperparameter optimization on selected models
     - Evaluates configurations using cross-validation
     - Produces final tuned model for deployment
-    
+
     Precondition: MODEL_SELECTION stage must be completed successfully.
     """
 
@@ -120,7 +123,7 @@ class FineTuningStageAdapter(PipelineStage):
     def get_validator(self) -> Optional[StageValidator]:
         return FineTuningValidator()
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.fine_tuning.fine_tuning_stage import FineTuningStage
 
         logger.debug("Executing fine-tuning stage...")
@@ -146,7 +149,7 @@ class ModelEnsambleStageAdapter(PipelineStage):
         # Ensemble can be done after model selection, no strict preconditions
         return ModelEnsembleValidator()
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.model_ensemble.model_ensemble_stage import ModelEnsembleStage
 
         logger.debug("Executing model ensamble stage...")
@@ -172,7 +175,7 @@ class ModelThresholdExtractorAdapter(PipelineStage):
         # Threshold extraction can be done after model selection, no strict preconditions
         return ModelThresholdExtractionValidator()
 
-    def execute(self, context: RunContext) -> None:
+    def execute(self, context: Context) -> None:
         from app.core.stages.threshold_optimizer import ThresholdOptimizer
 
         logger.debug("Executing model threshold extraction stage...")
@@ -198,6 +201,6 @@ class ModelThresholdExtractorAdapter(PipelineStage):
 #         # Final model retrieval can be done after all previous stages, no strict preconditions
 #         return None
 #
-#     def execute(self, context: RunContext) -> None:
+#     def execute(self, context: Context) -> None:
 #         logger.debug("Executing retrieve final model stage...")
 #         FinalEvaluationStage(context=context).run()

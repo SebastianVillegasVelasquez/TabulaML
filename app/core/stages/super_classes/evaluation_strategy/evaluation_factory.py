@@ -1,4 +1,4 @@
-from app.core.enums.evaluations import EvaluationType
+from app.core.enums import EvaluationType
 
 
 class EvaluationFactory:
@@ -8,8 +8,9 @@ class EvaluationFactory:
     def _register_defaults(cls):
         from app.core.stages.super_classes.evaluation_strategy import (
             DefaultEvaluationStrategy,
-            ThresholdEvaluationStrategy
+            ThresholdEvaluationStrategy,
         )
+
         if not cls._EVALUATIONS:
             cls._EVALUATIONS = {
                 EvaluationType.DEFAULT: DefaultEvaluationStrategy,

@@ -1,4 +1,4 @@
-from app.core.context.run_context import RunContext
+from app.core.context.context import Context
 from app.core.stages.fine_tuning.tuner_strategies import TunerStrategy
 from app.utils.logger import logger
 
@@ -8,22 +8,23 @@ class FineTunerFactory:
 
     @classmethod
     def _register_defaults(cls):
-        from app.core.stages.fine_tuning.tuners import OptunaTunerStrategy, GridSearchCVTunerStrategy
+        from app.core.stages.fine_tuning.tuners import (
+            OptunaTunerStrategy,
+            GridSearchCVTunerStrategy,
+        )
 
         if not cls._TUNERS:
             try:
                 cls._TUNERS = {
                     TunerStrategy.OPTUNA.value: OptunaTunerStrategy,
-                    TunerStrategy.GRID_SEARCH.value: GridSearchCVTunerStrategy
+                    TunerStrategy.GRID_SEARCH.value: GridSearchCVTunerStrategy,
                 }
                 logger.info("Default tuners registered successfully")
             except Exception as e:
                 logger.error(f"Error registering default tuners: {str(e)}", exc_info=True)
 
     @classmethod
-    def create_tuner(cls,
-                     tuner_strategy: TunerStrategy,
-                     context: RunContext):
+    def create_tuner(cls, tuner_strategy: TunerStrategy, context: Context):
 
         cls._register_defaults()
         try:

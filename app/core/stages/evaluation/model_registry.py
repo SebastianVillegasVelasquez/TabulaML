@@ -36,14 +36,10 @@ class ModelRegistry:
                 "name": result.name,
                 "metrics": serializable_metrics,
                 "selected_features": serializable_selected_features,
-                "created_at": version
+                "created_at": version,
             }
-        else :
-            metadata = {
-                "name": result.name,
-                "metrics": serializable_metrics,
-                "created_at": version
-            }
+        else:
+            metadata = {"name": result.name, "metrics": serializable_metrics, "created_at": version}
 
         with open(model_dir / "metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)

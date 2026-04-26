@@ -1,5 +1,5 @@
-from app.core.context import RunContext
-from app.core.enums import ModelRetrieveType, ProblemsType
+from app.core.context import Context
+from app.core.enums import ModelRetrieveType, ProblemType
 from app.core.model_bank import ModelRetrieveFactory, SelectorSpec, ModelSpec
 from app.core.stages.feature_selection.composer import ExperimentComposer
 
@@ -8,10 +8,12 @@ class TestFeatureSelectionExperiments:
     """Test suite for FeatureSelectionExperiments."""
 
     def test_retrieve_selectors(self, run_context):
-        selectors = (ModelRetrieveFactory
-                     .create(model_retrieve_type=ModelRetrieveType.SELECTOR,
-                             problem_type=ProblemsType.CLASSIFICATION)
-                     ).load_defaults()
+        selectors = (
+            ModelRetrieveFactory.create(
+                model_retrieve_type=ModelRetrieveType.SELECTOR,
+                problem_type=ProblemType.CLASSIFICATION,
+            )
+        ).load_defaults()
 
         # Is retrieving selectors
         assert len(selectors) > 0
@@ -23,10 +25,12 @@ class TestFeatureSelectionExperiments:
         [isinstance(s, SelectorSpec) for s in selectors]
 
     def test_retrieve_models(self, run_context):
-        models = (ModelRetrieveFactory
-                  .create(model_retrieve_type=ModelRetrieveType.BASELINE,
-                          problem_type=ProblemsType.CLASSIFICATION)
-                  ).load_defaults()
+        models = (
+            ModelRetrieveFactory.create(
+                model_retrieve_type=ModelRetrieveType.BASELINE,
+                problem_type=ProblemType.CLASSIFICATION,
+            )
+        ).load_defaults()
 
         # Is retrieving models
         assert len(models) > 0
@@ -37,17 +41,18 @@ class TestFeatureSelectionExperiments:
         # Each of them is a ModelSpec
         [isinstance(s, ModelSpec) for s in models]
 
-# def get_feature_selection_experiments(context: RunContext | None):
+
+# def get_feature_selection_experiments(context: Context | None):
 #     # preprocessing = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
 #
 #     selectors = (ModelRetrieveFactory
 #                  .create(model_retrieve_type=ModelRetrieveType.SELECTOR,
-#                          problem_type=ProblemsType.CLASSIFICATION)
+#                          problem_type=ProblemType.CLASSIFICATION)
 #                  ).load_defaults()
 #
 #     models = (ModelRetrieveFactory
 #               .create(model_retrieve_type=ModelRetrieveType.BASELINE,
-#                       problem_type=ProblemsType.CLASSIFICATION)
+#                       problem_type=ProblemType.CLASSIFICATION)
 #               ).load_defaults()
 #
 #     composer = ExperimentComposer(selectors, models)

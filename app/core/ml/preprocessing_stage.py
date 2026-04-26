@@ -41,11 +41,13 @@ class PreprocessingBuilder:
             transformers.append(
                 (
                     "num",
-                    Pipeline(steps=[
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler())
-                    ]),
-                    num_features
+                    Pipeline(
+                        steps=[
+                            ("imputer", SimpleImputer(strategy="median")),
+                            ("scaler", StandardScaler()),
+                        ]
+                    ),
+                    num_features,
                 )
             )
 
@@ -53,11 +55,13 @@ class PreprocessingBuilder:
             transformers.append(
                 (
                     "cat_onehot",
-                    Pipeline(steps=[
-                        ("imputer", SimpleImputer(strategy="most_frequent")),
-                        ("encoder", OneHotEncoder(handle_unknown="ignore"))
-                    ]),
-                    cat_onehot
+                    Pipeline(
+                        steps=[
+                            ("imputer", SimpleImputer(strategy="most_frequent")),
+                            ("encoder", OneHotEncoder(handle_unknown="ignore")),
+                        ]
+                    ),
+                    cat_onehot,
                 )
             )
 
@@ -65,14 +69,18 @@ class PreprocessingBuilder:
             transformers.append(
                 (
                     "cat_ordinal",
-                    Pipeline(steps=[
-                        ("imputer", SimpleImputer(strategy="most_frequent")),
-                        ("encoder", OrdinalEncoder(
-                            handle_unknown="use_encoded_value",
-                            unknown_value=-1
-                        ))
-                    ]),
-                    cat_ordinal
+                    Pipeline(
+                        steps=[
+                            ("imputer", SimpleImputer(strategy="most_frequent")),
+                            (
+                                "encoder",
+                                OrdinalEncoder(
+                                    handle_unknown="use_encoded_value", unknown_value=-1
+                                ),
+                            ),
+                        ]
+                    ),
+                    cat_ordinal,
                 )
             )
 

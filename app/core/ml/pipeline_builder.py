@@ -22,8 +22,8 @@ class PipelineBuilder:
     """
 
     def __init__(
-            self,
-            steps: List[Tuple[str, BaseEstimator]] = None,
+        self,
+        steps: List[Tuple[str, BaseEstimator]] = None,
     ):
         """Initializes the PipelineBuilder with validated steps.
 
@@ -44,13 +44,11 @@ class PipelineBuilder:
         """
         return Pipeline(self.steps)
 
-    def preprend_step(self,step: Tuple[str, BaseEstimator]) -> None:
+    def preprend_step(self, step: Tuple[str, BaseEstimator]) -> None:
         """Adds a new step to the pipeline at the beginning."""
         self.steps.insert(0, step)
 
-    def add_step(self,
-                 step: Tuple[str, BaseEstimator],
-                 at_index: Optional[int] = None) -> None:
+    def add_step(self, step: Tuple[str, BaseEstimator], at_index: Optional[int] = None) -> None:
         """Adds a new step to the pipeline.
 
         Args:
@@ -66,7 +64,9 @@ class PipelineBuilder:
         if not isinstance(name, str):
             raise TypeError(f"Step name must be a string. Got {type(name)}")
         if not isinstance(estimator, BaseEstimator):
-            raise TypeError(f"Step estimator must be a sklearn BaseEstimator. Got {type(estimator)}")
+            raise TypeError(
+                f"Step estimator must be a sklearn BaseEstimator. Got {type(estimator)}"
+            )
 
         if at_index is not None:
             self.steps.insert(at_index, step)

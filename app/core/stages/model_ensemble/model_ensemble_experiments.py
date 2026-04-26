@@ -3,13 +3,14 @@ from typing import List, Tuple, Any
 from sklearn.base import BaseEstimator
 
 from app.core.domain.experiments import ExperimentDefinition
-from app.core.enums.problems_type import ProblemsType
-from app.core.context.run_context import RunContext
-from app.core.enums.stages import Stages
+from app.core.enums import ProblemType
+from app.core.context.context import Context
+from app.core.enums import Stages
 from app.core.ml.pipeline_builder import PipelineBuilder
+from app.core.domain.experiments.experiment_result import ExperimentResult
 
 
-def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefinition]:
+def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinition]:
     """Builds ensemble experiment definitions using shared preprocessing and feature selection.
 
     This function constructs ensemble-based experiments (e.g., voting and stacking)
@@ -25,7 +26,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
     conditions.
 
     Args:
-        context (RunContext): Execution context containing:
+        context (Context): Execution context containing:
             - Fine-tuned model results
             - Preprocessing configuration
             - Feature selection metadata
@@ -40,7 +41,9 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
     from app.core.domain.experiments.experiment_definition import ExperimentDefinition
 
     fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
-    feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata["selector_estimator"]
+    feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata[
+        "selector_estimator"
+    ]
 
     results = []
 
@@ -51,7 +54,9 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
 
     for name, model in models:
 
-        def _build_pipeline(preprocessing_step, feature_selection_step=feature_selection_step, model=model) -> PipelineBuilder:
+        def _build_pipeline(
+            preprocessing_step, feature_selection_step=feature_selection_step, model=model
+        ) -> PipelineBuilder:
             """Constructs a unified pipeline for an ensemble model.
 
             This pipeline applies a shared preprocessing and feature selection
@@ -94,7 +99,7 @@ def get_model_ensemble_experiments(context: RunContext) -> list[ExperimentDefini
     return results
 
 
-def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
+def get_models(problem_type: ProblemType, results) -> list[Tuple[str, Any]]:
     """Builds ensemble models based on the problem type and training results.
 
     This function orchestrates the creation of ensemble models by:
@@ -104,7 +109,7 @@ def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
     - Configuring voting strategy when applicable (classification only)
 
     Args:
-        problem_type (ProblemsType): Type of machine learning problem
+        problem_type (ProblemType): Type of machine learning problem
             (e.g., CLASSIFICATION or REGRESSION).
         results (Any): Object containing trained pipeline results.
 
@@ -117,7 +122,7 @@ def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
     estimators = _build_estimators(pipelines)
 
     match problem_type:
-        case ProblemsType.CLASSIFICATION:
+        case ProblemType.CLASSIFICATION:
             support_proba = _supports_proba(pipelines)
             ensemble_models = _get_ensemble_model_for_classification()
             return _build_classification_ensemble_models(
@@ -126,7 +131,7 @@ def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
                 support_proba,
             )
 
-        case ProblemsType.REGRESSION:
+        case ProblemType.REGRESSION:
             ensemble_models = _get_ensemble_model_for_regression()
             return _build_regression_ensemble_models(
                 ensemble_models,
@@ -139,6 +144,7 @@ def get_models(problem_type: ProblemsType, results) -> list[Tuple[str, Any]]:
 
 def _build_estimators(pipelines: List[Any]) -> List[Tuple[str, Any]]:
     from sklearn.pipeline import Pipeline
+
     """Builds a list of estimators from trained pipelines.
 
     Each estimator is represented as a tuple containing:
@@ -160,8 +166,7 @@ def _build_estimators(pipelines: List[Any]) -> List[Tuple[str, Any]]:
     return [
         (
             get_sigla(pipeline.named_steps["model"].__class__.__name__),
-            Pipeline(steps=[("model", pipeline.named_steps["model"])])
-,
+            Pipeline(steps=[("model", pipeline.named_steps["model"])]),
         )
         for pipeline in pipelines
     ]
@@ -275,10 +280,7 @@ def _build_regression_ensemble_models(ensemble_models, estimators):
     Returns:
         list[tuple[str, object]]: Instantiated ensemble models.
     """
-    return [
-        (name, cls(estimators=estimators))
-        for name, cls in ensemble_models
-    ]
+    return [(name, cls(estimators=estimators)) for name, cls in ensemble_models]
 
 
 def _get_ensemble_model_for_classification() -> List[Tuple[str, Any]]:
@@ -291,6 +293,7 @@ def _get_ensemble_model_for_classification() -> List[Tuple[str, Any]]:
         estimator class.
     """
     from sklearn.ensemble import VotingClassifier, StackingClassifier
+
     return [
         ("stacking", StackingClassifier),
         ("voting", VotingClassifier),
@@ -307,6 +310,7 @@ def _get_ensemble_model_for_regression() -> List[Tuple[str, Any]]:
         estimator class.
     """
     from sklearn.ensemble import VotingRegressor, StackingRegressor
+
     return [
         ("stacking", StackingRegressor),
         ("voting", VotingRegressor),

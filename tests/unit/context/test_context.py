@@ -1,14 +1,15 @@
 import pandas as pd
 import pytest
 
-from app.core.context import init_context, RunContext, ProjectConfig
+from app.core.context import init_context, Context, ProjectConfig
 from app.core.context.init_context import _decouple_tuples, _get_priority_metric, _get_metadata
-from app.core.enums import ProblemsType
+from app.core.enums import ProblemType
 from tests.conftest import run_context
 
 
 class TestRunContext:
-    """Test suite for RunContext."""
+    """Test suite for Context."""
+
     class TestInitContext:
 
         @pytest.mark.unit
@@ -20,7 +21,7 @@ class TestRunContext:
 
         @pytest.mark.unit
         def test_context_instance(self, run_context):
-            assert isinstance(run_context, RunContext)
+            assert isinstance(run_context, Context)
 
         @pytest.mark.unit
         def test_config_instance(self, run_context):
@@ -29,14 +30,14 @@ class TestRunContext:
         @pytest.mark.unit
         def test_problem_type_assignment(self, run_context):
             assert run_context.config.problem_type in [
-                ProblemsType.CLASSIFICATION,
-                ProblemsType.REGRESSION,
+                ProblemType.CLASSIFICATION,
+                ProblemType.REGRESSION,
             ]
 
         @pytest.mark.unit
         def test_data_integrity(self, sample_data):
             X, y = sample_data
-            context = init_context(ProblemsType.CLASSIFICATION, X, y)
+            context = init_context(ProblemType.CLASSIFICATION, X, y)
 
             assert context.config.X_train.equals(X[0])
             assert context.config.y_train.equals(X[1])
@@ -50,45 +51,35 @@ class TestRunContext:
         @pytest.mark.unit
         def test_default_priority_metric_classification(self, sample_data):
             X, y = sample_data
-            context = init_context(ProblemsType.CLASSIFICATION, X, y)
+            context = init_context(ProblemType.CLASSIFICATION, X, y)
 
             assert context.config.priority_metric == "test_f1"
 
         @pytest.mark.unit
         def test_default_priority_metric_regression(self, sample_data):
             X, y = sample_data
-            context = init_context(ProblemsType.REGRESSION, X, y)
+            context = init_context(ProblemType.REGRESSION, X, y)
 
             assert context.config.priority_metric == "test_neg_mean_squared_error"
 
         @pytest.mark.unit
         def test_custom_priority_metric(self, sample_data):
             X, y = sample_data
-            context = init_context(
-                ProblemsType.CLASSIFICATION,
-                X,
-                y,
-                priority_metric="accuracy"
-            )
+            context = init_context(ProblemType.CLASSIFICATION, X, y, priority_metric="accuracy")
 
             assert context.config.priority_metric == "test_accuracy"
 
         @pytest.mark.unit
         def test_custom_priority_metric_normalized(self, sample_data):
             X, y = sample_data
-            context = init_context(
-                ProblemsType.CLASSIFICATION,
-                X,
-                y,
-                priority_metric="accuracy"
-            )
+            context = init_context(ProblemType.CLASSIFICATION, X, y, priority_metric="accuracy")
 
             assert context.config.priority_metric_normalized == "accuracy"
 
         @pytest.mark.unit
         def test_metadata_generation(self, sample_data):
             X, y = sample_data
-            context = init_context(ProblemsType.CLASSIFICATION, X, y)
+            context = init_context(ProblemType.CLASSIFICATION, X, y)
 
             metadata = context.metadata
 
@@ -99,7 +90,7 @@ class TestRunContext:
         @pytest.mark.unit
         def test_metadata_values(self, sample_data):
             X, y = sample_data
-            context = init_context(ProblemsType.CLASSIFICATION, X, y)
+            context = init_context(ProblemType.CLASSIFICATION, X, y)
 
             X_train = X[0]
             metadata = context.metadata
@@ -131,17 +122,17 @@ class TestHelpers:
 
     @pytest.mark.unit
     def test_get_priority_metric_custom(self):
-        result = _get_priority_metric(ProblemsType.CLASSIFICATION, "accuracy")
+        result = _get_priority_metric(ProblemType.CLASSIFICATION, "accuracy")
         assert result == "test_accuracy"
 
     @pytest.mark.unit
     def test_get_priority_metric_default_classification(self):
-        result = _get_priority_metric(ProblemsType.CLASSIFICATION)
+        result = _get_priority_metric(ProblemType.CLASSIFICATION)
         assert result == "test_f1"
 
     @pytest.mark.unit
     def test_get_priority_metric_default_regression(self):
-        result = _get_priority_metric(ProblemsType.REGRESSION)
+        result = _get_priority_metric(ProblemType.REGRESSION)
         assert result == "test_neg_mean_squared_error"
 
     @pytest.mark.unit
@@ -155,7 +146,7 @@ class TestHelpers:
     @pytest.mark.unit
     def test_none_inputs(self):
         with pytest.raises(ValueError):
-            init_context(ProblemsType.CLASSIFICATION, None, None)
+            init_context(ProblemType.CLASSIFICATION, None, None)
 
     @pytest.mark.unit
     def test_invalid_tuple_structure(self):
@@ -163,4 +154,4 @@ class TestHelpers:
         y = (pd.Series(),)
 
         with pytest.raises(ValueError):
-            init_context(ProblemsType.CLASSIFICATION, X, y)
+            init_context(ProblemType.CLASSIFICATION, X, y)

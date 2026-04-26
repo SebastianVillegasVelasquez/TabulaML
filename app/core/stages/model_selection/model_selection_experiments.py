@@ -1,15 +1,15 @@
 from sklearn.ensemble import (
     RandomForestClassifier,
     GradientBoostingClassifier,
-    ExtraTreesClassifier
+    ExtraTreesClassifier,
 )
 from sklearn.linear_model import LogisticRegression, RidgeClassifier, SGDClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
-from app.core.context.run_context import RunContext
-from app.core.enums.stages import Stages
+from app.core.context.context import Context
+from app.core.enums import Stages
 from app.core.domain.experiments.experiment_definition import ExperimentDefinition
 from app.core.ml.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger
@@ -45,7 +45,7 @@ Resource Optimization:
 """
 
 
-def get_model_selection_experiments(context: RunContext):
+def get_model_selection_experiments(context: Context):
     """
     Dynamically generate model selection experiments based on top-k selectors
     from the feature selection stage.
@@ -58,10 +58,7 @@ def get_model_selection_experiments(context: RunContext):
     if not top_k_selectors:
         logger.warning("No top-k selectors found. Using all features (no selector).")
         # Fallback: use no selector
-        return _generate_experiments_for_selector(
-            selector_name="none",
-            selector_pipeline_step=None
-        )
+        return _generate_experiments_for_selector(selector_name="none", selector_pipeline_step=None)
 
     logger.info(f"Found {len(top_k_selectors)} top selectors: {list(top_k_selectors.keys())}")
 
@@ -72,8 +69,7 @@ def get_model_selection_experiments(context: RunContext):
         selector_step = _extract_selector_from_pipeline(selector_experiment_result.pipeline)
 
         experiments = _generate_experiments_for_selector(
-            selector_name=selector_name,
-            selector_pipeline_step=selector_step
+            selector_name=selector_name, selector_pipeline_step=selector_step
         )
         all_experiments.extend(experiments)
 
@@ -86,8 +82,8 @@ def _extract_selector_from_pipeline(pipeline):
     Extract the feature_selection step from a fitted pipeline.
     Returns None if no feature selection step exists.
     """
-    if hasattr(pipeline, 'named_steps'):
-        return pipeline.named_steps.get('feature_selection', None)
+    if hasattr(pipeline, "named_steps"):
+        return pipeline.named_steps.get("feature_selection", None)
     return None
 
 
@@ -104,32 +100,18 @@ def _generate_experiments_for_selector(selector_name, selector_pipeline_step):
         "logistic_regression": LogisticRegression(max_iter=2000, random_state=42),
         "ridge_classifier": RidgeClassifier(random_state=42),
         "sgd_classifier": SGDClassifier(max_iter=1000, random_state=42, n_jobs=-1),
-
         # Non-linear models
         "random_forest": RandomForestClassifier(
-            n_estimators=200,
-            max_depth=15,
-            min_samples_split=10,
-            random_state=42,
-            n_jobs=-1
+            n_estimators=200, max_depth=15, min_samples_split=10, random_state=42, n_jobs=-1
         ),
         "gradient_boosting": GradientBoostingClassifier(
-            n_estimators=100,
-            max_depth=5,
-            learning_rate=0.1,
-            random_state=42
+            n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42
         ),
         "extra_trees": ExtraTreesClassifier(
-            n_estimators=150,
-            max_depth=15,
-            min_samples_split=10,
-            random_state=42,
-            n_jobs=-1
+            n_estimators=150, max_depth=15, min_samples_split=10, random_state=42, n_jobs=-1
         ),
         "decision_tree": DecisionTreeClassifier(
-            max_depth=10,
-            min_samples_split=20,
-            random_state=42
+            max_depth=10, min_samples_split=20, random_state=42
         ),
         "kneighbors": KNeighborsClassifier(n_neighbors=5, n_jobs=-1),
         "gaussian_nb": GaussianNB(),
@@ -157,8 +139,8 @@ def _generate_experiments_for_selector(selector_name, selector_pipeline_step):
                 metadata={
                     "selector": selector_name,
                     "model": model_name,
-                    "model_family": _get_model_family(model_name)
-                }
+                    "model_family": _get_model_family(model_name),
+                },
             )
         )
 

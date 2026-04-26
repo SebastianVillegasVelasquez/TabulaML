@@ -1,4 +1,4 @@
-from app.core.enums import ModelRetrieveType, ProblemsType
+from app.core.enums import ModelRetrieveType, ProblemType
 
 
 class ModelRetrieveFactory:
@@ -9,8 +9,8 @@ class ModelRetrieveFactory:
     Such as Baselines, Selectors, Ensembles, etc.
 
     """
-    _MODELS_TYPE_TO_FACTORY = {}
 
+    _MODELS_TYPE_TO_FACTORY = {}
 
     @classmethod
     def register(cls, model_type, builder):
@@ -20,6 +20,7 @@ class ModelRetrieveFactory:
     def register_defaults(cls):
         from app.core.model_bank import BaselineModelRetriever
         from app.core.model_bank import SelectorModelRetriever
+
         if not cls._MODELS_TYPE_TO_FACTORY:
             cls._MODELS_TYPE_TO_FACTORY = {
                 ModelRetrieveType.BASELINE: BaselineModelRetriever,
@@ -27,8 +28,7 @@ class ModelRetrieveFactory:
             }
 
     @classmethod
-    def create(cls, model_retrieve_type: ModelRetrieveType,
-               problem_type: ProblemsType):
+    def create(cls, model_retrieve_type: ModelRetrieveType, problem_type: ProblemType):
         cls.register_defaults()
         model_bank_class = cls._MODELS_TYPE_TO_FACTORY.get(model_retrieve_type)
         return model_bank_class(problem_type=problem_type)

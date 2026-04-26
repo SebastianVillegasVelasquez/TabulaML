@@ -1,4 +1,4 @@
-from app.core.enums.stages import Stages
+from app.core.enums import Stages
 from app.core.stages.super_classes.stage import Stage
 
 

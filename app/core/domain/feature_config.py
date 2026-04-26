@@ -2,10 +2,11 @@
 This class is only data stored, the reason to not use a data type it is because
 they easily access using a class
 """
-import dataclasses
+
+from dataclasses import dataclass
 
 
-@dataclasses.dataclass
+@dataclass
 class FeatureConfig:
     __slots__ = (
         "name",
@@ -17,21 +18,21 @@ class FeatureConfig:
         "is_numerical",
         "skewness",
         "zero_ratio",
-        "suggested_transformation"
+        "suggested_transformation",
     )
 
     def __init__(
-            self,
-            name: str,
-            dtype: str,
-            feature_type: str,
-            cardinality: int | None = None,
-            encoding: str | None = None,
-            is_categorical: bool = False,
-            is_numerical: bool = False,
-            skewness: float | None = None,
-            zero_ratio: float | None = None,
-            suggested_transformation: str | None = None
+        self,
+        name: str,
+        dtype: str,
+        feature_type: str,
+        cardinality: int | None = None,
+        encoding: str | None = None,
+        is_categorical: bool = False,
+        is_numerical: bool = False,
+        skewness: float | None = None,
+        zero_ratio: float | None = None,
+        suggested_transformation: str | None = None,
     ):
         """
         Configuration object that stores metadata and preprocessing

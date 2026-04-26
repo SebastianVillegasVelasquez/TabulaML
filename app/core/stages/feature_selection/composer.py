@@ -2,13 +2,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
 
+from app.core.context import Context
 from app.core.domain.experiments import ExperimentDefinition
-from app.core.enums import SelectorSpecInfo, ModelSpecType
+from app.core.enums import SelectorSpecType, ModelSpecType
 from app.core.ml import PipelineBuilder
 from app.core.model_bank.model_spects import SelectorSpec, ModelSpec
+from app.utils.logger import logger
 
 
-class ExperimentPriority(str, Enum):
+class ExperimentPriority(Enum):
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -30,6 +32,7 @@ class CompositionRule:
 
     Rules are evaluated in order; the first matching rule wins.
     """
+
     name: str
     description: str
     match: Callable[[SelectorChain, ModelSpec], bool]
@@ -42,38 +45,79 @@ class SelectorChainFactory:
         self.selectors = selectors
 
     def build(self):
+
         chains = []
 
-        filters = [s for s in self.selectors if s.type == SelectorSpecInfo.STATISTICAL]
-        embedded = [s for s in self.selectors if s.type in {
-            SelectorSpecInfo.TREE_BASED,
-            SelectorSpecInfo.L1,
-            SelectorSpecInfo.L1_L2
-        }]
+        filters, embedded, rfe, shap = self._decoupled_selectors(selectors=self.selectors)
 
-        # 1. Simple
+
+        #Collect all selectors from the list of selectors,
+        #then filter each group of selectors based on the type attribute.
         for s in self.selectors:
+            if s.type == SelectorSpecType.RFE or s.type == SelectorSpecType.SHAP:
+                continue
             chains.append(SelectorChain([s], name=s.name, type="simple"))
 
-        # 2. Filter → Embedded (🔥 clave)
+        # This filter is used to combine a quick filter as SelectKBest
+        # with a more complex embedded selector such as SelectFromModel.
+        # Such models as RandomForest or Linear models
         for f in filters:
             for e in embedded:
                 chains.append(
-                    SelectorChain(
-                        [f, e],
-                        name=f"{f.name}__{e.name}",
-                        type="filter_embedded"
-                    )
+                    SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded")
                 )
 
-        # 3. (Futuro) SHAP
-        # chains.append(SelectorChain([...], type="shap"))
+        # These filters combine a quick filter first such as SelectKBest
+        # with a more complex RFE selector such as RFECV.
+        for f in filters:
+            for r in rfe:
+                chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
 
+        # These filters combine a quick filter first such as SelectKBest
+        # with a more complex RFE and a final SHAP selector.
+        # This is a combination for a heavy-duty task
+        for f in filters:
+            for e in embedded:
+                for s in shap:
+                    chains.append(
+                        SelectorChain(
+                            [f, e, s], name=f"{f.name}__{e.name}__{s.name}", type="shap_embedded"
+                        )
+                    )
         return chains
+
+    @staticmethod
+    def _decoupled_selectors(selectors: list[SelectorSpec]) -> tuple:
+        """
+        This method helps to decouple the selectors into 4 groups:
+        - Filters
+        - Embedded
+        - Rfe
+        - Sha
+
+        All the selectors are being grouped using the type attribute.
+
+        Args:
+            - selectors: List of selectors
+
+        Returns:
+            tuple: A tuple containing the decoupled selectors
+        """
+        filters = [s for s in selectors if s.type == SelectorSpecType.STATISTICAL]
+
+        embedded = [
+            s
+            for s in selectors
+            if s.type in {SelectorSpecType.TREE_BASED, SelectorSpecType.L1, SelectorSpecType.L1_L2}
+        ]
+
+        rfe = [s for s in selectors if s.type == SelectorSpecType.RFE]
+        shap = [s for s in selectors if s.type == SelectorSpecType.SHAP]
+
+        return filters, embedded, rfe, shap
 
 
 _RULES: list[CompositionRule] = [
-
     # Tree heavy pipeline approach
     CompositionRule(
         name="tree_heavy_pipeline",
@@ -82,12 +126,29 @@ _RULES: list[CompositionRule] = [
             "Although valid, this creates strong inductive bias overlap and may reduce diversity."
         ),
         match=lambda chain, model: (
-                any(s.type == SelectorSpecInfo.TREE_BASED for s in chain.selectors)
+                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
                 and model.type == ModelSpecType.TREE
+        ),
+        priority=ExperimentPriority.BLOCKED,
+    ),
+CompositionRule(
+        name="linear_redundancy_block",
+        description="Blocks pipelines where a linear RFE/Selector is followed by a linear model.",
+        match=lambda chain, model: (
+            chain.selectors[-1].spec_type == ModelSpecType.LINEAR
+            and model.spec_type == ModelSpecType.LINEAR
+        ),
+        priority=ExperimentPriority.BLOCKED,
+    ),
+CompositionRule(
+        name="non_linear_redundancy_block",
+        description="low priority  pipelines where a non-linear RFE/Selector is followed by a linear model.",
+        match=lambda chain, model: (
+            chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
+            and model.spec_type == ModelSpecType.NON_LINEAR
         ),
         priority=ExperimentPriority.LOW,
     ),
-
     # Multi stage pipeline approach
     CompositionRule(
         name="multi_stage_bonus",
@@ -98,7 +159,6 @@ _RULES: list[CompositionRule] = [
         match=lambda chain, model: len(chain.selectors) > 1,
         priority=ExperimentPriority.HIGH,
     ),
-
     # Statistical based on linear approach
     CompositionRule(
         name="statistical_to_linear",
@@ -107,12 +167,11 @@ _RULES: list[CompositionRule] = [
             "since both rely on linear relationships."
         ),
         match=lambda chain, model: (
-                chain.selectors[-1].type == SelectorSpecInfo.STATISTICAL
+                chain.selectors[-1].type == SelectorSpecType.STATISTICAL
                 and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.HIGH,
     ),
-
     # Tree based on Linear approach
     CompositionRule(
         name="tree_to_linear",
@@ -121,12 +180,11 @@ _RULES: list[CompositionRule] = [
             "a cleaner feature space. Strong cross-paradigm synergy."
         ),
         match=lambda chain, model: (
-                any(s.type == SelectorSpecInfo.TREE_BASED for s in chain.selectors)
+                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
                 and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.HIGH,
     ),
-
     # Regularization based on Linear approach
     CompositionRule(
         name="l1_to_linear",
@@ -135,12 +193,11 @@ _RULES: list[CompositionRule] = [
             "perform sparsity. Still valid but not optimal."
         ),
         match=lambda chain, model: (
-                any(s.type in {SelectorSpecInfo.L1, SelectorSpecInfo.L1_L2} for s in chain.selectors)
+                any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
                 and model.spec_type == ModelSpecType.LINEAR
         ),
-        priority=ExperimentPriority.MEDIUM,
+        priority=ExperimentPriority.BLOCKED,
     ),
-
     # Statistical based on Tree based approach
     CompositionRule(
         name="statistical_to_tree",
@@ -149,12 +206,11 @@ _RULES: list[CompositionRule] = [
             "Useful as a pre-filter but not ideal alone."
         ),
         match=lambda chain, model: (
-                chain.selectors[0].type == SelectorSpecInfo.STATISTICAL
+                chain.selectors[0].type == SelectorSpecType.STATISTICAL
                 and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.MEDIUM,
     ),
-
     # Regularization based on Tree based approach
     CompositionRule(
         name="l1_to_tree",
@@ -163,12 +219,11 @@ _RULES: list[CompositionRule] = [
             "for nonlinear tree-based models."
         ),
         match=lambda chain, model: (
-                any(s.type in {SelectorSpecInfo.L1, SelectorSpecInfo.L1_L2} for s in chain.selectors)
+                any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
                 and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.LOW,
     ),
-
     # Filter based + embedded approach
     CompositionRule(
         name="filter_then_embedded",
@@ -178,16 +233,29 @@ _RULES: list[CompositionRule] = [
         ),
         match=lambda chain, model: (
                 len(chain.selectors) >= 2
-                and chain.selectors[0].type == SelectorSpecInfo.STATISTICAL
-                and chain.selectors[1].type in {
-                    SelectorSpecInfo.TREE_BASED,
-                    SelectorSpecInfo.L1,
-                    SelectorSpecInfo.L1_L2,
+                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+                and chain.selectors[1].type
+                in {
+                    SelectorSpecType.TREE_BASED,
+                    SelectorSpecType.L1,
+                    SelectorSpecType.L1_L2,
                 }
         ),
         priority=ExperimentPriority.HIGH,
     ),
-
+    CompositionRule(
+        name="filter_then_rfe",
+        description=(
+            "Fast statistical filtering followed by RFE is a strong and efficient feature selection strategy."
+        ),
+        match=lambda chain, model: (
+                len(chain.selectors) >= 2
+                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+                and chain.selectors[1].type == SelectorSpecType.RFE
+                and _validate_composition(chain.selectors[1], model)
+        ),
+        priority=ExperimentPriority.HIGH,
+    ),
     # SHAP approach
     CompositionRule(
         name="shap_bonus",
@@ -195,11 +263,18 @@ _RULES: list[CompositionRule] = [
             "SHAP-based feature selection provides high-quality global importance estimates."
         ),
         match=lambda chain, model: any(
-            s.type == SelectorSpecInfo.EXPLAINABLE for s in chain.selectors
+            s.type == SelectorSpecType.EXPLAINABLE for s in chain.selectors
         ),
         priority=ExperimentPriority.HIGH,
     ),
 ]
+
+
+def _validate_composition(selector: SelectorSpec, model: ModelSpec) -> bool:
+    if selector.spec_type == model.spec_type:
+        return False
+    return True
+
 
 _PRIORITY_ORDER = {
     ExperimentPriority.HIGH: 0,
@@ -211,53 +286,54 @@ _PRIORITY_ORDER = {
 
 class ExperimentComposer:
     """
-        Composes feature selection experiments by combining selector chains
-        with predictive models and evaluating them through a rule-based system.
+    Composes feature selection experiments by combining selector chains
+    with predictive models and evaluating them through a rule-based system.
 
-        This class is responsible for:
-        - Generating selector chains via SelectorChainFactory
-        - Evaluating compatibility and priority using composition rules
-        - Building ExperimentDefinition objects
-        - Avoiding duplicate experiment configurations
-        - Sorting experiments by priority
+    This class is responsible for:
+    - Generating selector chains via SelectorChainFactory
+    - Evaluating compatibility and priority using composition rules
+    - Building ExperimentDefinition objects
+    - Avoiding duplicate experiment configurations
+    - Sorting experiments by priority
 
-        Attributes:
-            selectors (list[SelectorSpec]): Available feature selectors.
-            models (list[ModelSpec]): Available predictive models.
-        """
+    Attributes:
+        selectors (list[SelectorSpec]): Available feature selectors.
+        models (list[ModelSpec]): Available predictive models.
+    """
 
-    def __init__(self, selectors: list[SelectorSpec], models: list[ModelSpec]):
+    def __init__(self, context: Context, selectors: list[SelectorSpec], models: list[ModelSpec]):
         """
         Initialize the ExperimentComposer.
 
         Args:
             selectors (list[SelectorSpec]): List of selector specifications.
-            models (list[ModelSpec]): List of model specifications.
+            Models (list[ModelSpec]): List of model specifications.
         """
         self.selectors = selectors
         self.models = models
 
     def generate(self):
         """
-                Generate all valid experiment combinations.
+        Generate all valid experiment combinations.
 
-                Workflow:
-                    1. Build selector chains using SelectorChainFactory
-                    2. Iterate over all (chain, model) combinations
-                    3. Evaluate priority using composition rules
-                    4. Skip blocked combinations
-                    5. Avoid duplicate experiments
-                    6. Build ExperimentDefinition objects
-                    7. Sort experiments by priority
+        Workflow:
+            1. Build selector chains using SelectorChainFactory
+            2. Iterate over all (chain, model) combinations
+            3. Evaluate priority using composition rules
+            4. Skip blocked combinations
+            5. Avoid duplicate experiments
+            6. Build ExperimentDefinition objects
+            7. Sort experiments by priority
 
-                Returns:
-                    list[ExperimentDefinition]: Sorted list of experiments.
-                """
+        Returns:
+            list[ExperimentDefinition]: Sorted list of experiments.
+        """
         experiments = []
         seen = set()
 
         chains = SelectorChainFactory(self.selectors).build()
-
+        logger.debug(f"Generated {len(chains)} selector chains")
+        logger.debug(f"Selector chains: {chains}")
         for chain in chains:
             for model in self.models:
 
@@ -280,46 +356,49 @@ class ExperimentComposer:
     @staticmethod
     def _evaluate_chain(chain, model):
         """
-               Evaluate the priority of a selector chain with a given model.
+        Evaluate the priority of a selector chain with a given model.
 
-               This method applies all composition rules and selects the
-               highest priority (lowest numeric value).
+        This method applies all composition rules and selects the
+        highest priority (lowest numeric value).
 
-               Args:
-                   chain (SelectorChain): Sequence of selectors.
-                   model (ModelSpec): Model to evaluate.
+        Args:
+            chain (SelectorChain): Sequence of selectors.
+            model (ModelSpec): Model to evaluate.
 
-               Returns:
-                   ExperimentPriority: Computed priority level.
-               """
+        Returns:
+            ExperimentPriority: Computed priority level.
+        """
         priorities = []
 
         for rule in _RULES:
             if rule.match(chain, model):
+                # logger.debug(f"Rule {rule.name} matched chain: {chain.name} and model: {model.name}")
                 priorities.append(rule.priority)
+            else:
+                logger.debug(f"Rule {rule.name} did not match chain: {chain.name} and model: {model.name}")
+                continue
 
         if not priorities:
             return ExperimentPriority.MEDIUM
-
         return min(priorities, key=lambda p: _PRIORITY_ORDER[p])
 
     @staticmethod
     def _build_experiment(chain: SelectorChain, model: ModelSpec, priority: ExperimentPriority):
         """
-                Build an ExperimentDefinition from a selector chain and model.
+        Build an ExperimentDefinition from a selector chain and model.
 
-                The resulting pipeline includes:
-                    - One or more feature selection steps
-                    - A final predictive model
+        The resulting pipeline includes:
+            - One or more feature selection steps
+            - A final predictive model
 
-                Args:
-                    chain (SelectorChain): Ordered selectors to apply.
-                    model (ModelSpec): Model specification.
-                    priority (ExperimentPriority): Assigned priority.
+        Args:
+            chain (SelectorChain): Ordered selectors to apply.
+            model (ModelSpec): Model specification.
+            priority (ExperimentPriority): Assigned priority.
 
-                Returns:
-                    ExperimentDefinition: Configured experiment.
-                """
+        Returns:
+            ExperimentDefinition: Configured experiment.
+        """
 
         builder = PipelineBuilder()
 
@@ -341,5 +420,5 @@ class ExperimentComposer:
                 "chain_type": chain.type,
                 "n_selectors": len(chain.selectors),
                 "model_type": model.type.value,
-            }
+            },
         )

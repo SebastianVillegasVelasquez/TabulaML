@@ -1,14 +1,20 @@
 import numpy as np
+from sklearn.ensemble import ExtraTreesClassifier
 
-from app.core.enums import (
-    ModelSpecType,
-    SelectorSpecInfo)
-from app.core.enums import ProblemsType
+from app.core.enums import ModelSpecType, SelectorSpecType
+from app.core.enums import ProblemType
 from app.core.model_bank import BaseModelRetriever
 from app.core.model_bank import SelectorSpec
 
 
 class ShapSelector:
+    """
+    Class is for SHAP-based feature selection.
+
+    It uses SHAP to calculate the importance of each feature.
+    Use this class just before another quick extractor has been applied,
+    this because SHAP is heavy on memory.
+    """
 
     def __init__(self, model_factory, k=20):
         self.selected_idx_ = None
@@ -25,7 +31,6 @@ class ShapSelector:
         explainer = shap.TreeExplainer(self.model)
         shap_values = explainer.shap_values(X)
 
-        # clasificación vs regresión
         if isinstance(shap_values, list):
             shap_values = shap_values[0]
 
@@ -35,7 +40,7 @@ class ShapSelector:
 
         importance = np.abs(shap_values).mean(axis=0)
 
-        self.selected_idx_ = np.argsort(importance)[-self.k:]
+        self.selected_idx_ = np.argsort(importance)[-self.k :]
 
         return self
 
@@ -54,17 +59,16 @@ class SelectorModelRetriever(BaseModelRetriever):
 
         return [
             self._build_selectkbest(function_score),
-            self._build_extratrees(),
-            self._build_lasso(),
             self._build_elasticnet(),
             self._build_shap(),
-            self._build_rfe()
+            self._build_linear_rfe_cv(),
+            self._build_non_linear_rfe_cv(),
         ]
 
     def _load_score_func(self):
         from sklearn.feature_selection import f_regression, f_classif
 
-        return f_regression if self.problem_type == ProblemsType.REGRESSION else f_classif
+        return f_regression if self.problem_type == ProblemType.REGRESSION else f_classif
 
     """
     Statistical models for feature selection.
@@ -73,11 +77,12 @@ class SelectorModelRetriever(BaseModelRetriever):
     @staticmethod
     def _build_selectkbest(func_score) -> SelectorSpec:
         from sklearn.feature_selection import SelectKBest
+
         return SelectorSpec(
             name="selectkbest",
             factory=lambda: SelectKBest(score_func=func_score, k=10),
             spec_type=ModelSpecType.LINEAR,
-            type=SelectorSpecInfo.STATISTICAL
+            type=SelectorSpecType.STATISTICAL,
         )
 
     """
@@ -91,15 +96,17 @@ class SelectorModelRetriever(BaseModelRetriever):
 
         return SelectorSpec(
             name="extratrees",
-            factory=lambda: SelectFromModel(ExtraTreesClassifier(
-                n_estimators=50,
-                max_depth=10,
-                random_state=42,
-                n_jobs=-1,
+            factory=lambda: SelectFromModel(
+                ExtraTreesClassifier(
+                    n_estimators=50,
+                    max_depth=10,
+                    random_state=42,
+                    n_jobs=-1,
+                ),
+                threshold="median",
             ),
-                threshold="median"),
             spec_type=ModelSpecType.NON_LINEAR,
-            type=SelectorSpecInfo.TREE_BASED
+            type=SelectorSpecType.TREE_BASED,
         )
 
     """
@@ -107,15 +114,17 @@ class SelectorModelRetriever(BaseModelRetriever):
     """
 
     @staticmethod
-    def _build_lasso():
+    def _build_lasso() -> SelectorSpec:
         from sklearn.linear_model import Lasso
         from sklearn.feature_selection import SelectFromModel
+
         return SelectorSpec(
             name="lasso",
-            factory=lambda: SelectFromModel(Lasso(alpha=0.01, max_iter=3000, random_state=42),
-                                            threshold="median"),
+            factory=lambda: SelectFromModel(
+                Lasso(alpha=0.01, max_iter=3000, random_state=42), threshold="median"
+            ),
             spec_type=ModelSpecType.LINEAR,
-            type=SelectorSpecInfo.L1
+            type=SelectorSpecType.L1,
         )
 
     """
@@ -123,15 +132,18 @@ class SelectorModelRetriever(BaseModelRetriever):
     """
 
     @staticmethod
-    def _build_elasticnet():
+    def _build_elasticnet() -> SelectorSpec:
         from sklearn.linear_model import ElasticNet
         from sklearn.feature_selection import SelectFromModel
+
         return SelectorSpec(
             name="elasticnet",
-            factory=lambda: SelectFromModel(ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=3000, random_state=42),
-                                            threshold="median"),
+            factory=lambda: SelectFromModel(
+                ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=3000, random_state=42),
+                threshold="median",
+            ),
             spec_type=ModelSpecType.LINEAR,
-            type=SelectorSpecInfo.L1_L2,
+            type=SelectorSpecType.L1_L2,
         )
 
     """
@@ -139,7 +151,7 @@ class SelectorModelRetriever(BaseModelRetriever):
     """
 
     @staticmethod
-    def _build_shap():
+    def _build_shap() -> SelectorSpec:
         from sklearn.ensemble import ExtraTreesClassifier
 
         return SelectorSpec(
@@ -151,32 +163,45 @@ class SelectorModelRetriever(BaseModelRetriever):
                     random_state=42,
                     n_jobs=-1,
                 ),
-                k=20
+                k=20,
             ),
             spec_type=ModelSpecType.NON_LINEAR,
-            type=SelectorSpecInfo.SHAP
+            type=SelectorSpecType.SHAP,
         )
 
     """
-    RFE selector
+    RFE selectors
     """
 
     @staticmethod
-    def _build_rfe():
-        from sklearn.feature_selection import RFE
+    def _build_linear_rfe_cv() -> SelectorSpec:
+        from sklearn.feature_selection import RFECV
         from sklearn.linear_model import LogisticRegression
 
         return SelectorSpec(
-            name="rfe",
-            factory=lambda: RFE(
-                estimator=LogisticRegression(
-                    solver="liblinear",
-                    max_iter=1000,
-                    random_state=42
-                ),
-                n_features_to_select=20,
-                step=0.2
+            name="rfe_linear",
+            factory=lambda: RFECV(
+                estimator=LogisticRegression(solver="liblinear", max_iter=1000, random_state=42),
+                step=0.2,
             ),
             spec_type=ModelSpecType.LINEAR,
-            type=SelectorSpecInfo.WRAPPER
+            type=SelectorSpecType.RFE,
+        )
+
+    @staticmethod
+    def _build_non_linear_rfe_cv() -> SelectorSpec:
+        from sklearn.feature_selection import RFECV
+
+        return SelectorSpec(
+            name="rfe_non_linear",
+            factory=lambda: RFECV(
+                estimator=ExtraTreesClassifier(
+                    n_estimators=50,
+                    max_depth=10,
+                    random_state=42,
+                    n_jobs=-1,
+                ),
+            ),
+            spec_type=ModelSpecType.NON_LINEAR,
+            type=SelectorSpecType.RFE,
         )

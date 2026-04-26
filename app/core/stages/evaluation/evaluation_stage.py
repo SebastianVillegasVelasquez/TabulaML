@@ -1,8 +1,8 @@
 from typing import Any
 
-from app.core.enums.problems_type import ProblemsType
-from app.core.context.run_context import RunContext
-from app.core.enums.stages import Stages
+from app.core.enums import ProblemType
+from app.core.context.context import Context
+from app.core.enums import Stages
 from app.core.domain.experiments.experiment_result import ExperimentResult
 from app.core.stages.evaluation.evaluator import Evaluator
 from app.core.stages.evaluation.evaluator_factory import EvaluatorFactory
@@ -12,16 +12,16 @@ from app.utils.logger import logger
 class EvaluationStage:
     """
     Orchestrates evaluation of experiment results.
-    
+
     Workflow:
     1. Get experiments from context
     2. Select the best experiment based on metrics
     3. Delegate to stage-specific evaluator
-    
+
     No stage-specific logic here - all delegated via factory.
     """
 
-    def __init__(self, stage: Stages, context: RunContext):
+    def __init__(self, stage: Stages, context: Context):
         self.stage = stage
         self.context = context
         self.config = context.config
@@ -40,8 +40,9 @@ class EvaluationStage:
         # Delegate to stage-specific evaluator
         evaluator = EvaluatorFactory.create(self.stage, self.context)
         evaluator.evaluate(experiments)
-        logger.info(f"Metadata from {self.stage}: {self.context.stage_results[self.stage].metadata}")
-
+        logger.info(
+            f"Metadata from {self.stage}: {self.context.stage_results[self.stage].metadata}"
+        )
 
     def _get_experiments(self) -> list[Any] | dict[str, Any]:
         """Get experiments from context."""
@@ -55,7 +56,7 @@ class EvaluationStage:
     def _evaluate(self, experiments: list[ExperimentResult]) -> ExperimentResult:
         """Select the best experiment based on configured metrics."""
 
-        if self.config.problem_type == ProblemsType.REGRESSION:
+        if self.config.problem_type == ProblemType.REGRESSION:
             mode = "min"
         else:
             mode = "max"

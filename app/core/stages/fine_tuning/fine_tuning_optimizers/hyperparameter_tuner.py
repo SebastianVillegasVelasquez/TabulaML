@@ -1,77 +1,64 @@
-from app.core.enums.problems_type import ProblemsType
+from app.core.enums import ProblemType
 from app.core.stages.fine_tuning.tuner_strategies import TunerStrategy
 
 tuning = {
-    ProblemsType.CLASSIFICATION: {
+    ProblemType.CLASSIFICATION: {
         "logistic_regression": {
             "model__C": [0.01, 0.1, 1, 10],
             "model__penalty": ["l2"],
-            "model__solver": ["lbfgs", "saga"]
+            "model__solver": ["lbfgs", "saga"],
         },
-        "ridge_classifier": {
-            "model__alpha": [0.1, 1.0, 10.0]
-        },
+        "ridge_classifier": {"model__alpha": [0.1, 1.0, 10.0]},
         "sgd_classifier": {
             "model__alpha": [1e-4, 1e-3, 1e-2],
             "model__loss": ["hinge", "log_loss"],
-            "model__penalty": ["l2", "l1"]
+            "model__penalty": ["l2", "l1"],
         },
-
         "random_forest": {
             "model__n_estimators": [100, 200, 300],
             "model__max_depth": [10, 15, 20, None],
             "model__min_samples_split": [2, 5, 10],
             "model__min_samples_leaf": [1, 2, 4],
-            "model__max_features": ["sqrt", "log2"]
+            "model__max_features": ["sqrt", "log2"],
         },
         "gradient_boosting": {
             "model__n_estimators": [100, 200],
             "model__learning_rate": [0.01, 0.1, 0.2],
             "model__max_depth": [3, 5, 7],
-            "model__subsample": [0.8, 1.0]
+            "model__subsample": [0.8, 1.0],
         },
         "extra_trees": {
             "model__n_estimators": [100, 150, 300],
             "model__max_depth": [10, 15, 20, None],
             "model__min_samples_split": [2, 5, 10],
-            "model__min_samples_leaf": [1, 2, 4]
+            "model__min_samples_leaf": [1, 2, 4],
         },
         "decision_tree": {
             "model__max_depth": [5, 10, 20, None],
             "model__min_samples_split": [2, 10, 20],
-            "model__min_samples_leaf": [1, 2, 5]
+            "model__min_samples_leaf": [1, 2, 5],
         },
-
         "kneighbors": {
             "model__n_neighbors": [3, 5, 7, 11],
             "model__weights": ["uniform", "distance"],
-            "model__metric": ["minkowski", "euclidean", "manhattan"]
+            "model__metric": ["minkowski", "euclidean", "manhattan"],
         },
-        "gaussian_nb": {
-            "model__var_smoothing": [1e-9, 1e-8, 1e-7]
-        }
+        "gaussian_nb": {"model__var_smoothing": [1e-9, 1e-8, 1e-7]},
     },
-
-    ProblemsType.REGRESSION: {
+    ProblemType.REGRESSION: {
         "random_forest": {
             "model__n_estimators": [100, 200, 300],
             "model__max_depth": [10, 20, None],
-            "model__min_samples_split": [2, 5, 10]
+            "model__min_samples_split": [2, 5, 10],
         },
         "gradient_boosting": {
             "model__n_estimators": [100, 200],
             "model__learning_rate": [0.01, 0.1],
-            "model__max_depth": [3, 5]
+            "model__max_depth": [3, 5],
         },
-        "decision_tree": {
-            "model__max_depth": [5, 10, None],
-            "model__min_samples_split": [2, 10]
-        },
-        "kneighbors": {
-            "model__n_neighbors": [3, 5, 7],
-            "model__weights": ["uniform", "distance"]
-        }
-    }
+        "decision_tree": {"model__max_depth": [5, 10, None], "model__min_samples_split": [2, 10]},
+        "kneighbors": {"model__n_neighbors": [3, 5, 7], "model__weights": ["uniform", "distance"]},
+    },
 }
 
 
@@ -101,9 +88,9 @@ def _convert_to_optuna_space(param_grid: dict) -> dict:
 
 
 def get_set_hyperparameter(
-        problem_type: ProblemsType,
-        model: str,
-        tuner_strategy: TunerStrategy = TunerStrategy.OPTUNA,
+    problem_type: ProblemType,
+    model: str,
+    tuner_strategy: TunerStrategy = TunerStrategy.OPTUNA,
 ) -> dict:
     try:
         param_grid = tuning[problem_type][model]
@@ -123,4 +110,4 @@ def get_set_hyperparameter(
         raise ValueError(f"Tuner strategy '{tuner_strategy}' no soportada")
 
 
-get_set_hyperparameter(ProblemsType.CLASSIFICATION, 'extra_trees', TunerStrategy.OPTUNA)
+get_set_hyperparameter(ProblemType.CLASSIFICATION, "extra_trees", TunerStrategy.OPTUNA)

@@ -3,10 +3,10 @@ import pytest
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
-
 # =========================
 # Fixtures
 # =========================
+
 
 class DummyConfig:
     def __init__(self, metric="f1"):
@@ -38,12 +38,14 @@ def context_recall():
 @pytest.fixture
 def optimizer(context_f1):
     from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+
     return ThresholdOptimizer(context=context_f1)
 
 
 # =========================
 # UNIT TESTS
 # =========================
+
 
 # -------- _is_the_model_probabilistic --------
 @pytest.mark.unit

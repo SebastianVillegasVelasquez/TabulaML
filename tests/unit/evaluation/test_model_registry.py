@@ -19,15 +19,13 @@ class TestModelRegistry:
     @pytest.fixture
     def sample_result(self):
         """Create a sample ExperimentResult for testing"""
-        pipeline = Pipeline([
-            ("classifier", LogisticRegression())
-        ])
+        pipeline = Pipeline([("classifier", LogisticRegression())])
         return ExperimentResult(
             name="test_experiment",
             pipeline=pipeline,
             metrics={"accuracy": 0.95, "precision": 0.92},
             config={"model": "LogisticRegression", "C": 1.0},
-            selected_features=["feature1", "feature2", "feature3"]
+            selected_features=["feature1", "feature2", "feature3"],
         )
 
     def test_init_creates_base_path(self, tmp_path):
@@ -55,7 +53,9 @@ class TestModelRegistry:
 
     @patch("datetime.datetime")
     @patch("uuid.uuid4")
-    def test_register_creates_model_directory(self, mock_uuid, mock_datetime, temp_registry, sample_result):
+    def test_register_creates_model_directory(
+        self, mock_uuid, mock_datetime, temp_registry, sample_result
+    ):
         mock_dt = Mock()
         mock_dt.strftime.return_value = "20240101_120000"
         mock_datetime.now.return_value = mock_dt
@@ -119,7 +119,9 @@ class TestModelRegistry:
 
     @patch("datetime.datetime")
     @patch("uuid.uuid4")
-    def test_register_returns_correct_path(self, mock_uuid, mock_datetime, temp_registry, sample_result):
+    def test_register_returns_correct_path(
+        self, mock_uuid, mock_datetime, temp_registry, sample_result
+    ):
         mock_dt = Mock()
         mock_dt.strftime.return_value = "20240101_120000"
         mock_datetime.now.return_value = mock_dt
@@ -191,7 +193,7 @@ class TestModelRegistry:
             pipeline=Pipeline([("classifier", LogisticRegression())]),
             metrics={"accuracy": 0.85},
             config={},
-            selected_features=[]
+            selected_features=[],
         )
 
         model_path = temp_registry.register(result, "test_model")
@@ -218,7 +220,7 @@ class TestModelRegistry:
             pipeline=Pipeline([("classifier", LogisticRegression())]),
             metrics={},
             config={"param": "value"},
-            selected_features=["f1"]
+            selected_features=["f1"],
         )
 
         model_path = temp_registry.register(result, "test_model")
@@ -274,7 +276,7 @@ class TestModelRegistry:
             pipeline=Pipeline([("classifier", LogisticRegression())]),
             metrics={"accuracy": 0.95, "model_type": type},
             config={},
-            selected_features=["f1", "f2"]
+            selected_features=["f1", "f2"],
         )
 
         model_path = temp_registry.register(result, "test_model")
@@ -285,4 +287,3 @@ class TestModelRegistry:
 
         assert isinstance(metadata["metrics"]["model_type"], str)
         assert "type" in metadata["metrics"]["model_type"]
-

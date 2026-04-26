@@ -1,5 +1,5 @@
-from app.core.context import RunContext
-from app.core.enums import Stages, ModelRetrieveType, ProblemsType
+from app.core.context import Context
+from app.core.enums import Stages, ModelRetrieveType, ProblemType
 from app.core.model_bank import ModelRetrieveFactory
 from app.core.stages.feature_selection.composer import ExperimentComposer
 from app.utils.logger import logger
@@ -27,7 +27,8 @@ Resource Optimization:
 - Fast solvers where possible
 """
 
-def get_feature_selection_experiments(context: RunContext | None):
+
+def get_feature_selection_experiments(context: Context | None):
     """
     This method generates feature selection experiments using the ExperimentComposer.
     First, it retrieves the preprocessing pipeline from the data handler stage.
@@ -36,17 +37,19 @@ def get_feature_selection_experiments(context: RunContext | None):
     """
     preprocessing = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
 
-    selectors = (ModelRetrieveFactory
-                 .create(model_retrieve_type=ModelRetrieveType.SELECTOR,
-                         problem_type=ProblemsType.CLASSIFICATION)
-                 ).load_defaults()
+    selectors = (
+        ModelRetrieveFactory.create(
+            model_retrieve_type=ModelRetrieveType.SELECTOR, problem_type=ProblemType.CLASSIFICATION
+        )
+    ).load_defaults()
 
-    models = (ModelRetrieveFactory
-              .create(model_retrieve_type=ModelRetrieveType.BASELINE,
-                      problem_type=ProblemsType.CLASSIFICATION)
-              ).load_defaults()
+    models = (
+        ModelRetrieveFactory.create(
+            model_retrieve_type=ModelRetrieveType.BASELINE, problem_type=ProblemType.CLASSIFICATION
+        )
+    ).load_defaults()
 
-    composer = ExperimentComposer(selectors, models)
+    composer = ExperimentComposer(context, selectors, models)
 
     experiments = []
 
@@ -58,6 +61,5 @@ def get_feature_selection_experiments(context: RunContext | None):
         experiments.append(exp)
 
     logger.debug(f"Generated {len(experiments)} feature selection experiments.")
-    logger.debug(f"Experiments: {experiments}")
 
     return experiments

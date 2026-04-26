@@ -4,8 +4,8 @@ from typing import Any, Union
 
 import pandas as pd
 
-from app.core.enums.problems_type import ProblemsType
-from app.core.enums.stages import Stages
+from app.core.enums import ProblemType
+from app.core.enums import Stages
 
 
 @dataclass
@@ -21,7 +21,7 @@ class StageResult:
 
 @dataclass(frozen=True)
 class ProjectConfig:
-    problem_type: ProblemsType
+    problem_type: ProblemType
     X_train: pd.DataFrame
     y_train: pd.Series
     X_test: pd.DataFrame
@@ -33,11 +33,12 @@ class ProjectConfig:
 
 
 @dataclass
-class RunContext:
+class Context:
     """
     Stores the state of a full experimentation workflow.
     It is used to pass data between stages.
     """
+
     config: ProjectConfig | None = None
 
     current_stage: Stages | None = None

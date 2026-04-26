@@ -21,29 +21,29 @@ class BaselineModelRetriever(BaseModelRetriever):
 
     def load_defaults(self) -> list[ModelSpec]:
         return [
-            ModelSpec(name="RandomForestClassifier",
-                      factory=self._build_randomforest,
-                      spec_type=ModelSpecType.NON_LINEAR,
-                      type=ModelSpecType.TREE),
-            ModelSpec(name="LogisticRegression",
-                      factory=self._build_logisticregression,
-                      spec_type=ModelSpecType.LINEAR,
-                      type=ModelSpecType.LINEAR),
+            self._build_logisticregression(),
+            self._build_random_forest(),
         ]
 
     @staticmethod
-    def _build_logisticregression():
-        return LogisticRegression(
-            solver="liblinear",
-            max_iter=3000,
-            random_state=42,
+    def _build_logisticregression() -> ModelSpec:
+        return ModelSpec(
+            name="LogisticRegression",
+            factory=lambda: LogisticRegression(solver="liblinear", max_iter=1000, random_state=42),
+            spec_type=ModelSpecType.LINEAR,
+            type=ModelSpecType.LINEAR,
         )
 
     @staticmethod
-    def _build_randomforest():
-        return ExtraTreesClassifier(
-            n_estimators=50,
-            max_depth=10,
-            random_state=42,
-            n_jobs=-1,
+    def _build_random_forest() -> ModelSpec:
+        return ModelSpec(
+            name="RandomForestClassifier",
+            factory=lambda: ExtraTreesClassifier(
+                n_estimators=50,
+                max_depth=10,
+                random_state=42,
+                n_jobs=-1,
+            ),
+            spec_type=ModelSpecType.NON_LINEAR,
+            type=ModelSpecType.TREE,
         )

@@ -3,26 +3,27 @@ from typing import Tuple, List
 import pandas as pd
 
 from app.core.metrics.metrics import DEFAULT_METRICS
-from app.core.enums.problems_type import ProblemsType
-from app.core.context.run_context import ProjectConfig
-from app.core.context.run_context import RunContext
+from app.core.enums import ProblemType
+from app.core.context.context import ProjectConfig
+from app.core.context.context import Context
 
 
-def init_context(problem_type: ProblemsType = ProblemsType.CLASSIFICATION,
-                 X: Tuple[pd.DataFrame, pd.Series] = None,
-                 y: Tuple[pd.DataFrame, pd.Series] = None,
-                 priority_metric: str = None) -> RunContext:
+def init_context(
+    problem_type: ProblemType = ProblemType.CLASSIFICATION,
+    X: Tuple[pd.DataFrame, pd.Series] = None,
+    y: Tuple[pd.DataFrame, pd.Series] = None,
+    priority_metric: str = None,
+) -> Context:
 
     if X is None or y is None:
         raise ValueError("X and y must not be None")
 
-    if problem_type not in [ProblemsType.CLASSIFICATION, ProblemsType.REGRESSION]:
+    if problem_type not in [ProblemType.CLASSIFICATION, ProblemType.REGRESSION]:
         raise ValueError(f"Invalid problem type: {problem_type}")
 
     X_train, y_train, X_test, y_test = _decouple_tuples(X, y)
 
-
-    context = RunContext()
+    context = Context()
 
     context.config = ProjectConfig(
         problem_type,
@@ -33,7 +34,7 @@ def init_context(problem_type: ProblemsType = ProblemsType.CLASSIFICATION,
         DEFAULT_METRICS[problem_type],
         random_state=42,
         priority_metric=_get_priority_metric(problem_type, priority_metric),
-        priority_metric_normalized = priority_metric
+        priority_metric_normalized=priority_metric,
     )
     context.metadata = _get_metadata(X_train)
 
@@ -41,11 +42,7 @@ def init_context(problem_type: ProblemsType = ProblemsType.CLASSIFICATION,
 
 
 def _get_metadata(X):
-    return {
-        "total_columns": len(X.columns),
-        "total_rows": len(X),
-        "original_shape": X.shape
-    }
+    return {"total_columns": len(X.columns), "total_rows": len(X), "original_shape": X.shape}
 
 
 def _decouple_tuples(X, y):
@@ -60,4 +57,6 @@ def _decouple_tuples(X, y):
 def _get_priority_metric(problem_type, priority_metric=None):
     if priority_metric is not None:
         return f"test_{priority_metric}"
-    return "test_f1" if problem_type == ProblemsType.CLASSIFICATION else "test_neg_mean_squared_error"
+    return (
+        "test_f1" if problem_type == ProblemType.CLASSIFICATION else "test_neg_mean_squared_error"
+    )

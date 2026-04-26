@@ -1,15 +1,15 @@
 from typing import List
 
-from app.core.enums.stages import Stages
+from app.core.enums import Stages
 from app.core.domain.experiments.experiment_result import ExperimentResult
-from app.core.context.run_context import RunContext, StageResult
+from app.core.context.context import Context, StageResult
 
 
 class Evaluator:
 
-    def __init__(self, mode: str = "max",
-                 results: List[ExperimentResult] = None,
-                 context: RunContext = None):
+    def __init__(
+        self, mode: str = "max", results: List[ExperimentResult] = None, context: Context = None
+    ):
         if mode not in ("max", "min"):
             raise ValueError("mode must be 'max' or 'min'")
 
@@ -29,9 +29,7 @@ class Evaluator:
         if isinstance(self.priority_metric, list):
             for m in self.priority_metric:
                 if m not in result.metrics:
-                    raise ValueError(
-                        f"Metric '{m}' not found in experiment {result.name}"
-                    )
+                    raise ValueError(f"Metric '{m}' not found in experiment {result.name}")
         else:
             if self.priority_metric not in result.metrics:
                 raise ValueError(
@@ -39,8 +37,6 @@ class Evaluator:
                 )
 
         self.results.append(result)
-
-
 
     def get_best(self) -> ExperimentResult:
 
@@ -60,10 +56,7 @@ class Evaluator:
         else:
             return min(self.results, key=key_func)
 
-
-    def extract_best_experiments(self,
-                                 return_best=False,
-                                 k=3) -> ExperimentResult:
+    def extract_best_experiments(self, return_best=False, k=3) -> ExperimentResult:
         """
         Extract top-k best experiments based on the priority metric.
         Handles ties by including all experiments with the same metric value.
@@ -76,15 +69,16 @@ class Evaluator:
         # Sort the results based on the primary metric
         # (default to the first metric in scoring if no priority is set)
 
-        priority_metric = (self.priority_metric if self.priority_metric else
-        list(self.results[0].metrics.keys())[0])
+        priority_metric = (
+            self.priority_metric
+            if self.priority_metric
+            else list(self.results[0].metrics.keys())[0]
+        )
 
         best_experiment = None
 
         results_sorted = sorted(
-            self.results,
-            key=lambda r: r.metrics.get(f"test_{priority_metric}", 0),
-            reverse=True
+            self.results, key=lambda r: r.metrics.get(f"test_{priority_metric}", 0), reverse=True
         )
 
         # Get and return only the best experiment if there is no need for top k best models
@@ -94,21 +88,22 @@ class Evaluator:
             return best_experiment
 
         # For feature selection, extract top-k selectors (group by selector type)
-        top_k_selectors = (self._extract_top_k_selectors(results_sorted)
-                           if self.stage == Stages.FEATURE_SELECTION else {})
+        top_k_selectors = (
+            self._extract_top_k_selectors(results_sorted)
+            if self.stage == Stages.FEATURE_SELECTION
+            else {}
+        )
 
         # Store results in the context
         self.context.stage_results[self.stage] = StageResult(
             name=self.stage,
             results=results_sorted,
             best_experiment=best_experiment,
-            metadata={
-                "top_k_selectors": top_k_selectors,
-                "total_experiments": len(self.results)
-            }
+            metadata={"top_k_selectors": top_k_selectors, "total_experiments": len(self.results)},
         )
 
         # Extract top-k unique selectors
+
     @staticmethod
     def _extract_top_k_selectors(sorted_results, k=3):
         """

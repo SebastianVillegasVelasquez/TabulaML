@@ -15,7 +15,7 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
             cv=cv,
             n_jobs=-1,
             return_train_score=True,
-            error_score="raise"
+            error_score="raise",
         )
 
         mean_metrics = {}
@@ -25,11 +25,9 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
 
                 mean_value = np.mean(values)
 
-                if metric_name.endswith(("neg_mean_squared_error",
-                                         "neg_mean_absolute_error")):
+                if metric_name.endswith(("neg_mean_squared_error", "neg_mean_absolute_error")):
                     mean_value = -mean_value
 
                 mean_metrics[metric_name] = mean_value
 
         return mean_metrics
-

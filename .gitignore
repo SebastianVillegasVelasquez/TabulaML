@@ -26,6 +26,9 @@ build/
 .coverage
 htmlcov/
 
+#data testing
+data_test
+
 # Environment
 .env
 .env.local

@@ -6,7 +6,7 @@ logger.remove()  # Remove default handler
 logger.add(
     sys.stderr,
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-    level="DEBUG"
+    level="DEBUG",
 )
 
 # Add file handler for persistent logs (.log format)
@@ -15,7 +15,7 @@ logger.add(
     rotation="00:00",  # New file every day at midnight
     retention="30 days",  # Keep logs for 30 days
     compression="zip",  # Compress old logs
-    level="INFO"
+    level="INFO",
 )
 
 # Add text file handler (.txt format, without color codes)
@@ -25,7 +25,7 @@ logger.add(
     rotation="00:00",
     retention="30 days",
     level="INFO",
-    colorize=False  # Remove color codes for plain text
+    colorize=False,  # Remove color codes for plain text
 )
 
 # Export logger instance

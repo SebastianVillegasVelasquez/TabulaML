@@ -2,21 +2,24 @@ from abc import ABC, abstractmethod
 from sklearn.pipeline import Pipeline
 
 from app.core.metrics.metrics import get_primary_metric
-from app.core.enums.problems_type import ProblemsType
-from app.core.context.run_context import RunContext
-from app.core.stages.fine_tuning.fine_tuning_optimizers.hyperparameter_tuner import get_set_hyperparameter
+from app.core.enums import ProblemType
+from app.core.context.context import Context
+from app.core.stages.fine_tuning.fine_tuning_optimizers.hyperparameter_tuner import (
+    get_set_hyperparameter,
+)
 from app.core.stages.fine_tuning.tuner_strategies import TunerStrategy
 from app.utils.logger import logger
 
 
 class BaseTuner(ABC):
-    def __init__(self,
-                 context: RunContext,
-                 ):
+    def __init__(
+        self,
+        context: Context,
+    ):
         self.context = context
 
     @abstractmethod
-    def tune(self, model_name:str, pipeline: Pipeline): ...
+    def tune(self, model_name: str, pipeline: Pipeline): ...
 
     @abstractmethod
     def get_tuner_strategy(self) -> TunerStrategy:
@@ -24,11 +27,13 @@ class BaseTuner(ABC):
         ...
 
     def _get_hyperparameters(self, model_name: str) -> dict:
-        logger.info(f"Getting hyperparameters for {model_name} to {self.context.config.problem_type} problem")
+        logger.info(
+            f"Getting hyperparameters for {model_name} to {self.context.config.problem_type} problem"
+        )
         return get_set_hyperparameter(
             problem_type=self.context.config.problem_type,
             model=model_name,
-            tuner_strategy=self.get_tuner_strategy()
+            tuner_strategy=self.get_tuner_strategy(),
         )
 
 
@@ -52,11 +57,7 @@ class OptunaTunerStrategy(BaseTuner):
             pipeline.set_params(**params)
 
             score = cross_val_score(
-                pipeline,
-                X,
-                y,
-                cv=3,
-                scoring=get_primary_metric(self.context.config.problem_type)
+                pipeline, X, y, cv=3, scoring=get_primary_metric(self.context.config.problem_type)
             ).mean()
 
             return score
@@ -99,7 +100,7 @@ class OptunaTunerStrategy(BaseTuner):
 
     def _get_direction(self):
         problem_type = self.context.config.problem_type
-        return "maximize" if problem_type == ProblemsType.CLASSIFICATION else "minimize"
+        return "maximize" if problem_type == ProblemType.CLASSIFICATION else "minimize"
 
 
 class GridSearchCVTunerStrategy(BaseTuner):
@@ -118,12 +119,7 @@ class GridSearchCVTunerStrategy(BaseTuner):
         scoring = get_primary_metric(self.context.config.problem_type)
 
         grid_search = GridSearchCV(
-            estimator=pipeline,
-            param_grid=param_grid,
-            cv=3,
-            scoring=scoring,
-            n_jobs=-1,
-            verbose=1
+            estimator=pipeline, param_grid=param_grid, cv=3, scoring=scoring, n_jobs=-1, verbose=1
         )
 
         grid_search.fit(X, y)
@@ -135,4 +131,3 @@ class GridSearchCVTunerStrategy(BaseTuner):
             "best_score": grid_search.best_score_,
             "best_pipeline": best_pipeline,
         }
-

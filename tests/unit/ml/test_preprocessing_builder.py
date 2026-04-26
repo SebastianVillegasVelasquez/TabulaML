@@ -14,8 +14,12 @@ class TestPreprocessingBuilder:
         """Test that the pipeline_builder creates the correct number of transformers"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical"),
-            FeatureConfig(name="gender", dtype="object", feature_type="categorical", encoding="onehot"),
-            FeatureConfig(name="grade", dtype="object", feature_type="categorical", encoding="ordinal"),
+            FeatureConfig(
+                name="gender", dtype="object", feature_type="categorical", encoding="onehot"
+            ),
+            FeatureConfig(
+                name="grade", dtype="object", feature_type="categorical", encoding="ordinal"
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -27,8 +31,16 @@ class TestPreprocessingBuilder:
         """Test pipeline_builder with only numerical features"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
-            FeatureConfig(name="salary", dtype="float64", feature_type="numerical", is_numerical=True, skewness=1.5),
-            FeatureConfig(name="experience", dtype="int64", feature_type="numerical", is_numerical=True),
+            FeatureConfig(
+                name="salary",
+                dtype="float64",
+                feature_type="numerical",
+                is_numerical=True,
+                skewness=1.5,
+            ),
+            FeatureConfig(
+                name="experience", dtype="int64", feature_type="numerical", is_numerical=True
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -47,10 +59,22 @@ class TestPreprocessingBuilder:
     def test_categorical_onehot_features_only(self):
         """Test pipeline_builder with only one-hot encoded categorical features"""
         feature_configs = [
-            FeatureConfig(name="gender", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True, cardinality=2),
-            FeatureConfig(name="city", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True, cardinality=10),
+            FeatureConfig(
+                name="gender",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+                cardinality=2,
+            ),
+            FeatureConfig(
+                name="city",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+                cardinality=10,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -71,10 +95,22 @@ class TestPreprocessingBuilder:
     def test_categorical_ordinal_features_only(self):
         """Test pipeline_builder with only ordinal encoded categorical features"""
         feature_configs = [
-            FeatureConfig(name="education", dtype="object", feature_type="categorical",
-                          encoding="ordinal", is_categorical=True, cardinality=5),
-            FeatureConfig(name="grade", dtype="object", feature_type="categorical",
-                          encoding="ordinal", is_categorical=True, cardinality=3),
+            FeatureConfig(
+                name="education",
+                dtype="object",
+                feature_type="categorical",
+                encoding="ordinal",
+                is_categorical=True,
+                cardinality=5,
+            ),
+            FeatureConfig(
+                name="grade",
+                dtype="object",
+                feature_type="categorical",
+                encoding="ordinal",
+                is_categorical=True,
+                cardinality=3,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -97,14 +133,35 @@ class TestPreprocessingBuilder:
         """Test pipeline_builder with mixed feature types"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
-            FeatureConfig(name="gender", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True),
-            FeatureConfig(name="education", dtype="object", feature_type="categorical",
-                          encoding="ordinal", is_categorical=True),
-            FeatureConfig(name="salary", dtype="float64", feature_type="numerical",
-                          is_numerical=True, skewness=2.1),
-            FeatureConfig(name="city", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True, cardinality=50),
+            FeatureConfig(
+                name="gender",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+            ),
+            FeatureConfig(
+                name="education",
+                dtype="object",
+                feature_type="categorical",
+                encoding="ordinal",
+                is_categorical=True,
+            ),
+            FeatureConfig(
+                name="salary",
+                dtype="float64",
+                feature_type="numerical",
+                is_numerical=True,
+                skewness=2.1,
+            ),
+            FeatureConfig(
+                name="city",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+                cardinality=50,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -136,11 +193,17 @@ class TestPreprocessingBuilder:
     def test_feature_with_suggested_transformation(self):
         """Test pipeline_builder handles features with suggested transformations"""
         feature_configs = [
-            FeatureConfig(name="income", dtype="float64", feature_type="numerical",
-                          is_numerical=True, skewness=3.5,
-                          suggested_transformation="log"),
-            FeatureConfig(name="age", dtype="int64", feature_type="numerical",
-                          is_numerical=True, skewness=0.2),
+            FeatureConfig(
+                name="income",
+                dtype="float64",
+                feature_type="numerical",
+                is_numerical=True,
+                skewness=3.5,
+                suggested_transformation="log",
+            ),
+            FeatureConfig(
+                name="age", dtype="int64", feature_type="numerical", is_numerical=True, skewness=0.2
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -152,10 +215,22 @@ class TestPreprocessingBuilder:
     def test_feature_with_high_cardinality(self):
         """Test pipeline_builder handles high cardinality categorical features"""
         feature_configs = [
-            FeatureConfig(name="user_id", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True, cardinality=10000),
-            FeatureConfig(name="category", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True, cardinality=5),
+            FeatureConfig(
+                name="user_id",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+                cardinality=10000,
+            ),
+            FeatureConfig(
+                name="category",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+                cardinality=5,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -167,10 +242,20 @@ class TestPreprocessingBuilder:
     def test_feature_with_zero_ratio(self):
         """Test pipeline_builder handles features with high zero ratio"""
         feature_configs = [
-            FeatureConfig(name="purchases", dtype="int64", feature_type="numerical",
-                          is_numerical=True, zero_ratio=0.95),
-            FeatureConfig(name="clicks", dtype="int64", feature_type="numerical",
-                          is_numerical=True, zero_ratio=0.1),
+            FeatureConfig(
+                name="purchases",
+                dtype="int64",
+                feature_type="numerical",
+                is_numerical=True,
+                zero_ratio=0.95,
+            ),
+            FeatureConfig(
+                name="clicks",
+                dtype="int64",
+                feature_type="numerical",
+                is_numerical=True,
+                zero_ratio=0.1,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -182,8 +267,13 @@ class TestPreprocessingBuilder:
     def test_categorical_without_encoding_specified(self):
         """Test pipeline_builder handles categorical features without encoding specification"""
         feature_configs = [
-            FeatureConfig(name="color", dtype="object", feature_type="categorical",
-                          is_categorical=True, cardinality=3),
+            FeatureConfig(
+                name="color",
+                dtype="object",
+                feature_type="categorical",
+                is_categorical=True,
+                cardinality=3,
+            ),
         ]
 
         builder = PreprocessingBuilder(feature_configs)
@@ -207,13 +297,16 @@ class TestPreprocessingBuilder:
         """Test that pipeline_builder does not modify input feature configs"""
         feature_configs = [
             FeatureConfig(name="age", dtype="int64", feature_type="numerical", is_numerical=True),
-            FeatureConfig(name="gender", dtype="object", feature_type="categorical",
-                          encoding="onehot", is_categorical=True),
+            FeatureConfig(
+                name="gender",
+                dtype="object",
+                feature_type="categorical",
+                encoding="onehot",
+                is_categorical=True,
+            ),
         ]
 
-        original_configs = [
-            (fc.name, fc.feature_type, fc.encoding) for fc in feature_configs
-        ]
+        original_configs = [(fc.name, fc.feature_type, fc.encoding) for fc in feature_configs]
 
         builder = PreprocessingBuilder(feature_configs)
         builder.build()
