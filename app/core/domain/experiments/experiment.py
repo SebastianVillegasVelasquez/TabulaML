@@ -79,7 +79,7 @@ class Experiment:
 
     def _get_evaluation_type(self) -> EvaluationStrategy:
         from app.core.stages.super_classes.evaluation_strategy.evaluation_factory import (
-            EvaluationFactory,
+            EvaluationFactory
         )
 
         return EvaluationFactory.create(self.evaluation_type)

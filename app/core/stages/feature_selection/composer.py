@@ -50,12 +50,10 @@ class SelectorChainFactory:
 
         filters, embedded, rfe, shap = self._decoupled_selectors(selectors=self.selectors)
 
-
-        #Collect all selectors from the list of selectors,
-        #then filter each group of selectors based on the type attribute.
+        # Collect all selectors from the list of selectors,
+        # then filter each group of selectors based on the type attribute.
         for s in self.selectors:
-            if s.type == SelectorSpecType.RFE or s.type == SelectorSpecType.SHAP:
-                continue
+            if s.type in {SelectorSpecType.RFE, SelectorSpecType.SHAP}: continue
             chains.append(SelectorChain([s], name=s.name, type="simple"))
 
         # This filter is used to combine a quick filter as SelectKBest
@@ -63,27 +61,22 @@ class SelectorChainFactory:
         # Such models as RandomForest or Linear models
         for f in filters:
             for e in embedded:
-                chains.append(
-                    SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded")
-                )
+                chains.append(SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded"))
+            for r in rfe:
+                chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
 
         # These filters combine a quick filter first such as SelectKBest
         # with a more complex RFE selector such as RFECV.
-        for f in filters:
-            for r in rfe:
-                chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
+        # for f in filters:
+        #     for r in rfe:
+        #         chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
 
         # These filters combine a quick filter first such as SelectKBest
         # with a more complex RFE and a final SHAP selector.
         # This is a combination for a heavy-duty task
         for f in filters:
-            for e in embedded:
-                for s in shap:
-                    chains.append(
-                        SelectorChain(
-                            [f, e, s], name=f"{f.name}__{e.name}__{s.name}", type="shap_embedded"
-                        )
-                    )
+            for s in shap:
+                chains.append(SelectorChain([f, s], name=f"{f.name}__{s.name}", type="filter_shap"))
         return chains
 
     @staticmethod
@@ -131,23 +124,23 @@ _RULES: list[CompositionRule] = [
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
-CompositionRule(
+    CompositionRule(
         name="linear_redundancy_block",
         description="Blocks pipelines where a linear RFE/Selector is followed by a linear model.",
         match=lambda chain, model: (
-            chain.selectors[-1].spec_type == ModelSpecType.LINEAR
-            and model.spec_type == ModelSpecType.LINEAR
+                chain.selectors[-1].spec_type == ModelSpecType.LINEAR
+                and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
-CompositionRule(
-        name="non_linear_redundancy_block",
-        description="low priority  pipelines where a non-linear RFE/Selector is followed by a linear model.",
+    CompositionRule(
+        name="tree_on_tree_block",
+        description="Blocks pipelines where a tree-based selector is followed by a tree model.",
         match=lambda chain, model: (
-            chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
-            and model.spec_type == ModelSpecType.NON_LINEAR
+                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
+                and model.type == ModelSpecType.TREE
         ),
-        priority=ExperimentPriority.LOW,
+        priority=ExperimentPriority.BLOCKED,
     ),
     # Multi stage pipeline approach
     CompositionRule(
@@ -252,7 +245,6 @@ CompositionRule(
                 len(chain.selectors) >= 2
                 and chain.selectors[0].type == SelectorSpecType.STATISTICAL
                 and chain.selectors[1].type == SelectorSpecType.RFE
-                and _validate_composition(chain.selectors[1], model)
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -267,14 +259,34 @@ CompositionRule(
         ),
         priority=ExperimentPriority.HIGH,
     ),
+    CompositionRule(
+        name="cross_paradigm_synergy",
+        description="Combines multiple selectors and models to create a powerful feature selection pipeline.",
+        match=lambda chain, model: (
+                chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
+                and model.spec_type == ModelSpecType.LINEAR
+        ),
+        priority=ExperimentPriority.HIGH,
+    ),
+    CompositionRule(
+        name="efficient_multistage",
+        description="Combines multiple selectors and models to create a powerful feature selection pipeline.",
+        match=lambda chain, model: (
+                len(chain.selectors) >= 2
+                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+        ),
+        priority=ExperimentPriority.HIGH,
+    ),
+    CompositionRule(
+        name="non_linear_redundancy_penalty",
+        description="Low priority for non-linear selectors followed by non-linear models.",
+        match=lambda chain, model: (
+                chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
+                and model.spec_type == ModelSpecType.NON_LINEAR
+        ),
+        priority=ExperimentPriority.BLOCKED,
+    ),
 ]
-
-
-def _validate_composition(selector: SelectorSpec, model: ModelSpec) -> bool:
-    if selector.spec_type == model.spec_type:
-        return False
-    return True
-
 
 _PRIORITY_ORDER = {
     ExperimentPriority.HIGH: 0,
@@ -374,9 +386,6 @@ class ExperimentComposer:
             if rule.match(chain, model):
                 # logger.debug(f"Rule {rule.name} matched chain: {chain.name} and model: {model.name}")
                 priorities.append(rule.priority)
-            else:
-                logger.debug(f"Rule {rule.name} did not match chain: {chain.name} and model: {model.name}")
-                continue
 
         if not priorities:
             return ExperimentPriority.MEDIUM

@@ -52,8 +52,9 @@ class Stage(ABC):
                 evaluation_type=definition.evaluation_type,
             )
 
-            result = experiment.run(self.context.config.X_train, self.context.config.y_train)
+            result = experiment.run(self.context.config.X_train(), self.context.config.y_train())
             results.append(result)
+            logger.debug(f"Experiment: {experiment.name} result: {result}")
             logger.info(f"Finished experiment {experiment.name}")
 
         self.context.stage_results[self.stage] = StageResult(

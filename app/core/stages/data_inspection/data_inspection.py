@@ -40,14 +40,14 @@ class DataInspectionStage:
 
         :return: None
         """
-        df = self.context.config.X_train
+        df: pd.DataFrame = self.context.config.X_train()
         self.num_rows, self.num_cols = df.shape
         self.feature_configs = []
 
         df = self._drop_redundant_columns(df)
 
         for col in df.columns:
-            series = df[col]
+            series: pd.Series | pd.DataFrame | pd.DataFrame = df[col]
 
             feature_type = self.detect_feature_type(series)
 
@@ -134,7 +134,7 @@ class DataInspectionStage:
         return df.drop(columns_to_drop, axis=1)
 
     @staticmethod
-    def detect_feature_type(series: pd.Series) -> str:
+    def detect_feature_type(series: pd.Series | pd.DataFrame) -> str:
         """
         Detects the semantic type of feature.
 
@@ -175,7 +175,7 @@ class DataInspectionStage:
         return "categorical"
 
     @staticmethod
-    def compute_cardinality(series: pd.Series) -> int:
+    def compute_cardinality(series: pd.Series | pd.DataFrame) -> int:
         """
         Computes the cardinality (number of unique values) of a feature.
 
@@ -198,7 +198,7 @@ class DataInspectionStage:
         return "ordinal"
 
     @staticmethod
-    def detect_ordinal_semantics(series: pd.Series) -> bool:
+    def detect_ordinal_semantics(series: pd.Series | pd.DataFrame) -> bool:
         """
         Detects whether a categorical feature likely represents an ordinal variable
         based on semantic keywords.
@@ -220,7 +220,7 @@ class DataInspectionStage:
 
     @staticmethod
     def decide_categorical_encoding(
-        series: pd.Series, cardinality: int, onehot_max_cardinality: int = 10
+        series: pd.Series | pd.DataFrame, cardinality: int, onehot_max_cardinality: int = 10
     ) -> str:
         """
         Decides the categorical encoding strategy.
@@ -239,7 +239,7 @@ class DataInspectionStage:
         return "ordinal"
 
     @staticmethod
-    def analyze_numerical_distribution(series: pd.Series) -> dict:
+    def analyze_numerical_distribution(series: pd.Series | pd.DataFrame) -> dict:
         """
         Analyzes the distribution of a numerical feature to detect skewness
         and suggest transformations.
