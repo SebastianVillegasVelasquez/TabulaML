@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 
 from app.core.stages.evaluation.evaluators.model_selection_evaluator import ModelSelectionEvaluator
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 from app.core.enums import Stages
 
@@ -145,10 +145,10 @@ class TestModelSelectionEvaluator:
         evaluator._update_context(sorted_results, best, stage_specific_data)
 
         # Should call update_context
-        assert evaluator.context.update_context.called
+        assert evaluator.context.update_stage_context.called
 
         # Check the StageResult
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         assert stage == Stages.MODEL_SELECTION
@@ -160,10 +160,10 @@ class TestModelSelectionEvaluator:
         evaluator.evaluate(sample_results)
 
         # Should update context
-        assert evaluator.context.update_context.called
+        assert evaluator.context.update_stage_context.called
 
         # Should pass StageResult with proper structure
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         assert isinstance(stage_result, StageResult)
@@ -174,7 +174,7 @@ class TestModelSelectionEvaluator:
         """Test that the best model is correctly identified."""
         evaluator.evaluate(sample_results)
 
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         # Best should be RandomForest with 0.95 accuracy
@@ -185,7 +185,7 @@ class TestModelSelectionEvaluator:
         """Test that top-k models come from different families."""
         evaluator.evaluate(sample_results)
 
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         top_k = stage_result.metadata["top_k_models_by_family"]

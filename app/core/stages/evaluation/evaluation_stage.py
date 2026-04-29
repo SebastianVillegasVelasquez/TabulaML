@@ -3,7 +3,7 @@ from typing import Any
 from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.enums import Stages
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.core.stages.evaluation.evaluator import Evaluator
 from app.core.stages.evaluation.evaluator_factory import EvaluatorFactory
 from app.utils.logger import logger

@@ -1,11 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Any
-
-from sklearn.pipeline import Pipeline
+from typing import Dict, Any
 
 from app.core.enums import EvaluationType
 from app.core.enums import Stages
-from app.core.ml.pipeline_builder import PipelineBuilder
+from stages.data_inspection.pipeline_builder import PipelineBuilder
 
 
 @dataclass

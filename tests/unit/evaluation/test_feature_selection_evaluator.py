@@ -11,7 +11,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 from app.core.stages.evaluation.evaluators.feature_selection_evaluator import (
     FeatureSelectionEvaluator,
 )
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 from app.core.enums import Stages
 
@@ -177,10 +177,10 @@ class TestFeatureSelectionEvaluator:
         evaluator._update_context(sorted_results, best, stage_specific_data)
 
         # Should call update_context
-        assert evaluator.context.update_context.called
+        assert evaluator.context.update_stage_context.called
 
         # Check the StageResult
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         assert stage == Stages.FEATURE_SELECTION
@@ -192,10 +192,10 @@ class TestFeatureSelectionEvaluator:
         evaluator.evaluate(sample_results)
 
         # Should update context
-        assert evaluator.context.update_context.called
+        assert evaluator.context.update_stage_context.called
 
         # Should pass StageResult with proper structure
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         assert isinstance(stage_result, StageResult)
@@ -207,7 +207,7 @@ class TestFeatureSelectionEvaluator:
         evaluator.evaluate(sample_results)
 
         # Get the call to update_context to see the stage_result
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage, stage_result = call_args[0]
 
         # Best experiment should have selected_features set (may be None if extraction failed)

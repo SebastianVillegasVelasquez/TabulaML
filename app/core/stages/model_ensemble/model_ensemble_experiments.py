@@ -2,12 +2,12 @@ from typing import List, Tuple, Any
 
 from sklearn.base import BaseEstimator
 
-from app.core.domain.experiments import ExperimentDefinition
+from experiments import ExperimentDefinition
 from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.enums import Stages
-from app.core.ml.pipeline_builder import PipelineBuilder
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from stages.data_inspection.pipeline_builder import PipelineBuilder
+from experiments import ExperimentResult
 
 
 def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinition]:
@@ -38,7 +38,7 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
             - Feature Selection
             - Ensemble Model (voting or stacking)
     """
-    from app.core.domain.experiments.experiment_definition import ExperimentDefinition
+    from experiments import ExperimentDefinition
 
     fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
     feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata[

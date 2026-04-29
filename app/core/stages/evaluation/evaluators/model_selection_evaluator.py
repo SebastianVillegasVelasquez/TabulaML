@@ -37,7 +37,7 @@ class ModelSelectionEvaluator(BaseEvaluator):
             },
         )
 
-        self.context.update_context(self.stage, stage_result)
+        self.context.update_stage_context(self.stage, stage_result)
 
     def _get_all_models_by_family(self, sorted_results):
         """Get all models organized by family."""

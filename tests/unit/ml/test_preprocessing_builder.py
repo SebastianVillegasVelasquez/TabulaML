@@ -3,8 +3,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
 
-from app.core.domain.feature_config import FeatureConfig
-from app.core.ml.preprocessing_stage import PreprocessingBuilder
+from stages.data_inspection.feature_config import FeatureConfig
+from stages.data_inspection.preprocessing_stage import PreprocessingBuilder
 
 
 class TestPreprocessingBuilder:

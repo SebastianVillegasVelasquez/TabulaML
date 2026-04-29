@@ -12,7 +12,7 @@ Design Pattern: Template Method + Strategy
 from abc import ABC, abstractmethod
 from app.core.context.context import Context
 from app.core.enums import Stages
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.utils.logger import logger
 
 

@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 
 from app.core.enums import Stages
 from app.core.stages.evaluation.base_evaluator import BaseEvaluator
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 
 
@@ -21,7 +21,7 @@ class ConcreteEvaluator(BaseEvaluator):
         stage_result = StageResult(
             name=self.stage, best_experiment=best_experiment, metadata=stage_specific_data
         )
-        self.context.update_context(self.stage, stage_result)
+        self.context.update_stage_context(self.stage, stage_result)
 
 
 class TestBaseEvaluator:
@@ -217,14 +217,14 @@ class TestBaseEvaluator:
         evaluator.evaluate(single_result)
 
         # Should update context with single best result
-        evaluator.context.update_context.assert_called_once()
+        evaluator.context.update_stage_context.assert_called_once()
 
     def test_evaluate_passes_best_to_hooks(self, evaluator, sample_results):
         """Test that best experiment is correctly identified and passed to hooks."""
         evaluator.evaluate(sample_results)
 
         # The best should be the one with highest accuracy (0.95)
-        call_args = evaluator.context.update_context.call_args
+        call_args = evaluator.context.update_stage_context.call_args
         stage_result = call_args[0][1]
 
         assert stage_result.best_experiment.metrics["test_accuracy"] == 0.95

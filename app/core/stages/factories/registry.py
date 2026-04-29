@@ -2,7 +2,7 @@ from typing import List
 
 from app.core.context.context import Context
 from app.core.enums import Stages
-from app.core.domain.experiments.experiment_definition import ExperimentDefinition
+from experiments import ExperimentDefinition
 from app.core.stages.factories.stage_experiment_factory import StageExperimentFactory
 
 

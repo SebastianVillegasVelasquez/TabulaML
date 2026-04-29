@@ -1,15 +1,14 @@
 from dataclasses import field
 from pathlib import Path
-from typing import Any, Callable, Tuple, Optional
+from typing import Any, Callable, Optional
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
-from sklearn.model_selection import train_test_split
 
 from app.core.enums import ProblemType
 from app.core.enums import Stages
-from app.core.metrics.metrics import DEFAULT_METRICS
-from app.exceptions.exceptions import FileIsEmptyException
+from .metrics import DEFAULT_METRICS
+from app.services.loader import load_data
 
 
 class StageResult(BaseModel):
@@ -62,7 +61,7 @@ class Context(BaseModel):
             raise ValueError("config must be a ProjectConfig instance")
         return v
 
-    def update_context(self, stage, stage_result: StageResult):
+    def update_stage_context(self, stage, stage_result: StageResult):
         if stage not in Stages.__members__.values():
             raise ValueError(f"Stage '{stage}' not registered.")
         self.current_stage = stage
@@ -76,97 +75,30 @@ class Context(BaseModel):
         problem_type: ProblemType = ProblemType.CLASSIFICATION,
         priority_metric: Optional[str] = None,
     ) -> "Context":
-        """
-        Factory method to create a Context instance with integrated data loading.
-
-        Args:
-            file_path: Path to the CSV file
-            target_column: Name of the target column
-            problem_type: Type of ML problem (CLASSIFICATION or REGRESSION)
-            priority_metric: Priority metric name (optional)
-
-        Returns:
-            Context: Initialized context ready for pipeline execution
-        """
-        # Validate problem type
         if problem_type not in [ProblemType.CLASSIFICATION, ProblemType.REGRESSION]:
             raise ValueError(f"Invalid problem type: {problem_type}")
 
-        # Load and split data
-        X, y = cls._load_data(file_path, target_column)
+        (X_train, y_train), (X_test, y_test) = load_data(file_path, target_column)
 
-        # Create ProjectConfig
         config = ProjectConfig(
             problem_type=problem_type,
             scoring=DEFAULT_METRICS[problem_type],
             random_state=42,
             priority_metric=cls._get_priority_metric(problem_type, priority_metric),
             priority_metric_normalized=priority_metric,
-            X_train=lambda: X[0],
-            y_train=lambda: y[0],
-            X_test=lambda: X[1],
-            y_test=lambda: y[1],
+            X_train=lambda: X_train,
+            y_train=lambda: y_train,
+            X_test=lambda: X_test,
+            y_test=lambda: y_test,
         )
 
-        # Create Metadata
-        metadata = cls._get_metadata(X[0], target_column)
-
-        # Create and return Context
-        return cls(
-            config=config,
-            metadata=metadata,
-        )
-
-    @staticmethod
-    def _load_data(
-        file_path: str, target_column: str
-    ) -> Tuple[Tuple[pd.DataFrame, pd.DataFrame], Tuple[pd.Series, pd.Series]]:
-        """Load and split dataset."""
-        data = Context._read_csv_file(file_path)
-        Context._validate_dataset(data, target_column)
-        return Context._split_dataset(data, target_column)
-
-    @staticmethod
-    def _read_csv_file(file_path: str) -> pd.DataFrame:
-        """Read CSV file with error handling."""
-        try:
-            return pd.read_csv(file_path)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"The provided path {file_path} does not exist.")
-
-    @staticmethod
-    def _validate_dataset(data: pd.DataFrame, target: str) -> None:
-        """Validate dataset integrity."""
-        if data.empty:
-            raise FileIsEmptyException("The file is empty.")
-        if target not in data.columns:
-            raise ValueError(f"Target column '{target}' not found in dataset.")
-
-    @staticmethod
-    def _split_dataset(
-        data: pd.DataFrame, target: str
-    ) -> Tuple[Tuple[pd.DataFrame, pd.DataFrame], Tuple[pd.Series, pd.Series]]:
-        """Split dataset into train and test sets."""
-        test_size = 0.2 if len(data) > 1000 else 0.1
-
-        X_train, X_test, y_train, y_test = train_test_split(
-            data.drop(columns=[target]),
-            data[target],
-            test_size=test_size,
-            shuffle=True,
-            random_state=42,
-        )
-
-        return (X_train, X_test), (y_train, y_test)
-
-    @staticmethod
-    def _get_metadata(X: pd.DataFrame, target_column: str) -> Metadata:
-        """Extract metadata from dataset."""
-        return Metadata(
-            columns=list(X.columns),
-            columns_length=len(X.columns),
+        metadata = Metadata(
+            columns=list(X_train.columns),
+            columns_length=len(X_train.columns),
             target_column=target_column,
         )
+
+        return cls(config=config, metadata=metadata)
 
     @staticmethod
     def _get_priority_metric(problem_type: ProblemType, priority_metric: Optional[str] = None) -> str:
@@ -176,4 +108,3 @@ class Context(BaseModel):
         return (
             "test_f1" if problem_type == ProblemType.CLASSIFICATION else "test_neg_mean_squared_error"
         )
-

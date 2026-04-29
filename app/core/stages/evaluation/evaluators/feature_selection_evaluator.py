@@ -53,7 +53,7 @@ class FeatureSelectionEvaluator(BaseEvaluator):
                 col: 1.0 for col in stage_specific_data["selected_features"]
             }
 
-        self.context.update_context(self.stage, stage_result)
+        self.context.update_stage_context(self.stage, stage_result)
 
         # Store feature data in experiment for downstream use
         best_experiment.feature_mask = stage_specific_data.get("feature_mask")

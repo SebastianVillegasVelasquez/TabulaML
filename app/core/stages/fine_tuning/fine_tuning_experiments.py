@@ -1,5 +1,5 @@
 from app.core.context.context import Context
-from app.core.domain.experiments.experiment_definition import ExperimentDefinition
+from experiments import ExperimentDefinition
 from app.core.stages.fine_tuning.tuner_factory import FineTunerFactory
 from app.core.stages.fine_tuning.tuner_strategies import TunerStrategy
 from app.utils.logger import logger

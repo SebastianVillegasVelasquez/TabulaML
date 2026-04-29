@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 
 from app.core.context import Context
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments.experiment_result import ExperimentResult
 from app.core.enums import EvaluationType
 from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
 from app.utils.logger import logger

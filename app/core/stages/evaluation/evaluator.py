@@ -1,7 +1,7 @@
 from typing import List
 
 from app.core.enums import Stages
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from app.core.context.context import Context, StageResult
 
 

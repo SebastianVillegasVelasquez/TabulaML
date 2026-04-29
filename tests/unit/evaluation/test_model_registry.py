@@ -2,9 +2,9 @@ import pytest
 import joblib
 import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, Mock
 from app.core.stages.evaluation.model_registry import ModelRegistry
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 

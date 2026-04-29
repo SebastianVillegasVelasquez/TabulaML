@@ -10,8 +10,8 @@ from sklearn.tree import DecisionTreeClassifier
 
 from app.core.context.context import Context
 from app.core.enums import Stages
-from app.core.domain.experiments.experiment_definition import ExperimentDefinition
-from app.core.ml.pipeline_builder import PipelineBuilder
+from experiments import ExperimentDefinition
+from stages.data_inspection.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger
 
 """

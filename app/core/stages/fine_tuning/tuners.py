@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from sklearn.pipeline import Pipeline
 
-from app.core.metrics.metrics import get_primary_metric
+from context.metrics import get_primary_metric
 from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.stages.fine_tuning.fine_tuning_optimizers.hyperparameter_tuner import (

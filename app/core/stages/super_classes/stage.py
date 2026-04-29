@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from sklearn.pipeline import Pipeline
 
 from app.core.context.context import Context, StageResult
-from app.core.domain.experiments.experiment import Experiment
+from experiments import Experiment
 from app.core.enums import Stages
-from app.core.ml import pipeline_builder, PipelineBuilder
+from app.core.ml import PipelineBuilder
 from app.utils.logger import logger
 
 

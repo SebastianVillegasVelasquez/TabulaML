@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Callable
 
 from app.core.context import Context
-from app.core.domain.experiments import ExperimentDefinition
+from experiments import ExperimentDefinition
 from app.core.enums import SelectorSpecType, ModelSpecType
 from app.core.ml import PipelineBuilder
 from app.core.model_bank.model_spects import SelectorSpec, ModelSpec

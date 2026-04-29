@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from app.core.context.context import Context
-from app.core.domain.experiments.experiment_definition import ExperimentDefinition
+from experiments import ExperimentDefinition
 
 
 class BaseExperimentFactory(ABC):

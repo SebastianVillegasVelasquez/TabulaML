@@ -2,7 +2,7 @@ import joblib
 import json
 from pathlib import Path
 
-from app.core.domain.experiments.experiment_result import ExperimentResult
+from experiments import ExperimentResult
 
 
 class ModelRegistry:

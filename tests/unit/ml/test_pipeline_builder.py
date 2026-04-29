@@ -2,7 +2,7 @@ import pytest
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
 
-from app.core.ml.pipeline_builder import PipelineBuilder
+from stages.data_inspection.pipeline_builder import PipelineBuilder
 
 
 @pytest.mark.parametrize(
