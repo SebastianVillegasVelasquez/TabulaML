@@ -5,7 +5,7 @@ from typing import Callable
 from app.core.context import Context
 from experiments import ExperimentDefinition
 from app.core.enums import SelectorSpecType, ModelSpecType
-from app.core.ml import PipelineBuilder
+from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
 from app.core.model_bank.model_spects import SelectorSpec, ModelSpec
 from app.utils.logger import logger
 
@@ -53,7 +53,8 @@ class SelectorChainFactory:
         # Collect all selectors from the list of selectors,
         # then filter each group of selectors based on the type attribute.
         for s in self.selectors:
-            if s.type in {SelectorSpecType.RFE, SelectorSpecType.SHAP}: continue
+            if s.type in {SelectorSpecType.RFE, SelectorSpecType.SHAP}:
+                continue
             chains.append(SelectorChain([s], name=s.name, type="simple"))
 
         # This filter is used to combine a quick filter as SelectKBest
@@ -61,7 +62,9 @@ class SelectorChainFactory:
         # Such models as RandomForest or Linear models
         for f in filters:
             for e in embedded:
-                chains.append(SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded"))
+                chains.append(
+                    SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded")
+                )
             for r in rfe:
                 chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
 
@@ -119,8 +122,8 @@ _RULES: list[CompositionRule] = [
             "Although valid, this creates strong inductive bias overlap and may reduce diversity."
         ),
         match=lambda chain, model: (
-                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
-                and model.type == ModelSpecType.TREE
+            any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
+            and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -128,8 +131,8 @@ _RULES: list[CompositionRule] = [
         name="linear_redundancy_block",
         description="Blocks pipelines where a linear RFE/Selector is followed by a linear model.",
         match=lambda chain, model: (
-                chain.selectors[-1].spec_type == ModelSpecType.LINEAR
-                and model.spec_type == ModelSpecType.LINEAR
+            chain.selectors[-1].spec_type == ModelSpecType.LINEAR
+            and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -137,8 +140,8 @@ _RULES: list[CompositionRule] = [
         name="tree_on_tree_block",
         description="Blocks pipelines where a tree-based selector is followed by a tree model.",
         match=lambda chain, model: (
-                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
-                and model.type == ModelSpecType.TREE
+            any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
+            and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -160,8 +163,8 @@ _RULES: list[CompositionRule] = [
             "since both rely on linear relationships."
         ),
         match=lambda chain, model: (
-                chain.selectors[-1].type == SelectorSpecType.STATISTICAL
-                and model.spec_type == ModelSpecType.LINEAR
+            chain.selectors[-1].type == SelectorSpecType.STATISTICAL
+            and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -173,8 +176,8 @@ _RULES: list[CompositionRule] = [
             "a cleaner feature space. Strong cross-paradigm synergy."
         ),
         match=lambda chain, model: (
-                any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
-                and model.spec_type == ModelSpecType.LINEAR
+            any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
+            and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -186,8 +189,8 @@ _RULES: list[CompositionRule] = [
             "perform sparsity. Still valid but not optimal."
         ),
         match=lambda chain, model: (
-                any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
-                and model.spec_type == ModelSpecType.LINEAR
+            any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
+            and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -199,8 +202,8 @@ _RULES: list[CompositionRule] = [
             "Useful as a pre-filter but not ideal alone."
         ),
         match=lambda chain, model: (
-                chain.selectors[0].type == SelectorSpecType.STATISTICAL
-                and model.type == ModelSpecType.TREE
+            chain.selectors[0].type == SelectorSpecType.STATISTICAL
+            and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.MEDIUM,
     ),
@@ -212,8 +215,8 @@ _RULES: list[CompositionRule] = [
             "for nonlinear tree-based models."
         ),
         match=lambda chain, model: (
-                any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
-                and model.type == ModelSpecType.TREE
+            any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
+            and model.type == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.LOW,
     ),
@@ -225,14 +228,14 @@ _RULES: list[CompositionRule] = [
             "feature selection strategy."
         ),
         match=lambda chain, model: (
-                len(chain.selectors) >= 2
-                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
-                and chain.selectors[1].type
-                in {
-                    SelectorSpecType.TREE_BASED,
-                    SelectorSpecType.L1,
-                    SelectorSpecType.L1_L2,
-                }
+            len(chain.selectors) >= 2
+            and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+            and chain.selectors[1].type
+            in {
+                SelectorSpecType.TREE_BASED,
+                SelectorSpecType.L1,
+                SelectorSpecType.L1_L2,
+            }
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -242,9 +245,9 @@ _RULES: list[CompositionRule] = [
             "Fast statistical filtering followed by RFE is a strong and efficient feature selection strategy."
         ),
         match=lambda chain, model: (
-                len(chain.selectors) >= 2
-                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
-                and chain.selectors[1].type == SelectorSpecType.RFE
+            len(chain.selectors) >= 2
+            and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+            and chain.selectors[1].type == SelectorSpecType.RFE
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -263,8 +266,8 @@ _RULES: list[CompositionRule] = [
         name="cross_paradigm_synergy",
         description="Combines multiple selectors and models to create a powerful feature selection pipeline.",
         match=lambda chain, model: (
-                chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
-                and model.spec_type == ModelSpecType.LINEAR
+            chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
+            and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -272,8 +275,7 @@ _RULES: list[CompositionRule] = [
         name="efficient_multistage",
         description="Combines multiple selectors and models to create a powerful feature selection pipeline.",
         match=lambda chain, model: (
-                len(chain.selectors) >= 2
-                and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+            len(chain.selectors) >= 2 and chain.selectors[0].type == SelectorSpecType.STATISTICAL
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -281,8 +283,8 @@ _RULES: list[CompositionRule] = [
         name="non_linear_redundancy_penalty",
         description="Low priority for non-linear selectors followed by non-linear models.",
         match=lambda chain, model: (
-                chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
-                and model.spec_type == ModelSpecType.NON_LINEAR
+            chain.selectors[-1].spec_type == ModelSpecType.NON_LINEAR
+            and model.spec_type == ModelSpecType.NON_LINEAR
         ),
         priority=ExperimentPriority.BLOCKED,
     ),

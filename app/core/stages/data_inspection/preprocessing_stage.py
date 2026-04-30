@@ -1,8 +1,7 @@
-import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 
+from app.utils.logger import logger
 from .feature_config import FeatureConfig
 
 
@@ -15,7 +14,7 @@ class PreprocessingBuilder:
     def __init__(self, feature_configs: list[FeatureConfig]):
         self.feature_configs = feature_configs
         self.num_features: list[FeatureConfig] = []
-        self.cat_onehot: list[FeatureConfig] = []
+        self.cat_nominal: list[FeatureConfig] = []
         self.cat_ordinal: list[FeatureConfig] = []
         self.transformers: list[tuple[str, Pipeline]] = []
 
@@ -25,54 +24,49 @@ class PreprocessingBuilder:
 
         :return: ColumnTransformer instance.
         """
-        try:
-            self._identify_and_load_features()
-        except ValueError as e:
-            raise ValueError(f"Error identifying features: {e}") from e
 
+        self._steps_orchestator()
 
-        self._add_transformers()
+        return ColumnTransformer(transformers=self.transformers)
 
+    def _steps_orchestator(self):
+        # Group features by type
+        self._group_features_by_type()
 
+        # Identify same steps for each feature type group
+        self._identify_and_group_same_steps()
 
-        return ColumnTransformer(transformers=transformers)
+    def _identify_and_group_same_steps(self):
+        # Handle the numerical logic
+        self._handle_numerical_features()
 
-    def _add_transformers(self):
-        pass
+    def _handle_numerical_features(self
+                                   ) -> list[tuple[str, Pipeline]]:
 
+        assert self.num_features, "No numerical features found"
 
+        unique_steps = set()
 
-    @staticmethod
-    def _scale_numerical_features(X: pd.DataFrame,
-                                  scaler: StandardScaler,
-                                  ) -> pd.DataFrame:
-        scaled = scaler.fit_transform(X)
-        return pd.DataFrame(scaled, columns=X.columns)
+        for feature in self.num_features:
+            logger.info(f"feature: {feature.name},"
+                        f"feature suggested scaler {feature.suggested_scaler},"
+                        f"imputer {feature.suggested_imputer},"
+                        f"suggested transformer {feature.suggested_transformation} "
+                        f"which encoding needs: {feature.which_encoding_needs}")
 
-    def _identify_and_load_features(self):
-        if self.feature_configs is None:
-            raise ValueError("Feature configs are not provided.")
+    def _group_features_by_type(self) -> None:
+        """ Group features by their type (numerical, categorical, etc.)
 
-        self.num_features = []
-        self.cat_onehot = []
-        self.cat_ordinal = []
+        Once the data inspection stage is complete, the feature_configs list is populated.
+        This method groups the features by their type and stores them in separate lists.
+        """
+        from .feature_config_enum import FeatureType
 
-        for fc in self.feature_configs:
-            match fc.feature_type:
-                case "numerical":
-                    self.num_features.append(fc)
-
-                case "categorical":
-                    if fc.encoding == "onehot":
-                        self.cat_onehot.append(fc)
-                    elif fc.encoding == "ordinal":
-                        self.cat_ordinal.append(fc)
-                    else:
-                        raise ValueError(
-                            f"Unsupported encoding: {fc.encoding}"
-                        )
-
-                case _:
-                    raise ValueError(
-                        f"Unsupported feature type: {fc.feature_type}"
-                    )
+        for feature in self.feature_configs:
+            match feature.feature_type:
+                case FeatureType.NUMERICAL:
+                    self.num_features.append(feature)
+                case FeatureType.CATEGORICAL_NOMINAL:
+                    self.cat_nominal.append(feature)
+                case FeatureType.CATEGORICAL_ORDINAL:
+                    self.cat_ordinal.append(feature)

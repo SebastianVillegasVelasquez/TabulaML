@@ -47,6 +47,7 @@ class Context(BaseModel):
     It handles its own creation, data loading, and validation.
     It is used to pass data between stages.
     """
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     config: ProjectConfig
@@ -54,7 +55,7 @@ class Context(BaseModel):
     stage_results: dict[str, StageResult] = field(default_factory=dict)
     metadata: dict[str, Any] | Metadata = None
 
-    @field_validator('config', mode='before')
+    @field_validator("config", mode="before")
     @classmethod
     def validate_config(cls, v):
         if not isinstance(v, ProjectConfig):
@@ -101,10 +102,14 @@ class Context(BaseModel):
         return cls(config=config, metadata=metadata)
 
     @staticmethod
-    def _get_priority_metric(problem_type: ProblemType, priority_metric: Optional[str] = None) -> str:
+    def _get_priority_metric(
+        problem_type: ProblemType, priority_metric: Optional[str] = None
+    ) -> str:
         """Determine the priority metric for optimization."""
         if priority_metric is not None:
             return f"test_{priority_metric}"
         return (
-            "test_f1" if problem_type == ProblemType.CLASSIFICATION else "test_neg_mean_squared_error"
+            "test_f1"
+            if problem_type == ProblemType.CLASSIFICATION
+            else "test_neg_mean_squared_error"
         )

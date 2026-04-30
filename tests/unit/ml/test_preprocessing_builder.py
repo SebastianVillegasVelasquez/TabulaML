@@ -81,7 +81,7 @@ class TestPreprocessingBuilder:
         transformer = builder.build()
 
         assert len(transformer.transformers) == 1
-        assert transformer.transformers[0][0] == "cat_onehot"
+        assert transformer.transformers[0][0] == "cat_nominal"
         assert transformer.transformers[0][2] == ["gender", "city"]
 
         # Check pipeline steps
@@ -174,7 +174,7 @@ class TestPreprocessingBuilder:
         assert num_transformer[2] == ["age", "salary"]
 
         # Check onehot transformer
-        onehot_transformer = next(t for t in transformer.transformers if t[0] == "cat_onehot")
+        onehot_transformer = next(t for t in transformer.transformers if t[0] == "cat_nominal")
         assert onehot_transformer[2] == ["gender", "city"]
 
         # Check ordinal transformer

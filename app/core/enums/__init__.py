@@ -6,10 +6,8 @@ from .enums import (
     EvaluationType,
     ProblemType,
     Stages,
-    ExecutionStatus
+    ExecutionStatus,
 )
-
-
 
 __all__ = [
     "Stages",

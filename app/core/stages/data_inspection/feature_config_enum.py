@@ -1,5 +1,7 @@
 from enum import Enum
 
+from sklearn.preprocessing import MinMaxScaler
+
 
 class TransformationType(str, Enum):
     """Transformation types applicable to numerical features.
@@ -15,6 +17,7 @@ class TransformationType(str, Enum):
         MINMAX: Min-Max scaling. For bounded features without severe outliers.
         ROBUST: Robust scaling using median/IQR. For features with outliers.
     """
+
     NONE = "none"
     LOG = "log"
     LOG1P = "log1p"
@@ -24,6 +27,7 @@ class TransformationType(str, Enum):
     STANDARD = "standard"
     MINMAX = "minmax"
     ROBUST = "robust"
+
 
 class FeatureType(str, Enum):
     """Semantic type assigned to each column during data inspection.
@@ -40,14 +44,16 @@ class FeatureType(str, Enum):
         TEXT: Free-form text column.
         IDENTIFIER: ID-like column is excluded from training.
     """
-    NUMERICAL           = "numerical"
-    CATEGORICAL         = "categorical"
+
+    NUMERICAL = "numerical"
+    CATEGORICAL = "categorical"
     CATEGORICAL_NOMINAL = "categorical_nominal"
     CATEGORICAL_ORDINAL = "categorical_ordinal"
-    BOOLEAN             = "boolean"
-    DATETIME            = "datetime"
-    TEXT                = "text"
-    IDENTIFIER          = "identifier"
+    BOOLEAN = "boolean"
+    DATETIME = "datetime"
+    TEXT = "text"
+    IDENTIFIER = "identifier"
+
 
 class NumericalSubtype(str, Enum):
     """Semantic subtype of a numerical column.
@@ -57,21 +63,26 @@ class NumericalSubtype(str, Enum):
     override distribution-based heuristics.
 
     Attributes:
-        CONTINUOUS: Floating-point or wide-range integer. Magnitude is meaningful.
+        CONTINUOUS: Float or wide-range integer. Both order and magnitude matter.
         COUNT: Non-negative integer representing a frequency or occurrence.
-            Typically, Poisson-distributed; log1p is the natural transform.
-        ORDINAL_ENCODED: Integer encoding of an ordered category (e.g., 1=low, 3=high).
-            Scaling should be avoided; the pipeline should treat it as ordinal.
-        CYCLIC: Integer with a fixed periodic range (hour 0-23, month 1-12).
+            Typically Poisson-distributed; log1p is the natural transform.
+        LOW_CARDINALITY_COUNT: Non-negative integer count with very few distinct
+            values (<=6). The pipeline should consider one-hot encoding instead
+            of scaling, since each value behaves more like a category.
+        ORDINAL_ENCODED: Integer encoding of an ordered category (1=low, 3=high).
+            Scaling should be avoided; treat as ordinal in the pipeline.
+        CYCLIC: Integer with a known periodic range (hour 0-23, month 1-12).
             Requires sin/cos encoding to preserve circular distance.
-        BINARY_ENCODED: Numeric 0/1 column that represents a boolean flag.
-            No transformation needed; handled identically to BooleanFeature.
+        BINARY_ENCODED: Numeric 0/1 representing a boolean flag.
+            No transformation needed.
     """
-    CONTINUOUS      = "continuous"
-    COUNT           = "count"
+
+    CONTINUOUS = "continuous"
+    COUNT = "count"
+    LOW_CARDINALITY_COUNT = "low_cardinality_count"
     ORDINAL_ENCODED = "ordinal_encoded"
-    CYCLIC          = "cyclic"
-    BINARY_ENCODED  = "binary_encoded"
+    CYCLIC = "cyclic"
+    BINARY_ENCODED = "binary_encoded"
 
 
 class EncodingType(str, Enum):
@@ -86,6 +97,7 @@ class EncodingType(str, Enum):
         HASHING: Hashing Encoding. For very high cardinality with limited memory.
         LEAVE_ONE_OUT: Leave-One-Out Encoding. More robust variant of Target Encoding.
     """
+
     ONEHOT = "onehot"
     ORDINAL = "ordinal"
     TARGET = "target"
@@ -107,6 +119,7 @@ class ImputationStrategy(str, Enum):
         ITERATIVE: Iterative imputation (MICE). More precise, computationally intensive.
         INDICATOR: Adds a binary missingness indicator column before imputing.
     """
+
     MEAN = "mean"
     MEDIAN = "median"
     MODE = "mode"
@@ -114,6 +127,22 @@ class ImputationStrategy(str, Enum):
     KNN = "knn"
     ITERATIVE = "iterative"
     INDICATOR = "indicator"
+
+
+class ScalerStrategy(str, Enum):
+    """Scaling strategies for numerical features.
+
+    Attributes:
+        MIN_MAX_SCALER: Scales features to a range between 0 and 1.
+        ROBUST_SCALER: Robust scaler that adapts to outliers.
+        STANDARD_SCALER: Standard scaler that normalizes features to have zero mean and unit variance.
+        MAX_ABS_SCALER: Scales features to have a maximum absolute value of 1.
+    """
+
+    MIN_MAX_SCALER = "min_max_scaler"
+    ROBUST_SCALER = "robust"
+    STANDARD_SCALER = "standard"
+    MAX_ABS_SCALER = "max_abs_scaler"
 
 
 class DatetimeGranularity(str, Enum):
@@ -126,6 +155,7 @@ class DatetimeGranularity(str, Enum):
         YEAR_MONTH: Monthly granularity (e.g., invoices, reports).
         TIMESTAMP: Unix timestamp or similar.
     """
+
     DATE = "date"
     DATETIME = "datetime"
     TIME = "time"
@@ -142,8 +172,8 @@ class TextVectorizationType(str, Enum):
         EMBEDDINGS: Semantic embeddings (e.g., sentence-transformers). For semantic text.
         HASH: HashingVectorizer. For massive vocabularies with limited memory.
     """
+
     TFIDF = "tfidf"
     COUNT = "count"
     EMBEDDINGS = "embeddings"
     HASH = "hash"
-

@@ -16,7 +16,7 @@ def main():
     context = Context.create(
         file_path="C:\\WorkSpace\\TabulaML\\data_test\\train.csv",
         target_column="Survived",
-        priority_metric="f1"
+        priority_metric="f1",
     )
     logger.info("Context initialized successfully.")
 

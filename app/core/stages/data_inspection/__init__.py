@@ -1,15 +1,16 @@
 from .data_inspection import DataInspectionStage
 
-from .feature_config_info import (
+from .feature_config_enum import (
     ImputationStrategy,
     EncodingType,
     TransformationType,
+    ScalerStrategy,
     TextVectorizationType,
-    DatetimeGranularity
+    DatetimeGranularity,
 )
 
 from .feature_config import (
-BooleanFeature,
+    BooleanFeature,
     CategoricalNominalFeature,
     CategoricalOrdinalFeature,
     DatetimeFeature,
@@ -20,9 +21,11 @@ BooleanFeature,
     TextFeature,
 )
 
-__all__ = ["DataInspectionStage",
-           "ImputationStrategy",
-           "EncodingType",
-           "TransformationType",
-           "TextVectorizationType",
-           "DatetimeGranularity", ]
+__all__ = [
+    "DataInspectionStage",
+    "ImputationStrategy",
+    "EncodingType",
+    "TransformationType",
+    "TextVectorizationType",
+    "ScalerStrategy",
+]

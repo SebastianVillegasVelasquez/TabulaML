@@ -31,7 +31,7 @@ from .feature_config import (
     NumericalFeature,
     TextFeature,
 )
-from .feature_config_info import NumericalSubtype
+from .feature_config_enum import NumericalSubtype, ScalerStrategy, ImputationStrategy
 from .preprocessing_stage import PreprocessingBuilder
 from app.utils.logger import logger
 
@@ -53,6 +53,9 @@ class DataInspectionStage:
         context: Shared AutoML context carrying the dataset and stage results.
         feature_configs: List of typed feature instances built during inspection.
             Populated after ``run()`` is called.
+
+        CYCLIC_DOMAINS: Mapping of (min, max, keywords) tuples to the corresponding
+        ciclyc domain name. Used to detect periodic columns more easily.
 
     Example:
         >>> stage = DataInspectionStage(context)
@@ -76,6 +79,15 @@ class DataInspectionStage:
         "excellent": 3,
     }
 
+    CYCLIC_DOMAINS: list[tuple[int, int, list[str]]] = [
+        (0, 23, ["hour", "hora"]),
+        (1, 12, ["month", "mes"]),
+        (0, 6, ["weekday", "dayofweek", "day_of_week", "dia_semana"]),
+        (1, 7, ["weekday", "dayofweek", "day_of_week", "dia_semana"]),
+        (1, 31, ["day", "dia"]),
+        (1, 4, ["quarter", "trimestre"]),
+    ]
+
     # Fraction of missing values above which a column is dropped outright.
     _NULL_THRESHOLD: float = 0.9
 
@@ -86,7 +98,7 @@ class DataInspectionStage:
     _SEMANTIC_TOKEN_THRESHOLD: float = 6.0
 
     def __init__(self, context: "Context") -> None:
-        from app.core.context import Context
+
         self.context = context
         self.feature_configs: list[FeatureConfig] = []
 
@@ -128,10 +140,12 @@ class DataInspectionStage:
         for col in df.columns:
             series: pd.Series = df[col]
             feature = self._build_feature_config(col, series)
-            logger.debug(f"Feature config built: {feature}" )
+            logger.debug(f"Feature config built: {feature}")
             self.feature_configs.append(feature)
 
-        logger.debug(f"Feature configs: {self.feature_configs}", )
+        logger.debug(
+            f"Feature configs: {self.feature_configs}",
+        )
 
         preprocessing_builder = PreprocessingBuilder(self.feature_configs).build()
         self._handle_update_context(transformer=preprocessing_builder, df=df)
@@ -156,10 +170,10 @@ class DataInspectionStage:
         feature_type = self._detect_feature_type(series)
 
         builders: dict[str, Any] = {
-            "numerical":  self._build_numerical_feature,
-            "boolean":    self._build_boolean_feature,
-            "datetime":   self._build_datetime_feature,
-            "text":       self._build_text_feature,
+            "numerical": self._build_numerical_feature,
+            "boolean": self._build_boolean_feature,
+            "datetime": self._build_datetime_feature,
+            "text": self._build_text_feature,
             "categorical": self._build_categorical_feature,
         }
 
@@ -172,28 +186,28 @@ class DataInspectionStage:
 
     @staticmethod
     def _build_numerical_feature(
-        col: str, series: pd.Series, missing_ratio: float
+            col: str,
+            series: pd.Series,
+            missing_ratio: float,
     ) -> NumericalFeature:
-        """Computes numerical statistics and instantiates a NumericalFeature.
+        """Computes raw numerical statistics and instantiates a NumericalFeature.
 
-        Gathers skewness, zero ratio, outlier ratio, variance, and sign
-        information. The suggested transformation is derived automatically
-        by the NumericalFeature.suggested_transformation property.
+        Responsibility is intentionally limited to fact-gathering: it computes
+        skewness, zero ratio, outlier ratio, variance, and subtype, then hands
+        those numbers to NumericalFeature. All decisions about what to *do* with
+        those numbers (which scaler, which imputer, which transformation) are
+        delegated to the feature's computed properties.
 
         Args:
-            col: Column name.
-            series: Raw pandas Series for the column.
-            missing_ratio: Pre-computed proportion of null values.
+            col: Column name as it appears in the dataframe.
+            series: Raw pandas Series for the column (nulls included).
+            missing_ratio: Pre-computed fraction of null values in [0, 1].
 
         Returns:
-            A NumericalFeature populated with the column's distribution stats.
+            A NumericalFeature whose properties expose the full preprocessing
+            strategy derived from the computed statistics.
         """
         s = series.dropna()
-
-        q1 = s.quantile(0.25)
-        q3 = s.quantile(0.75)
-        iqr = q3 - q1
-        outlier_ratio = float(((s < q1 - 1.5 * iqr) | (s > q3 + 1.5 * iqr)).mean())
 
         return NumericalFeature(
             name=col,
@@ -201,81 +215,151 @@ class DataInspectionStage:
             skewness=float(s.skew()),
             zero_ratio=float((s == 0).mean()),
             has_negative_values=bool((s < 0).any()),
-            outlier_ratio=outlier_ratio,
+            outlier_ratio=DataInspectionStage._compute_outlier_ratio(s),
             variance=float(s.var()),
-            is_discrete=pd.api.types.is_integer_dtype(s),
+            subtype=DataInspectionStage.infer_numerical_subtype(series, col_name=col),
             missing_ratio=missing_ratio,
         )
 
     @staticmethod
-    def infer_numerical_subtype(series: pd.Series) -> NumericalSubtype:
-        """Infers the numerical subtype from the column's value distribution.
+    def _compute_outlier_ratio(s: pd.Series) -> float:
+        """Computes the fraction of values outside the 1.5×IQR fences.
 
-        Applies a priority-based heuristic cascade. Each check is ordered from
-        most structurally constrained (binary, cyclic) to least (continuous),
-        so that edge cases are caught before the general case.
-
-        Priority order:
-            1. Binary encoded  — exactly {0, 1}
-            2. Cyclic          — integer, range matches known periodic domains
-            3. Count           — non-negative integer, low cardinality
-            4. Ordinal encoded — small-range integer, evenly spaced values
-            5. Continuous      — fallback for floats and wide-range integers
+        Uses the Tukey fence method, which is robust to non-normal distributions
+        and does not assume any particular distributional shape.
 
         Args:
-            series: The raw pandas Series for the column (nulls allowed).
+            s: Cleaned pandas Series with nulls already dropped.
+
+        Returns:
+            Fraction of values classified as outliers, in [0.0, 1.0].
+            Returns 0.0 if IQR is zero (constant-like column).
+        """
+        q1, q3 = s.quantile(0.25), s.quantile(0.75)
+        iqr = q3 - q1
+
+        if iqr == 0:
+            # All values in the IQR are identical — no meaningful outlier signal
+            return 0.0
+
+        lower_fence = q1 - 1.5 * iqr
+        upper_fence = q3 + 1.5 * iqr
+        return float(((s < lower_fence) | (s > upper_fence)).mean())
+
+    @staticmethod
+    def _is_effectively_integer(s: pd.Series) -> bool:
+        """Checks if all values are whole numbers regardless of the stored dtype.
+
+        Pandas promotes integer columns to float64 when NaNs are present, so
+        dtype alone is not a reliable signal. This method checks the actual
+        values after nulls are dropped.
+
+        Args:
+            s: Cleaned pandas Series with nulls already dropped.
+
+        Returns:
+            True if every value in the series is a whole number.
+        """
+        if pd.api.types.is_integer_dtype(s):
+            return True
+        if pd.api.types.is_float_dtype(s):
+            return bool((s % 1 == 0).all())
+        return False
+
+    @staticmethod
+    def infer_numerical_subtype(series: pd.Series, col_name: str) -> NumericalSubtype:
+        """Infers the numerical subtype using a name-aware heuristic cascade.
+
+        The key improvement over range-only detection is that CYCLIC classification
+        now requires the column name to contain a domain keyword, preventing
+        low-cardinality count variables (Parch 0-6, SibSp 0-8) from being
+        misclassified as periodic just because their range fits a cyclic domain.
+
+        Priority order:
+            1. Binary encoded        — values are subset of {0, 1}
+            2. Cyclic                — name signals periodicity AND range fits domain
+            3. Low-cardinality count — non-negative whole numbers, <=10 distinct values
+            4. Count                 — non-negative whole numbers, <=30 distinct values
+            5. Ordinal encoded       — whole numbers, small evenly-spaced range
+            6. Continuous            — fallback
+
+        Args:
+            series: Raw pandas Series for the column (nulls accepted).
+            col_name: Column name used for cyclic keyword detection.
 
         Returns:
             The most appropriate NumericalSubtype for this column.
         """
         s = series.dropna()
-
         unique_vals = set(s.unique())
         cardinality = len(unique_vals)
-        is_integer = pd.api.types.is_integer_dtype(s)
+        is_int = DataInspectionStage._is_effectively_integer(s)
 
-        # 1. Binary encoded: only values are 0 and 1
+        # 1. Binary encoded — only 0s and 1s present
         if unique_vals <= {0, 1}:
             return NumericalSubtype.BINARY_ENCODED
 
-        # 2. Cyclic: integer column whose range matches a known periodic domain
-        #    Common domains: hour (0-23), month (1-12), day of week (0-6 or 1-7),
-        #    day of month (1-31), quarter (1-4).
-        CYCLIC_DOMAINS = [
-            (0, 23),  # hour
-            (1, 12),  # month
-            (0, 6),  # day of week (Python convention)
-            (1, 7),  # day of week (ISO convention)
-            (1, 31),  # day of month
-            (1, 4),  # quarter
-        ]
-        if is_integer:
-            col_min, col_max = int(s.min()), int(s.max())
-            for domain_min, domain_max in CYCLIC_DOMAINS:
-                if col_min >= domain_min and col_max <= domain_max:
-                    return NumericalSubtype.CYCLIC
+        # 2. Cyclic — name + range must both signal periodicity.
+        #    Pure range matching is insufficient: Parch (0-6) would match the
+        #    "day of week (0-6)" domain even though it is not periodic.
+        if is_int and DataInspectionStage._is_cyclic(s, col_name):
+            return NumericalSubtype.CYCLIC
 
-        # 3. Count: non-negative integer with low cardinality
-        #    Threshold of 100 covers practical count features (n_purchases, n_clicks)
-        #    without misclassifying encoded IDs.
-        if is_integer and (s >= 0).all() and cardinality <= 100:
+        # 3. Low-cardinality count — non-negative integers with very few distinct
+        #    values. Each value behaves more like a category than a magnitude
+        #    (0 children, 1 child, 2 children). Pipeline should one-hot encode.
+        if is_int and (s >= 0).all() and cardinality <= 10:
+            return NumericalSubtype.LOW_CARDINALITY_COUNT
+
+        # 4. Count — non-negative integers with moderate cardinality.
+        #    The right tail is typically Poisson-distributed; log1p compresses it.
+        if is_int and (s >= 0).all() and cardinality <= 30:
             return NumericalSubtype.COUNT
 
-        # 4. Ordinal encoded: small integer range, evenly spaced (e.g., 1/2/3/4/5)
-        #    Evenly spaced check avoids confusing arbitrary codes with ordinal scales.
-        if is_integer and cardinality <= 15:
+        # 5. Ordinal encoded — small integer range with uniform spacing.
+        #    Uniform gaps (1/2/3/4/5 or 0/5/10/15) signal a rating or score scale.
+        #    Non-uniform gaps suggest an arbitrary code → falls through to CONTINUOUS.
+        if is_int and cardinality <= 15:
             sorted_vals = sorted(unique_vals)
-            gaps = [sorted_vals[i + 1] - sorted_vals[i] for i in range(len(sorted_vals) - 1)]
-            if gaps and len(set(gaps)) == 1:  # all gaps equal → evenly spaced
+            gaps = {sorted_vals[i + 1] - sorted_vals[i] for i in range(len(sorted_vals) - 1)}
+            if len(gaps) == 1:
                 return NumericalSubtype.ORDINAL_ENCODED
 
-        # 5. Fallback: continuous
+        # 6. Fallback — float or wide-range integer where magnitude is meaningful
         return NumericalSubtype.CONTINUOUS
 
     @staticmethod
-    def _build_boolean_feature(
-        col: str, series: pd.Series, missing_ratio: float
-    ) -> BooleanFeature:
+    def _is_cyclic(s: pd.Series, col_name: str) -> bool:
+        """Detects whether a column is a periodic/cyclic variable.
+
+        Requires BOTH conditions to be true simultaneously:
+            1. The column name contains a keyword associated with a known
+               periodic domain (hour, month, weekday, etc.).
+            2. The actual value range fits within that domain's bounds.
+
+        This dual requirement prevents low-cardinality count variables
+        (Parch, SibSp) from being misclassified as cyclic just because
+        their integer range accidentally matches a periodic domain.
+
+        Args:
+            s: Cleaned pandas Series with nulls dropped.
+            col_name: Original column name used for keyword matching.
+
+        Returns:
+            True if both the name and the range signal a cyclic variable.
+        """
+        col_lower = col_name.lower()
+        col_min, col_max = int(s.min()), int(s.max())
+
+        for domain_min, domain_max, keywords in DataInspectionStage.CYCLIC_DOMAINS:
+            name_matches = any(kw in col_lower for kw in keywords)
+            range_fits = col_min >= domain_min and col_max <= domain_max
+            if name_matches and range_fits:
+                return True
+        return False
+
+    @staticmethod
+    def _build_boolean_feature(col: str, series: pd.Series, missing_ratio: float) -> BooleanFeature:
         """Computes binary statistics and instantiates a BooleanFeature.
 
         Args:
@@ -303,7 +387,7 @@ class DataInspectionStage:
         )
 
     def _build_categorical_feature(
-        self, col: str, series: pd.Series, missing_ratio: float
+            self, col: str, series: pd.Series, missing_ratio: float
     ) -> CategoricalNominalFeature | CategoricalOrdinalFeature:
         """Computes categorical statistics and dispatches to ordinal or nominal.
 
@@ -344,7 +428,7 @@ class DataInspectionStage:
 
     @staticmethod
     def _build_datetime_feature(
-        col: str, series: pd.Series, missing_ratio: float
+            col: str, series: pd.Series, missing_ratio: float
     ) -> DatetimeFeature:
         """Computes temporal metadata and instantiates a DatetimeFeature.
 
@@ -371,9 +455,7 @@ class DataInspectionStage:
             missing_ratio=missing_ratio,
         )
 
-    def _build_text_feature(
-        self, col: str, series: pd.Series, missing_ratio: float
-    ) -> TextFeature:
+    def _build_text_feature(self, col: str, series: pd.Series, missing_ratio: float) -> TextFeature:
         """Computes text corpus statistics and instantiates a TextFeature.
 
         Args:
@@ -405,7 +487,7 @@ class DataInspectionStage:
     # ------------------------------------------------------------------
 
     def _drop_redundant_columns(
-        self, df: pd.DataFrame
+            self, df: pd.DataFrame
     ) -> tuple[pd.DataFrame, list[IdentifierFeature]]:
         """Removes structurally uninformative columns from the dataframe.
 
@@ -529,8 +611,7 @@ class DataInspectionStage:
         """
         values = series.dropna().astype(str).str.lower().str.strip().unique()
         matches = sum(
-            1 for val in values
-            if any(keyword in val for keyword in cls.ORDINAL_KEYWORDS)
+            1 for val in values if any(keyword in val for keyword in cls.ORDINAL_KEYWORDS)
         )
         return matches >= 2
 
@@ -587,9 +668,7 @@ class DataInspectionStage:
             is_primary_key=cardinality == n_rows,
         )
 
-    def _handle_update_context(
-        self, transformer: ColumnTransformer, df: pd.DataFrame
-    ) -> None:
+    def _handle_update_context(self, transformer: ColumnTransformer, df: pd.DataFrame) -> None:
         """Fits the transformer and stores the result in the shared context.
 
         Args:
@@ -609,9 +688,7 @@ class DataInspectionStage:
         )
 
     @staticmethod
-    def _fit_and_log_transformer(
-        transformer: ColumnTransformer, df: pd.DataFrame
-    ) -> None:
+    def _fit_and_log_transformer(transformer: ColumnTransformer, df: pd.DataFrame) -> None:
         """Fits the ColumnTransformer and logs the resulting feature names.
 
         Args:
@@ -625,4 +702,3 @@ class DataInspectionStage:
             "Preprocessed dataframe head:\n%s",
             pd.DataFrame(x_transformed, columns=feature_names).head(),
         )
-
