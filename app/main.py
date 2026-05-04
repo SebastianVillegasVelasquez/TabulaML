@@ -1,5 +1,7 @@
 from app.core.context.context import Context
+from app.core.enums import ProblemType
 from app.core.orchestrator import Orchestrator
+from app.services.loader import DataLoader
 from app.utils.logger import logger
 
 
@@ -8,15 +10,25 @@ def main():
     Main entry point for the ML pipeline.
 
     Responsibilities:
-    - Initializes pipeline context with data loading and configuration
+    - Loads data using DataLoader
+    - Initializes pipeline context with configuration
     - Orchestrates execution of pipeline stages
     - Logs execution results
     """
-    # Initialize pipeline context with integrated data loading
-    context = Context.create(
+    # Load data using DataLoader
+    loader = DataLoader()
+    dataset = loader.load_data(
         file_path="C:\\WorkSpace\\TabulaML\\data_test\\train.csv",
-        target_column="Survived",
+        target="Survived",
+    )
+    logger.info("Dataset loaded successfully.")
+
+    # Initialize pipeline context with dataset
+    context = Context.create(
+        dataset=dataset,
+        problem_type=ProblemType.CLASSIFICATION,
         priority_metric="f1",
+        target_column="Survived",
     )
     logger.info("Context initialized successfully.")
 

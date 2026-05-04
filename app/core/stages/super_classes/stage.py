@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 
 from sklearn.pipeline import Pipeline
 
-from app.core.context.context import Context, StageResult
+from app.core.context import Context, StageResult
 from experiments import Experiment
 from app.core.enums import Stages
-from app.core.ml import PipelineBuilder
+from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger
 
 
@@ -52,7 +52,9 @@ class Stage(ABC):
                 evaluation_type=definition.evaluation_type,
             )
 
-            result = experiment.run(self.context.config.X_train(), self.context.config.y_train())
+            result = experiment.run(
+                self.context.config.dataset.X_train, self.context.config.dataset.y_train
+            )
             results.append(result)
             logger.debug(f"Experiment: {experiment.name} result: {result}")
             logger.info(f"Finished experiment {experiment.name}")

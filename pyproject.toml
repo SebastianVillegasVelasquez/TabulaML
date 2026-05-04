@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["SebastianVillegasVelasquez <villegasvelasquezs@gmail.com>"]
 readme = "README.md"
-package-mode= false
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.13"
@@ -24,6 +24,7 @@ pandas-stubs = "^3.0.0.260204"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -q"
+pythonpath = ["."]
 
 [tool.black]
 line-length = 100

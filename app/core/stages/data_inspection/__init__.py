@@ -21,6 +21,8 @@ from .feature_config import (
     TextFeature,
 )
 
+from .features_container import FeatureContainer
+
 __all__ = [
     "DataInspectionStage",
     "ImputationStrategy",
@@ -28,4 +30,6 @@ __all__ = [
     "TransformationType",
     "TextVectorizationType",
     "ScalerStrategy",
+    "FeatureConfig",
+    "FeatureContainer",
 ]

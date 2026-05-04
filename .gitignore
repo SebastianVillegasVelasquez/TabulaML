@@ -26,7 +26,7 @@ build/
 .coverage
 htmlcov/
 
-#data testing
+# Data testing
 data_test
 
 # Environment
@@ -40,3 +40,7 @@ models/
 data_test/
 logs/*.log
 logs/*.txt
+
+# Plugins folder
+
+.todo

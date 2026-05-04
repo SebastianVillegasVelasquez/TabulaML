@@ -1,3 +1,3 @@
-from .loader import load_data
+from .loader import DataLoader, DatasetBundle
 
-__all__ = ["load_data"]
+__all__ = ["DataLoader", "DatasetBundle"]

@@ -1,7 +1,5 @@
 from enum import Enum
 
-from sklearn.preprocessing import MinMaxScaler
-
 
 class TransformationType(str, Enum):
     """Transformation types applicable to numerical features.

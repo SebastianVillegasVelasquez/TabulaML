@@ -131,7 +131,9 @@ class NumericalFeature(FeatureConfig):
     )
     skewness: float = Field(..., description="Distribution skewness coefficient.")
     zero_ratio: float = Field(
-        default=0.0, ge=0.0, le=1.0,
+        default=0.0,
+        ge=0.0,
+        le=1.0,
         description="Proportion of non-null values equal to zero.",
     )
     has_negative_values: bool = Field(
@@ -139,7 +141,9 @@ class NumericalFeature(FeatureConfig):
         description="True if any non-null value is strictly negative.",
     )
     outlier_ratio: float = Field(
-        default=0.0, ge=0.0, le=1.0,
+        default=0.0,
+        ge=0.0,
+        le=1.0,
         description="Proportion of values outside the 1.5×IQR fences.",
     )
     variance: Optional[float] = Field(
@@ -180,9 +184,10 @@ class NumericalFeature(FeatureConfig):
         return self.outlier_ratio > 0.05
 
     @property
-    def which_encoding_needs(self):
+    def encoding_type(self):
         """Returns True if the feature should be converted to categorical."""
         from .feature_config_enum import EncodingType
+
         match self.subtype:
             case NumericalSubtype.BINARY_ENCODED:
                 return EncodingType.BINARY
@@ -194,7 +199,6 @@ class NumericalFeature(FeatureConfig):
                 return EncodingType.ONEHOT
             case _:
                 return None
-
 
     @property
     def suggested_transformation(self) -> TransformationType:

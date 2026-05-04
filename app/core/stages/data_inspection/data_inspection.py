@@ -31,7 +31,7 @@ from .feature_config import (
     NumericalFeature,
     TextFeature,
 )
-from .feature_config_enum import NumericalSubtype, ScalerStrategy, ImputationStrategy
+from .feature_config_enum import NumericalSubtype
 from .preprocessing_stage import PreprocessingBuilder
 from app.utils.logger import logger
 
@@ -130,7 +130,7 @@ class DataInspectionStage:
 
         The resulting feature_configs list is handed off to the PreprocessingBuilder.
         """
-        df: pd.DataFrame = self.context.config.X_train()
+        df: pd.DataFrame = self.context.config.dataset.X_train
         self.feature_configs = []
 
         # Remove structurally uninformative columns and register them as identifiers.
@@ -140,15 +140,51 @@ class DataInspectionStage:
         for col in df.columns:
             series: pd.Series = df[col]
             feature = self._build_feature_config(col, series)
-            logger.debug(f"Feature config built: {feature}")
             self.feature_configs.append(feature)
 
-        logger.debug(
-            f"Feature configs: {self.feature_configs}",
+        preprocessing_builder = PreprocessingBuilder(self.feature_configs).build()
+        logger.debug(f"Built preprocessing pipeline: {preprocessing_builder}")
+        self._handle_update_context(transformer=preprocessing_builder, df=df)
+
+    def _handle_update_context(self, transformer: ColumnTransformer, df: pd.DataFrame) -> None:
+        """Fits the transformer and stores the result in the shared context.
+
+        Args:
+            transformer: The ColumnTransformer built by PreprocessingBuilder.
+            df: The filtered training DataFrame to fit on.
+        """
+        from app.core.context import StageResult
+
+        # Align the stored DataFrame with the same index reset applied in fitting
+        df_clean = df.reset_index(drop=True)
+
+        self._fit_and_log_transformer(transformer=transformer, df=df_clean)
+
+        self.context.update_stage_context(
+            stage=Stages.DATA_HANDLER,
+            stage_result=StageResult(
+                name=Stages.DATA_HANDLER,
+                results={
+                    "preprocessing": transformer,
+                    "df_transformed": self._tranform_df(transformer=transformer, df=df_clean),
+                },
+            ),
         )
 
-        preprocessing_builder = PreprocessingBuilder(self.feature_configs).build()
-        self._handle_update_context(transformer=preprocessing_builder, df=df)
+    @staticmethod
+    def _tranform_df(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
+        """Applies the transformer to the DataFrame and returns the result."""
+
+        # Reset dataframe index to align with the one used in fitting
+        df.reset_index()
+
+        # Apply allthe transformation in the original dataframe
+        data = transformer.fit_transform(df)
+
+        df_transformed = pd.DataFrame(
+            data, columns=transformer.get_feature_names_out(), index=df.index
+        )
+        return df_transformed
 
     def _build_feature_config(self, col: str, series: pd.Series) -> FeatureConfig:
         """Detects the feature type and instantiates the correct typed class.
@@ -186,9 +222,9 @@ class DataInspectionStage:
 
     @staticmethod
     def _build_numerical_feature(
-            col: str,
-            series: pd.Series,
-            missing_ratio: float,
+        col: str,
+        series: pd.Series,
+        missing_ratio: float,
     ) -> NumericalFeature:
         """Computes raw numerical statistics and instantiates a NumericalFeature.
 
@@ -359,25 +395,101 @@ class DataInspectionStage:
         return False
 
     @staticmethod
-    def _build_boolean_feature(col: str, series: pd.Series, missing_ratio: float) -> BooleanFeature:
-        """Computes binary statistics and instantiates a BooleanFeature.
+    def _detect_feature_type(series: pd.Series) -> str:
+        """Infers the semantic type of a column.
+
+        Boolean detection reserves the 'boolean' type only for columns whose
+        binary values are unambiguously truth-values (True/False, 0/1, yes/no).
+        String columns with two arbitrary values like 'male'/'female' are
+        classified as 'categorical' so they receive proper encoding instead
+        of an unsafe integer cast.
 
         Args:
-            col: Column name.
-            series: Raw pandas Series for the column.
-            missing_ratio: Pre-computed proportion of null values.
+            series: Raw pandas Series for the column (nulls included).
 
         Returns:
-            A BooleanFeature with the proportion of True/1 values recorded.
+            One of: 'boolean', 'datetime', 'text', 'categorical', 'numerical'.
         """
         s = series.dropna()
 
-        # Normalize heterogeneous binary representations to boolean
+        # Native bool dtype — unambiguously boolean
+        if pd.api.types.is_bool_dtype(s):
+            return "boolean"
+
+        # Numeric with exactly two values — treat as boolean (e.g., 0/1 flags)
+        if pd.api.types.is_numeric_dtype(s) and s.nunique() == 2:
+            return "boolean"
+
+        # Object with exactly two values — only boolean if values are
+        # recognised truth-value pairs. Otherwise → categorical.
+        if pd.api.types.is_object_dtype(s) and s.nunique() == 2:
+            BOOL_PAIRS = {
+                frozenset({"true", "false"}),
+                frozenset({"yes", "no"}),
+                frozenset({"si", "no"}),
+                frozenset({"1", "0"}),
+                frozenset({"y", "n"}),
+            }
+            unique_lower = frozenset(s.astype(str).str.lower().str.strip().unique())
+            if unique_lower in BOOL_PAIRS:
+                return "boolean"
+            # 'male'/'female', 'a'/'b', etc. → nominal categorical with cardinality 2
+            return "categorical"
+
+        if pd.api.types.is_datetime64_any_dtype(s):
+            return "datetime"
+
         if pd.api.types.is_object_dtype(s):
-            positive_values = {"yes", "true", "1", "y"}
-            true_ratio = float(s.astype(str).str.lower().str.strip().isin(positive_values).mean())
-        else:
+            sample = s.head(50)
+            try:
+                parsed = pd.to_datetime(sample, errors="raise", infer_datetime_format=True)
+                if parsed.notna().mean() > 0.8:
+                    return "datetime"
+            except (ValueError, TypeError):
+                pass
+
+            avg_tokens = s.astype(str).str.split().str.len().mean()
+            if avg_tokens >= 6:
+                return "text"
+
+            return "categorical"
+
+        if isinstance(s.dtype, pd.CategoricalDtype):
+            return "categorical"
+
+        if pd.api.types.is_numeric_dtype(s):
+            return "numerical"
+
+        return "categorical"
+
+    @staticmethod
+    def _build_boolean_feature(col: str, series: pd.Series, missing_ratio: float) -> BooleanFeature:
+        """Computes binary statistics and instantiates a BooleanFeature.
+
+        By the time this builder is called, _detect_feature_type has already
+        confirmed the column is a recognised boolean (native bool, 0/1 numeric,
+        or a known truth-value string pair). This builder only computes the
+        true_ratio statistic and records the dtype for pipeline routing.
+
+        Args:
+            col: Column name.
+            series: Raw pandas Series for the column (nulls included).
+            missing_ratio: Pre-computed proportion of null values.
+
+        Returns:
+            A BooleanFeature with true_ratio computed from the actual values.
+        """
+        s = series.dropna()
+
+        if pd.api.types.is_bool_dtype(s) or pd.api.types.is_numeric_dtype(s):
+            # Numeric/bool: True and the larger of {0,1} both cast safely to bool
             true_ratio = float(s.astype(bool).mean())
+        else:
+            # String boolean pair recognised by _detect_feature_type
+            # The positive class is whichever value maps to True in common usage.
+            # We use the less frequent value as a proxy (minority = positive class).
+            positive_proxies = {"true", "yes", "si", "1", "y"}
+            true_ratio = float(s.astype(str).str.lower().str.strip().isin(positive_proxies).mean())
 
         return BooleanFeature(
             name=col,
@@ -387,7 +499,7 @@ class DataInspectionStage:
         )
 
     def _build_categorical_feature(
-            self, col: str, series: pd.Series, missing_ratio: float
+        self, col: str, series: pd.Series, missing_ratio: float
     ) -> CategoricalNominalFeature | CategoricalOrdinalFeature:
         """Computes categorical statistics and dispatches to ordinal or nominal.
 
@@ -428,7 +540,7 @@ class DataInspectionStage:
 
     @staticmethod
     def _build_datetime_feature(
-            col: str, series: pd.Series, missing_ratio: float
+        col: str, series: pd.Series, missing_ratio: float
     ) -> DatetimeFeature:
         """Computes temporal metadata and instantiates a DatetimeFeature.
 
@@ -487,7 +599,7 @@ class DataInspectionStage:
     # ------------------------------------------------------------------
 
     def _drop_redundant_columns(
-            self, df: pd.DataFrame
+        self, df: pd.DataFrame
     ) -> tuple[pd.DataFrame, list[IdentifierFeature]]:
         """Removes structurally uninformative columns from the dataframe.
 
@@ -668,37 +780,37 @@ class DataInspectionStage:
             is_primary_key=cardinality == n_rows,
         )
 
-    def _handle_update_context(self, transformer: ColumnTransformer, df: pd.DataFrame) -> None:
-        """Fits the transformer and stores the result in the shared context.
-
-        Args:
-            transformer: The ColumnTransformer built by PreprocessingBuilder.
-            df: The filtered training dataframe to fit on.
-        """
-        from app.core.context import StageResult
-
-        self._fit_and_log_transformer(transformer=transformer, df=df)
-
-        self.context.update_stage_context(
-            stage=Stages.DATA_HANDLER,
-            stage_result=StageResult(
-                name=Stages.DATA_HANDLER,
-                results={"preprocessing": transformer},
-            ),
-        )
-
     @staticmethod
-    def _fit_and_log_transformer(transformer: ColumnTransformer, df: pd.DataFrame) -> None:
+    def _fit_and_log_transformer(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
         """Fits the ColumnTransformer and logs the resulting feature names.
 
+        Resets the DataFrame index before fitting to prevent the index-mismatch
+        error that occurs when ColumnTransformer concatenates sub-pipeline outputs.
+        This happens because some sklearn transformers (e.g. OneHotEncoder with
+        set_output="pandas") create a new RangeIndex internally, while others
+        preserve the original index. If the input has a non-default index (e.g.
+        after train_test_split), the pd.concat inside ColumnTransformer fails.
+
+        Resetting to a clean RangeIndex guarantees all sub-pipeline outputs share
+        the same index and can be concatenated without conflicts.
+
         Args:
-            transformer: The unfitted ColumnTransformer.
-            df: The dataframe to fit on.
+            transformer: The unfitted ColumnTransformer assembled by PreprocessingBuilder.
+            df: The filtered training DataFrame to fit on.
+
+        Returns:
+            The transformed DataFrame with clean column names.
         """
-        x_transformed = transformer.fit_transform(df)
+        # Reset index so all sub-pipeline outputs share index 0..N-1.
+        # drop=True discards the old index instead of adding it as a column.
+        df_clean = df.reset_index(drop=True)
+
+        x_transformed = transformer.fit_transform(df_clean)
         feature_names = list(transformer.get_feature_names_out())
+
         logger.info("Preprocessed feature names: %s", feature_names)
         logger.debug(
-            "Preprocessed dataframe head:\n%s",
-            pd.DataFrame(x_transformed, columns=feature_names).head(),
+            "Preprocessed DataFrame head:\n%s",
+            x_transformed.head() if hasattr(x_transformed, "head") else x_transformed[:5],
         )
+        return x_transformed
