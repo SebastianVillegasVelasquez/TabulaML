@@ -72,7 +72,7 @@ class Metadata(BaseModel):
 
     columns: list[str]
     columns_length: int
-    target_column: str
+    target_column: str | None = None
 
 
 class Context(BaseModel):
@@ -171,7 +171,7 @@ class Context(BaseModel):
         metadata = Metadata(
             columns=list(dataset.X_train.columns),
             columns_length=len(dataset.X_train.columns),
-            target_column=target_column or "target",
+            target_column=target_column or None,
         )
 
         return cls(config=config, metadata=metadata)

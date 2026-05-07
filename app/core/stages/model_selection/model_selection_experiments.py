@@ -11,7 +11,7 @@ from sklearn.tree import DecisionTreeClassifier
 from app.core.context.context import Context
 from app.core.enums import Stages
 from experiments import ExperimentDefinition
-from stages.data_inspection.pipeline_builder import PipelineBuilder
+from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger
 
 """

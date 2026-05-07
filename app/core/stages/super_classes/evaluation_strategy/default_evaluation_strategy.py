@@ -1,9 +1,29 @@
+import pandas as pd
+from sklearn.pipeline import Pipeline
+
+from app.core.context import Context
 from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
 
 
 class DefaultEvaluationStrategy(EvaluationStrategy):
+    """
+    Performs a default evaluation using a cross_validate,
+    this strategy is used by stages as
+    1. Feature Selection
+    2. Model Selection
+    3. Fine Tuning
 
-    def evaluate(self, pipeline, X, y, context, cv=5, threshold=None):
+    It is not used to Theshold evaluation, it needs a special evaluation strategy
+
+    """
+
+    def evaluate(self, pipeline: Pipeline,
+                 X: pd.DataFrame,
+                 y: pd.Series,
+                 context: Context,
+                 return_estimator: bool = False,
+                 cv: int = 5,
+                 threshold: float = None):
         from sklearn.model_selection import cross_validate
         import numpy as np
 
@@ -15,6 +35,7 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
             cv=cv,
             n_jobs=-1,
             return_train_score=True,
+            return_estimator=return_estimator,
             error_score="raise",
         )
 

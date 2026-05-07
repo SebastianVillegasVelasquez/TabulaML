@@ -1,12 +1,8 @@
-from typing import Any
-
-from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.enums import Stages
-from experiments import ExperimentResult
-from app.core.stages.evaluation.evaluator import Evaluator
 from app.core.stages.evaluation.evaluator_factory import EvaluatorFactory
 from app.utils.logger import logger
+from experiments import ExperimentResult
 
 
 class EvaluationStage:
@@ -30,21 +26,20 @@ class EvaluationStage:
         """Execute the evaluation workflow."""
         logger.info(f"Running evaluation stage: {self.stage}...")
 
-        # Get experiments
         experiments = self._get_experiments()
 
-        # Evaluate and select best
-        best_experiment = self._evaluate(experiments)
-        logger.info(f"Best experiment for {self.stage}: {best_experiment.name}")
+        logger.debug(f"Experiments: {experiments}")
 
         # Delegate to stage-specific evaluator
         evaluator = EvaluatorFactory.create(self.stage, self.context)
+
         evaluator.evaluate(experiments)
+
         logger.info(
             f"Metadata from {self.stage}: {self.context.stage_results[self.stage].metadata}"
         )
 
-    def _get_experiments(self) -> list[Any] | dict[str, Any]:
+    def _get_experiments(self) -> list[ExperimentResult]:
         """Get experiments from context."""
         stage_result = self.context.stage_results.get(self.stage, {})
 
@@ -52,18 +47,3 @@ class EvaluationStage:
             raise RuntimeError(f"No experiments found for stage {self.context.stage_results} ")
 
         return stage_result.results
-
-    def _evaluate(self, experiments: list[ExperimentResult]) -> ExperimentResult:
-        """Select the best experiment based on configured metrics."""
-
-        if self.config.problem_type == ProblemType.REGRESSION:
-            mode = "min"
-        else:
-            mode = "max"
-
-        evaluator = Evaluator(context=self.context, mode=mode)
-
-        for exp in experiments:
-            evaluator.add_result(exp)
-
-        return evaluator.get_best()

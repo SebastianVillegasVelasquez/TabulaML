@@ -1,34 +1,42 @@
-from app.core.stages.evaluation.base_evaluator import BaseEvaluator
+from sklearn.base import BaseEstimator
+from sklearn.pipeline import Pipeline
+
 from app.core.context.context import StageResult
+from app.core.stages.evaluation.base_evaluator import BaseEvaluator
 from app.utils.logger import logger
+from experiments import ExperimentResult
 
 
 class FeatureSelectionEvaluator(BaseEvaluator):
-    """Evaluator for Feature Selection stage.
+    """This class is responsible for managing the evaluation logic of the Feature Selection stage.
 
-    Extracts top-3 feature selectors based on performance.
-    Groups by selector type to ensure diversity.
+    The idea is to extract the top-3 chain selectors and their associated feature mask.
+    Save the metadata from the selector type (linear or non-linear) and the number of features selected.
+
+    Then in the model selection stage, we can use the feature mask to avoid feature extraction
+    in each pipeline instead use the mask to select the features combine to just focusing
+    if the selector is linear or non-linear.
+
     """
 
-    def _extract_stage_specific_data(self, sorted_results, best_experiment):
-        """Extract feature selection specific data."""
+    def _extract_stage_specific_data(
+            self, sorted_results: list[ExperimentResult], best_experiment: ExperimentResult
+    ):
+        """
+        This method extracts the specific data for the Feature Selection stage.
+
+        This includes the top-3 selectors by type, the feature mask, and the number of features selected.
+
+        Args:
+            sorted_results (list[ExperimentResult]): List of ExperimentResult sorted by performance
+            best_experiment (ExperimentResult): The best ExperimentResult
+
+        """
+
         # Extract top-3 selectors by type
-        top_k_selectors = self._extract_top_k_selectors(sorted_results, k=3)
+        top_k_selectors = self._extract_top_k_chain_selectors(sorted_results, k=3)
 
-        # Extract feature data from best
-        feature_data = self._extract_feature_data(best_experiment)
 
-        self._log_best_experiment(best_experiment)
-
-        return {
-            "top_k_selectors": top_k_selectors,
-            "best_selector": best_experiment.config.get("selector", "unknown"),
-            "best_predictor": best_experiment.config.get("predictor", "unknown"),
-            "feature_mask": feature_data.get("feature_mask"),
-            "selected_features": feature_data.get("selected_features"),
-            "n_features_selected": feature_data.get("n_features_selected", 0),
-            "total_experiments": len(sorted_results),
-        }
 
     def _update_context(self, sorted_results, best_experiment, stage_specific_data):
         """Update context with feature selection results."""
@@ -59,43 +67,31 @@ class FeatureSelectionEvaluator(BaseEvaluator):
         best_experiment.feature_mask = stage_specific_data.get("feature_mask")
         best_experiment.selected_features = stage_specific_data.get("selected_features")
 
-    def _extract_top_k_selectors(self, sorted_results, k=3):
-        """Extract top-k selectors grouping by selector type."""
-        selector_best = {}
+    @staticmethod
+    def _extract_top_k_chain_selectors(sorted_results:list[ExperimentResult], k=3) -> dict:
+        """
+        This method extracts the top-k chain selectors from a list of ExperimentResult.
+        From the first k experiments, it needs to extract the chain selector, it can be 1, 2, or more selectors.
+        Also, it needs to keep track of the metadata of the final predictor.
 
-        for result in sorted_results:
-            selector_name = result.config.get("selector", "unknown")
-            if selector_name not in selector_best:
-                selector_best[selector_name] = result
+        """
+        from collections import defaultdict
 
-        top_k = dict(list(selector_best.items())[:k])
-        logger.debug(f"Top {len(top_k)} selectors: {list(top_k.keys())}")
-        return top_k
+        chain_data = {}
 
-    def _extract_feature_data(self, best_experiment):
-        """Extract feature mask and selected features from best experiment."""
-        pipeline = best_experiment.pipeline
-
-        if "feature_selection" not in pipeline.named_steps:
-            return {"feature_mask": None, "selected_features": None, "n_features_selected": 0}
-
-        selector = pipeline.named_steps["feature_selection"]
-
-        if not hasattr(selector, "get_support"):
-            return {"feature_mask": None, "selected_features": None, "n_features_selected": 0}
-
-        try:
-            mask = selector.get_support()
-            original_columns = self.config.X_train.columns.tolist()
-            selected_columns = [col for col, keep in zip(original_columns, mask) if keep]
-
-            logger.info(f"Selected {len(selected_columns)} features out of {len(original_columns)}")
-
-            return {
-                "feature_mask": mask,
-                "selected_features": selected_columns,
-                "n_features_selected": len(selected_columns),
-            }
-        except Exception as e:
-            logger.error(f"Error extracting feature data: {e}")
-            return {"feature_mask": None, "selected_features": None, "n_features_selected": 0}
+        # logger.debug(f"Results received: {len(sorted_results)}")
+        #
+        #
+        # for result in sorted_results[:k]:
+        #     pipeline: Pipeline = result.pipeline
+        #
+        #     chain_data[result.name] = {'model': model,
+        #                                'selectors': selectors,
+        #                                'features_selected': }
+        #
+        #
+        #
+        #     logger.debug(f"Chain selector: {selectors[:-1]}")
+        #
+        # logger.debug(f"Top {k} chain selectors: {chain_data}")
+        return chain_data

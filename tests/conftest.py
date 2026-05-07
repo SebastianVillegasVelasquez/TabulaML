@@ -13,6 +13,7 @@ from app.core.context import Context, DatasetBundle
 from app.core.enums import ProblemType, ModelRetrieveType
 from app.core.model_bank import ModelRetrieveFactory
 
+
 @pytest.fixture
 def init_data_inspection_stage(build_context: Context):
     from data_inspection import DataInspectionStage

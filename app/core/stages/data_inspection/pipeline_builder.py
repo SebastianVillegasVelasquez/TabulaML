@@ -44,7 +44,7 @@ class PipelineBuilder:
         """
         return Pipeline(self.steps)
 
-    def preprend_step(self, step: Tuple[str, BaseEstimator]) -> None:
+    def prepend_step(self, step: Tuple[str, BaseEstimator]) -> None:
         """Adds a new step to the pipeline at the beginning."""
         self.steps.insert(0, step)
 

@@ -40,6 +40,7 @@ class BaseEvaluator(ABC):
         self.stage = stage
         self.context = context
         self.config = context.config
+        self.priority_metric = self.config.priority_metric
 
     def evaluate(self, results: list[ExperimentResult]) -> None:
         """
@@ -54,20 +55,17 @@ class BaseEvaluator(ABC):
         """
         logger.info(f"Evaluating {self.stage.value} results...")
 
-        # Step 1: Sort experiments by primary metric
         sorted_results = self._sort_results(results)
 
-        # Step 2: Extract the best experiment
         best_experiment = sorted_results[0] if sorted_results else None
+        logger.debug(f"Best experiment in evaluate method: {best_experiment}")
 
         if not best_experiment:
             logger.warning(f"No results to evaluate for {self.stage.value}")
             return
 
-        # Step 3: Handle stage-specific logic (override in subclasses)
         stage_specific_data = self._extract_stage_specific_data(sorted_results, best_experiment)
 
-        # Step 4: Update context
         self._update_context(sorted_results, best_experiment, stage_specific_data)
 
         logger.info(f"Evaluation completed for {self.stage.value}")
@@ -121,15 +119,12 @@ class BaseEvaluator(ABC):
         Returns:
             Sorted list (best first)
         """
-        primary_metric = (
-            self.config.scoring[0] if isinstance(self.config.scoring, list) else self.config.scoring
-        )
 
         sorted_results = sorted(
-            results, key=lambda r: r.metrics.get(f"test_{primary_metric}", 0), reverse=True
+            results, key=lambda r: r.metrics.get(self.priority_metric, 0), reverse=True
         )
 
-        logger.debug(f"Results sorted by {primary_metric}")
+        logger.debug(f"Results sorted by {self.priority_metric}")
 
         return sorted_results
 
@@ -177,15 +172,3 @@ class BaseEvaluator(ABC):
         logger.debug(f"Extracted top {len(top_k)} families: {list(top_k.keys())}")
 
         return top_k
-
-    def _log_best_experiment(self, best_experiment: ExperimentResult) -> None:
-        """Log information about the best experiment."""
-        primary_metric = (
-            self.config.scoring[0] if isinstance(self.config.scoring, list) else self.config.scoring
-        )
-
-        metric_value = best_experiment.metrics.get(f"test_{primary_metric}", 0)
-        logger.info(
-            f"Best {self.stage.value}: {best_experiment.name} "
-            f"({primary_metric}={metric_value:.4f})"
-        )

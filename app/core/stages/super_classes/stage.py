@@ -1,12 +1,9 @@
 from abc import ABC, abstractmethod
 
-from sklearn.pipeline import Pipeline
-
 from app.core.context import Context, StageResult
-from experiments import Experiment
 from app.core.enums import Stages
-from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
 from app.utils.logger import logger
+from experiments import Experiment
 
 
 class Stage(ABC):
@@ -34,49 +31,25 @@ class Stage(ABC):
     def run(self):
         """Execute experiments for this stage."""
 
-        logger.info(f"Running {self.stage} stage...")
+        X = self.context.stage_results[Stages.DATA_HANDLER].results["df_transformed"]
 
-        # preprocessing = self.context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
         results = []
         for definition in self.definitions:
-            pipeline = self._handle_pipeline_builder_callable(definition.pipeline_builder)
-            logger.info(
-                f"Running experiment: {pipeline.named_steps if pipeline else 'No pipeline'}"
-            )
+            logger.debug(f"Metadata: {definition.metadata}")
+
             experiment = Experiment(
                 name=f"{self.stage.value}_{definition.name}",
-                pipeline=pipeline,
+                pipeline=definition.pipeline_builder,
                 context=self.context,
+                stage=self.stage,
                 cv=5,
                 metadata=definition.metadata,
                 evaluation_type=definition.evaluation_type,
             )
 
-            result = experiment.run(
-                self.context.config.dataset.X_train, self.context.config.dataset.y_train
-            )
+            result = experiment.run(X, self.context.config.dataset.y_train)
             results.append(result)
-            logger.debug(f"Experiment: {experiment.name} result: {result}")
-            logger.info(f"Finished experiment {experiment.name}")
 
         self.context.stage_results[self.stage] = StageResult(
             name=self.stage, results=results, metadata={"total_experiments": len(results)}
         )
-
-        logger.info(f"Completed {len(results)} experiments for {self.stage.value}")
-
-    @staticmethod
-    def _handle_pipeline_builder_callable(pipeline_builder: PipelineBuilder) -> Pipeline | None:
-        pipeline = None
-        try:
-            if hasattr(pipeline_builder, "__call__"):
-                pipeline = pipeline_builder.build()
-                # logger.debug(f"pipeline: {pipeline}")
-            else:
-                pipeline = Pipeline(steps=pipeline_builder.steps)
-
-        except AttributeError:
-            logger.debug(f"It is not a PipelineBuilder function but a Pipeline")
-            logger.debug(f"builder: {type(pipeline_builder)}")
-        # logger.debug(f"pipeline after the handling: {pipeline}")
-        return pipeline

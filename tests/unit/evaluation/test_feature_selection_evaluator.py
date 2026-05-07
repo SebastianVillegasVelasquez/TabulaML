@@ -101,7 +101,7 @@ class TestFeatureSelectionEvaluator:
             sample_results, key=lambda r: r.metrics.get("test_accuracy", 0), reverse=True
         )
 
-        top_k = evaluator._extract_top_k_selectors(sorted_results, k=3)
+        top_k = evaluator._extract_top_k_chain_selectors(sorted_results, k=3)
 
         # Should have at most k selectors
         assert len(top_k) <= 3

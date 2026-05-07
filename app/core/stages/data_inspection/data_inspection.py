@@ -143,7 +143,6 @@ class DataInspectionStage:
             self.feature_configs.append(feature)
 
         preprocessing_builder = PreprocessingBuilder(self.feature_configs).build()
-        logger.debug(f"Built preprocessing pipeline: {preprocessing_builder}")
         self._handle_update_context(transformer=preprocessing_builder, df=df)
 
     def _handle_update_context(self, transformer: ColumnTransformer, df: pd.DataFrame) -> None:
@@ -158,33 +157,33 @@ class DataInspectionStage:
         # Align the stored DataFrame with the same index reset applied in fitting
         df_clean = df.reset_index(drop=True)
 
-        self._fit_and_log_transformer(transformer=transformer, df=df_clean)
-
         self.context.update_stage_context(
             stage=Stages.DATA_HANDLER,
             stage_result=StageResult(
                 name=Stages.DATA_HANDLER,
                 results={
                     "preprocessing": transformer,
-                    "df_transformed": self._tranform_df(transformer=transformer, df=df_clean),
+                    "df_transformed": self._fit_and_log_transformer(
+                        transformer=transformer, df=df_clean
+                    ),
                 },
             ),
         )
 
-    @staticmethod
-    def _tranform_df(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
-        """Applies the transformer to the DataFrame and returns the result."""
-
-        # Reset dataframe index to align with the one used in fitting
-        df.reset_index()
-
-        # Apply allthe transformation in the original dataframe
-        data = transformer.fit_transform(df)
-
-        df_transformed = pd.DataFrame(
-            data, columns=transformer.get_feature_names_out(), index=df.index
-        )
-        return df_transformed
+    # @staticmethod
+    # def _tranform_df(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
+    #     """Applies the transformer to the DataFrame and returns the result."""
+    #
+    #     # Reset dataframe index to align with the one used in fitting
+    #     df.reset_index()
+    #
+    #     # Apply allthe transformation in the original dataframe
+    #     data = transformer.fit_transform(df)
+    #
+    #     df_transformed = pd.DataFrame(
+    #         data, columns=transformer.get_feature_names_out(), index=df.index
+    #     )
+    #     return df_transformed
 
     def _build_feature_config(self, col: str, series: pd.Series) -> FeatureConfig:
         """Detects the feature type and instantiates the correct typed class.
@@ -628,13 +627,11 @@ class DataInspectionStage:
             if series.isnull().mean() > self._NULL_THRESHOLD:
                 columns_to_drop.append(col)
                 identifier_configs.append(self._make_identifier(col, series, n_rows))
-                logger.debug("Dropping '%s': exceeds null threshold.", col)
                 continue
 
             if series.nunique(dropna=False) <= 1:
                 columns_to_drop.append(col)
                 identifier_configs.append(self._make_identifier(col, series, n_rows))
-                logger.debug("Dropping '%s': constant column.", col)
                 continue
 
             if pd.api.types.is_object_dtype(series) or pd.api.types.is_integer_dtype(series):
@@ -642,7 +639,6 @@ class DataInspectionStage:
                 if unique_ratio > self._ID_UNIQUE_RATIO_THRESHOLD:
                     columns_to_drop.append(col)
                     identifier_configs.append(self._make_identifier(col, series, n_rows))
-                    logger.debug("Dropping '%s': ID-like unique ratio %.2f.", col, unique_ratio)
                     continue
 
         return df.drop(columns=columns_to_drop), identifier_configs
@@ -808,9 +804,4 @@ class DataInspectionStage:
         x_transformed = transformer.fit_transform(df_clean)
         feature_names = list(transformer.get_feature_names_out())
 
-        logger.info("Preprocessed feature names: %s", feature_names)
-        logger.debug(
-            "Preprocessed DataFrame head:\n%s",
-            x_transformed.head() if hasattr(x_transformed, "head") else x_transformed[:5],
-        )
-        return x_transformed
+        return pd.DataFrame(x_transformed, columns=feature_names)

@@ -14,7 +14,7 @@ def get_feature_selection_experiments(context: Context | None):
     """
 
     # Retrieve the preprocessing pipeline from the data handler stage
-    preprocessing = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
+    # preprocessing = context.stage_results[Stages.DATA_HANDLER].results["preprocessing"]
 
     selectors = (
         ModelRetrieveFactory.create(
@@ -28,17 +28,4 @@ def get_feature_selection_experiments(context: Context | None):
         )
     ).load_defaults()
 
-    composer = ExperimentComposer(context, selectors, models)
-
-    experiments = []
-
-    for exp in composer.generate():
-        logger.debug(f"Generated experiment: {exp}")
-        builder = exp.pipeline_builder
-        builder.steps.insert(0, ("preprocessing", preprocessing))
-
-        experiments.append(exp)
-
-    logger.debug(f"Generated {len(experiments)} feature selection experiments.")
-
-    return experiments
+    return ExperimentComposer(context, selectors, models).generate()

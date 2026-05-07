@@ -1,13 +1,13 @@
-from dataclasses import dataclass, field
 from typing import Dict, Any
 
 from app.core.enums import EvaluationType
 from app.core.enums import Stages
-from stages.data_inspection.pipeline_builder import PipelineBuilder
+from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
+
+from pydantic import BaseModel, Field
 
 
-@dataclass
-class ExperimentDefinition:
+class ExperimentDefinition(BaseModel):
     """
     Declarative experiment configuration.
 
@@ -16,9 +16,11 @@ class ExperimentDefinition:
     """
 
     name: str
-    stage: str | Stages
+    stage: Stages
     pipeline_builder: PipelineBuilder
     evaluation_type: EvaluationType = EvaluationType.DEFAULT
     use_threshold: bool = False
     threshold: float = 0.5
-    metadata: Dict[str, Any] | None = field(default_factory=dict)
+    metadata: Dict[str, Any] | None = Field(default_factory=dict)
+
+    model_config = {"arbitrary_types_allowed": True}

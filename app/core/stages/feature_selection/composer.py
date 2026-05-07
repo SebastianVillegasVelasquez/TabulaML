@@ -346,8 +346,6 @@ class ExperimentComposer:
         seen = set()
 
         chains = SelectorChainFactory(self.selectors).build()
-        logger.debug(f"Generated {len(chains)} selector chains")
-        logger.debug(f"Selector chains: {chains}")
         for chain in chains:
             for model in self.models:
 
@@ -427,9 +425,9 @@ class ExperimentComposer:
             stage="feature_selection",
             pipeline_builder=builder,
             metadata={
-                "priority": priority.value,
-                "chain_type": chain.type,
-                "n_selectors": len(chain.selectors),
-                "model_type": model.type.value,
+                "selectors": [s.name for s in chain.selectors],
+                "model": model.name,
+                "model_type": model.spec_type,
+                "model_based": model.type
             },
         )

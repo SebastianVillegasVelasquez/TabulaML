@@ -6,7 +6,7 @@ from experiments import ExperimentDefinition
 from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.enums import Stages
-from stages.data_inspection.pipeline_builder import PipelineBuilder
+from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
 from experiments import ExperimentResult
 
 
