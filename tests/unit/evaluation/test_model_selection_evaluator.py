@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 
 from app.core.stages.evaluation.evaluators.model_selection_evaluator import ModelSelectionEvaluator
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 from app.core.enums import Stages
 
@@ -123,7 +123,7 @@ class TestModelSelectionEvaluator:
         data = evaluator._extract_stage_specific_data(sorted_results, sorted_results[0])
         models_by_family = data["models_by_family"]
 
-        # Should group by model type
+        # Should group by model model_based
         assert "RandomForest" in models_by_family
         assert "SVM" in models_by_family
         assert "LogisticRegression" in models_by_family

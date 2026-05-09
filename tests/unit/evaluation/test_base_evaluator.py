@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 
 from app.core.enums import Stages
 from app.core.stages.evaluation.base_evaluator import BaseEvaluator
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 
 

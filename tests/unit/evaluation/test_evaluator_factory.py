@@ -89,7 +89,7 @@ class TestEvaluatorFactory:
         evaluator2 = EvaluatorFactory.create(Stages.FEATURE_SELECTION, mock_context)
 
         assert evaluator1 is not evaluator2  # Different instances
-        assert type(evaluator1) == type(evaluator2)  # But same type
+        assert type(evaluator1) == type(evaluator2)  # But same model_based
 
     def test_factory_preserves_stage_information(self, mock_context):
         """Test that factory preserves stage information in created evaluator."""
@@ -157,7 +157,7 @@ class TestEvaluatorFactoryErrorHandling:
             pass
 
     def test_factory_stage_type_validation(self):
-        """Test that factory validates stage type."""
+        """Test that factory validates stage model_based."""
         mock_context = Mock(spec=Context)
 
         # None stage should raise

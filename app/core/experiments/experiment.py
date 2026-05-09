@@ -34,7 +34,7 @@ class Experiment:
         cv: Number of cross-validation folds.
         stage: The workflow stage this experiment belongs to.  Controls
             whether feature extraction is attempted after evaluation.
-        context: Shared runtime context (data splits, task type, etc.).
+        context: Shared runtime context (data splits, task model_based, etc.).
         metadata: Arbitrary key-value pairs attached to this run for
             logging or downstream consumption.
         evaluation_type: Strategy used to score the pipeline
@@ -48,15 +48,15 @@ class Experiment:
     """
 
     def __init__(
-            self,
-            name: str,
-            pipeline: PipelineBuilder,
-            context: Context,
-            stage: Stages,
-            metadata: Dict[str, Any],
-            cv: int = 5,
-            threshold: Optional[float] = None,
-            evaluation_type: EvaluationType = EvaluationType.DEFAULT,
+        self,
+        name: str,
+        pipeline: PipelineBuilder,
+        context: Context,
+        stage: Stages,
+        metadata: Dict[str, Any],
+        cv: int = 5,
+        threshold: Optional[float] = None,
+        evaluation_type: EvaluationType = EvaluationType.DEFAULT,
     ) -> None:
         """Initialises the experiment without running it.
 
@@ -146,7 +146,8 @@ class Experiment:
         )
 
         logger.info(
-            f"Experiment {experiment_result.name} finished with features: {experiment_result.selected_features}")
+            f"Experiment {experiment_result.name} finished with features: {experiment_result.selected_features}"
+        )
 
         return experiment_result
 
@@ -202,10 +203,12 @@ class Experiment:
             list[str]: Ordered list of selected feature name strings,
             guaranteed to be usable as "df[selected_features]".  The
             list is never empty when the selector returns at least one
-            feature; if the selector type is unrecognized, all column
+            feature; if the selector model_based is unrecognized, all column
             names are returned with a warning.
         """
-        logger.debug(f"Starting _extract_features with pipeline steps: {[name for name, _ in pipeline.steps]}")
+        logger.debug(
+            f"Starting _extract_features with pipeline steps: {[name for name, _ in pipeline.steps]}"
+        )
 
         steps = pipeline.steps
         pipeline.fit(X, y)
@@ -213,7 +216,7 @@ class Experiment:
         selector_index = 0 if len(steps) == 2 else len(steps) - 2
         selector = steps[selector_index][1]
 
-        logger.debug(f"Selector type: {type(selector).__name__}")
+        logger.debug(f"Selector model_based: {type(selector).__name__}")
         logger.debug(f"Selector index: {selector_index}, Total steps: {len(steps)}")
 
         # Capture original column names *before* any transformation so
@@ -228,17 +231,23 @@ class Experiment:
             # Try to get feature names from the preprocessor using sklearn's
             # get_feature_names_out() method (available in sklearn >= 1.0).
             # This handles transformers like OneHotEncoder correctly.
-            if hasattr(preprocessor, 'get_feature_names_out'):
+            if hasattr(preprocessor, "get_feature_names_out"):
                 try:
                     feature_cols = list(preprocessor.get_feature_names_out(original_feature_cols))
-                    logger.debug(f"Retrieved {len(feature_cols)} feature names from preprocessor via get_feature_names_out()")
+                    logger.debug(
+                        f"Retrieved {len(feature_cols)} feature names from preprocessor via get_feature_names_out()"
+                    )
                 except Exception as e:
                     # Fallback if get_feature_names_out() fails
-                    logger.debug(f"get_feature_names_out() failed: {e}; falling back to positional labels")
+                    logger.debug(
+                        f"get_feature_names_out() failed: {e}; falling back to positional labels"
+                    )
                     feature_cols = [str(i) for i in range(X_transformed.shape[1])]
             else:
                 # Fallback for older sklearn versions
-                logger.debug("Preprocessor does not have get_feature_names_out(); using positional labels")
+                logger.debug(
+                    "Preprocessor does not have get_feature_names_out(); using positional labels"
+                )
                 feature_cols = [str(i) for i in range(X_transformed.shape[1])]
 
             logger.debug(f"Features after preprocessing: {len(feature_cols)}")
@@ -252,9 +261,7 @@ class Experiment:
             # Standard sklearn selector protocol.
             support_mask = selector.get_support()
             selected_feature_names = [
-                feature_cols[i]
-                for i, is_selected in enumerate(support_mask)
-                if is_selected
+                feature_cols[i] for i, is_selected in enumerate(support_mask) if is_selected
             ]
 
         elif hasattr(selector, "selected_idx_"):
@@ -265,7 +272,7 @@ class Experiment:
         else:
             selected_feature_names = feature_cols
             logger.warning(
-                f"Unknown selector type: {type(selector).__name__}; returning all features."
+                f"Unknown selector model_based: {type(selector).__name__}; returning all features."
             )
 
         # Final guarantee: every element in the returned list is a plain

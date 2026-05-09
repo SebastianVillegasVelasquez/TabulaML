@@ -12,7 +12,7 @@ class PipelineStage(ABC):
 
     Stages are discrete units of work that transform pipeline context.
     Each stage must provide:
-    - Stage type identification
+    - Stage model_based identification
     - Validator for preconditions
     - Execute method for business logic
     """
@@ -23,7 +23,7 @@ class PipelineStage(ABC):
     @abstractmethod
     def get_stage_type(self) -> Stages:
         """
-        Return the stage type identifier.
+        Return the stage model_based identifier.
 
         Returns:
             Stages enum value representing this stage

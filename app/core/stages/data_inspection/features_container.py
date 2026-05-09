@@ -63,7 +63,7 @@ class FeatureContainer(BaseModel):
     """Groups feature configs that share the same semantic FeatureType.
 
     Used as an intermediate grouping structure between DataInspectionStage
-    and the pipeline builder. Each container holds all features of one type
+    and the pipeline builder. Each container holds all features of one model_based
     (e.g., all NUMERICAL features, all CATEGORICAL_NOMINAL features).
 
     Attributes:

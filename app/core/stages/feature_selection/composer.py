@@ -3,11 +3,10 @@ from enum import Enum
 from typing import Callable
 
 from app.core.context import Context
-from experiments import ExperimentDefinition
-from app.core.enums import SelectorSpecType, ModelSpecType
+from app.core.enums import SelectorSpecType, ModelSpecType, Stages
+from app.core.experiments import ExperimentDefinition
+from app.core.model_bank.model_spec import SelectorSpec, ModelSpec
 from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
-from app.core.model_bank.model_spects import SelectorSpec, ModelSpec
-from app.utils.logger import logger
 
 
 class ExperimentPriority(Enum):
@@ -51,7 +50,7 @@ class SelectorChainFactory:
         filters, embedded, rfe, shap = self._decoupled_selectors(selectors=self.selectors)
 
         # Collect all selectors from the list of selectors,
-        # then filter each group of selectors based on the type attribute.
+        # then filter each group of selectors based on the model_based attribute.
         for s in self.selectors:
             if s.type in {SelectorSpecType.RFE, SelectorSpecType.SHAP}:
                 continue
@@ -72,7 +71,7 @@ class SelectorChainFactory:
         # with a more complex RFE selector such as RFECV.
         # for f in filters:
         #     for r in rfe:
-        #         chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
+        #         chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", model_based="rfe"))
 
         # These filters combine a quick filter first such as SelectKBest
         # with a more complex RFE and a final SHAP selector.
@@ -91,7 +90,7 @@ class SelectorChainFactory:
         - Rfe
         - Sha
 
-        All the selectors are being grouped using the type attribute.
+        All the selectors are being grouped using the model_based attribute.
 
         Args:
             - selectors: List of selectors
@@ -123,7 +122,7 @@ _RULES: list[CompositionRule] = [
         ),
         match=lambda chain, model: (
             any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
-            and model.type == ModelSpecType.TREE
+            and model.model_based == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -141,7 +140,7 @@ _RULES: list[CompositionRule] = [
         description="Blocks pipelines where a tree-based selector is followed by a tree model.",
         match=lambda chain, model: (
             any(s.type == SelectorSpecType.TREE_BASED for s in chain.selectors)
-            and model.type == ModelSpecType.TREE
+            and model.model_based == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.BLOCKED,
     ),
@@ -203,7 +202,7 @@ _RULES: list[CompositionRule] = [
         ),
         match=lambda chain, model: (
             chain.selectors[0].type == SelectorSpecType.STATISTICAL
-            and model.type == ModelSpecType.TREE
+            and model.model_based == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.MEDIUM,
     ),
@@ -216,7 +215,7 @@ _RULES: list[CompositionRule] = [
         ),
         match=lambda chain, model: (
             any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
-            and model.type == ModelSpecType.TREE
+            and model.model_based == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.LOW,
     ),
@@ -323,6 +322,7 @@ class ExperimentComposer:
             selectors (list[SelectorSpec]): List of selector specifications.
             Models (list[ModelSpec]): List of model specifications.
         """
+        self.context = context
         self.selectors = selectors
         self.models = models
 
@@ -422,12 +422,12 @@ class ExperimentComposer:
 
         return ExperimentDefinition(
             name=f"{chain.name}__{model.name}",
-            stage="feature_selection",
+            stage=Stages.FEATURE_SELECTION,
             pipeline_builder=builder,
             metadata={
                 "selectors": [s.name for s in chain.selectors],
                 "model": model.name,
                 "model_type": model.spec_type,
-                "model_based": model.type,
+                "model_based": model.model_based,
             },
         )

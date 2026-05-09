@@ -1,11 +1,10 @@
 from app.core.context import Context
-from app.core.enums import Stages, ModelRetrieveType, ProblemType
+from app.core.enums import ModelRetrieveType, ProblemType
 from app.core.model_bank import ModelRetrieveFactory
 from app.core.stages.feature_selection.composer import ExperimentComposer
-from app.utils.logger import logger
 
 
-def get_feature_selection_experiments(context: Context | None):
+def get_feature_selection_experiments(context: Context):
     """
     This method generates feature selection experiments using the ExperimentComposer.
     First, it retrieves the preprocessing pipeline from the data handler stage.

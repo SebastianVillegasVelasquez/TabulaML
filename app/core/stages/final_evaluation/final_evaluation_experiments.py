@@ -1,5 +1,5 @@
 from app.core.context import Context
-from experiments import ExperimentDefinition
+from app.core.experiments import ExperimentDefinition
 from app.core.enums import EvaluationType
 from app.core.enums import ProblemType
 from app.core.enums import Stages

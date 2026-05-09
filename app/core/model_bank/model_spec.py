@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 from pydantic import BaseModel
 
@@ -9,8 +9,9 @@ class ModelSpec(BaseModel):
     name: str
     factory: Callable[[], Any]
     spec_type: ModelSpecType
-    type: ModelSpecType  # "linear", "non_linear", "tree", etc.
-    __slots__ = ("name", "factory", "spec_type", "type")
+    model_based: ModelSpecType  # "linear", "non_linear", "tree", etc.
+    metadata: Optional[dict[str, Any]] = None
+    __slots__ = ("name", "factory", "spec_type", "model_based")
 
 
 class SelectorSpec(BaseModel):
@@ -18,7 +19,7 @@ class SelectorSpec(BaseModel):
     spec_type: ModelSpecType
     type: SelectorSpecType  # "statistical", "tree_based", etc.
     factory: Callable[[], Any]
-    __slots__ = ("name", "factory", "spec_type", "type")
+    __slots__ = ("name", "factory", "spec_type", "model_based")
 
 
 class EnsemblerSpec(BaseModel):
@@ -26,4 +27,4 @@ class EnsemblerSpec(BaseModel):
     spec_type: ModelSpecType
     type: EnsemblerSpecInfo
     factory: Callable[[], Any]
-    __slots__ = ("name", "factory", "spec_type", "type")
+    __slots__ = ("name", "factory", "spec_type", "model_based")

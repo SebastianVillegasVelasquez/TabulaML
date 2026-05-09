@@ -1,7 +1,7 @@
 from typing import List
 
 from app.core.context.context import Context
-from experiments import ExperimentDefinition
+from app.core.experiments import ExperimentDefinition
 from app.core.stages.factories.base_experiment_registry import BaseExperimentFactory
 from app.core.stages.model_selection.model_selection_experiments import (
     get_model_selection_experiments,

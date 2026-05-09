@@ -2,6 +2,7 @@ import pytest
 
 from app.core.stages.data_inspection import FeatureConfig, FeatureType
 
+
 @pytest.fixture
 def valid_feature_config_data():
     return {
@@ -11,7 +12,7 @@ def valid_feature_config_data():
         "missing_ratio": 0.2,
         "is_target": False,
         "drop": False,
-        "notes": "Test feature"
+        "notes": "Test feature",
     }
 
 

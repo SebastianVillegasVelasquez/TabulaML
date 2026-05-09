@@ -1,14 +1,4 @@
 from .data_inspection import DataInspectionStage
-
-from .feature_config_enum import (
-    ImputationStrategy,
-    EncodingType,
-    TransformationType,
-    ScalerStrategy,
-    TextVectorizationType,
-    DatetimeGranularity,
-)
-
 from .feature_config import (
     BooleanFeature,
     CategoricalNominalFeature,
@@ -20,16 +10,41 @@ from .feature_config import (
     NumericalFeature,
     TextFeature,
 )
-
-from .features_container import FeatureContainer
+from .feature_config_enum import (
+    ImputationStrategy,
+    EncodingType,
+    TransformationType,
+    ScalerStrategy,
+    TextVectorizationType,
+    DatetimeGranularity,
+    FeatureType,
+)
+from .features_container import (
+    FeatureContainer,
+    _build_numerical_pipeline,
+    _build_categorical_pipeline,
+    _build_boolean_pipeline,
+)
 
 __all__ = [
     "DataInspectionStage",
     "ImputationStrategy",
     "EncodingType",
     "TransformationType",
-    "TextVectorizationType",
     "ScalerStrategy",
+    "TextVectorizationType",
+    "DatetimeGranularity",
     "FeatureConfig",
     "FeatureContainer",
+    "BooleanFeature",
+    "CategoricalNominalFeature",
+    "CategoricalOrdinalFeature",
+    "DatetimeFeature",
+    "IdentifierFeature",
+    "NumericalFeature",
+    "TextFeature",
+    "FeatureType",
+    "_build_categorical_pipeline",
+    "_build_boolean_pipeline",
+    "_build_numerical_pipeline",
 ]

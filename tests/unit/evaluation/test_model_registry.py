@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch, Mock
 from app.core.stages.evaluation.model_registry import ModelRegistry
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 
@@ -286,4 +286,4 @@ class TestModelRegistry:
             metadata = json.load(f)
 
         assert isinstance(metadata["metrics"]["model_type"], str)
-        assert "type" in metadata["metrics"]["model_type"]
+        assert "model_based" in metadata["metrics"]["model_type"]

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from .feature_config_enum import (
     ImputationStrategy,
@@ -19,13 +19,13 @@ from .feature_config_enum import (
 class FeatureConfig(BaseModel):
     """Base class for feature configuration and characterization.
 
-    Centralizes the universal attributes present in any column type detected
+    Centralizes the universal attributes present in any column model_based detected
     during exploratory dataset analysis. Serves as the base contract for
     pipeline construction in the AutoML system.
 
     Attributes:
         name: Original column name in the dataset.
-        dtype: Detected pandas/numpy data type (e.g., 'float64', 'object').
+        dtype: Detected pandas/numpy data model_based (e.g., 'float64', 'object').
         feature_type: Semantic category of the feature (e.g., 'numerical', 'categorical').
         missing_ratio: Proportion of null values in the range [0.0, 1.0].
         is_target: Indicates whether this column is the model's target variable.
@@ -36,11 +36,13 @@ class FeatureConfig(BaseModel):
         ValueError: If missing_ratio is not within the range [0.0, 1.0].
     """
 
-    model_config = {"frozen": False, "validate_assignment": True}
+    model_config = ConfigDict(
+        frozen=False, validate_assignment=True, from_attributes=True, extra="forbid"
+    )
 
     name: str = Field(..., description="Original column name.")
     dtype: str = Field(..., description="Detected pandas/numpy dtype.")
-    feature_type: FeatureType = Field(..., description="Semantic type of the feature.")
+    feature_type: FeatureType = Field(..., description="Semantic model_based of the feature.")
     missing_ratio: float = Field(
         default=0.0,
         ge=0.0,
@@ -421,7 +423,7 @@ class CategoricalFeature(FeatureConfig):
 class CategoricalNominalFeature(CategoricalFeature):
     """Categorical feature with no intrinsic order between its categories.
 
-    Represents variables such as country, color, or product type, where no
+    Represents variables such as country, color, or product model_based, where no
     defined ordering relationship exists between values.
 
     The encoding strategy is automatically selected based on cardinality,

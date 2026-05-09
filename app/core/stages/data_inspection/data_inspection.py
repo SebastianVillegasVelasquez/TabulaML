@@ -123,7 +123,7 @@ class DataInspectionStage:
         """Orchestrates column scanning and context update.
 
         For each column in the training set this method:
-            1. Detects its semantic type (numerical, categorical, boolean, etc.).
+            1. Detects its semantic model_based (numerical, categorical, boolean, etc.).
             2. Computes the raw statistics required by that feature class.
             3. Instantiates the corresponding typed FeatureConfig subclass.
             4. Delegates transformation/encoding decisions to the feature's properties.
@@ -186,10 +186,10 @@ class DataInspectionStage:
     #     return df_transformed
 
     def _build_feature_config(self, col: str, series: pd.Series) -> FeatureConfig:
-        """Detects the feature type and instantiates the correct typed class.
+        """Detects the feature model_based and instantiates the correct typed class.
 
         Acts as a dispatch method: it calls the appropriate private builder
-        based on the detected semantic type and returns the populated feature
+        based on the detected semantic model_based and returns the populated feature
         instance. All transformation/encoding decisions are deferred to the
         computed properties of each class.
 
@@ -395,9 +395,9 @@ class DataInspectionStage:
 
     @staticmethod
     def _detect_feature_type(series: pd.Series) -> str:
-        """Infers the semantic type of a column.
+        """Infers the semantic model_based of a column.
 
-        Boolean detection reserves the 'boolean' type only for columns whose
+        Boolean detection reserves the 'boolean' model_based only for columns whose
         binary values are unambiguously truth-values (True/False, 0/1, yes/no).
         String columns with two arbitrary values like 'male'/'female' are
         classified as 'categorical' so they receive proper encoding instead
@@ -649,7 +649,7 @@ class DataInspectionStage:
 
     @staticmethod
     def _detect_feature_type(series: pd.Series) -> str:
-        """Infers the semantic type of a column from its dtype and value set.
+        """Infers the semantic model_based of a column from its dtype and value set.
 
         Detection priority:
             1. Boolean dtype → ``'boolean'``

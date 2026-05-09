@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-from data_inspection import DataInspectionStage
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
@@ -13,10 +11,12 @@ from app.core.context import Context, DatasetBundle
 from app.core.enums import ProblemType, ModelRetrieveType
 from app.core.model_bank import ModelRetrieveFactory
 
+pytest_plugins = ["tests.fixtures.feature_config_fixture"]
+
 
 @pytest.fixture
 def init_data_inspection_stage(build_context: Context):
-    from data_inspection import DataInspectionStage
+    from app.core.stages.data_inspection import DataInspectionStage
 
     stage = DataInspectionStage(build_context)
     yield stage

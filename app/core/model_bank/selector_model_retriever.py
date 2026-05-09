@@ -97,7 +97,7 @@ class ShapSelector:
         importance = np.abs(shap_values).mean(axis=0)
 
         # argsort is ascending; take the last k indices for the top-k.
-        self.selected_idx_ = np.argsort(importance)[-self.k:]
+        self.selected_idx_ = np.argsort(importance)[-self.k :]
 
         return self
 

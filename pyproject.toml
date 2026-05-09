@@ -13,6 +13,9 @@ pandas = "^3.0.2"
 numpy = "^2.4.4"
 pydantic = "^2.13.3"
 loguru = "^0.7.3"
+lightgbm = "^4.6.0"
+xgboost = "^3.2.0"
+shap = "^0.51.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.3"

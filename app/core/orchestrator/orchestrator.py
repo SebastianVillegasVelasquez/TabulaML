@@ -249,7 +249,7 @@ class Orchestrator:
         the context with evaluation metrics and best results.
 
         Args:
-            stage: The stage type to evaluate
+            stage: The stage model_based to evaluate
 
         Raises:
             Exception if evaluation fails

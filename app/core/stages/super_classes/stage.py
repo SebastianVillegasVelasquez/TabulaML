@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from app.core.context import Context, StageResult
 from app.core.enums import Stages
 from app.utils.logger import logger
-from experiments import Experiment
+from app.core.experiments import Experiment
 
 
 class Stage(ABC):
@@ -25,7 +25,7 @@ class Stage(ABC):
 
     @abstractmethod
     def get_stage_type(self) -> Stages:
-        """Child classes must define their stage type"""
+        """Child classes must define their stage model_based"""
         pass
 
     def run(self):

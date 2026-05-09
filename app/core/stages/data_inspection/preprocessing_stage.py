@@ -6,8 +6,8 @@ from sklearn.compose import ColumnTransformer
 from app.utils.logger import logger
 from .feature_config import FeatureConfig
 from .features_container import FeatureContainer
-from data_inspection.feature_config_enum import FeatureType
-from data_inspection.features_container import (
+from .feature_config_enum import FeatureType
+from .features_container import (
     _build_numerical_pipeline,
     _build_categorical_pipeline,
     _build_boolean_pipeline,
@@ -29,7 +29,7 @@ class PreprocessingBuilder:
     Attributes:
         feature_configs: Full list of typed feature instances from inspection.
             IDENTIFIER features and features with drop=True are always skipped.
-        containers: Populated during build() — one FeatureContainer per type.
+        containers: Populated during build() — one FeatureContainer per model_based.
 
     Example:
         >>> builder = PreprocessingBuilder(feature_configs)
@@ -88,7 +88,7 @@ class PreprocessingBuilder:
         IDENTIFIER features are skipped unconditionally. Features explicitly
         marked with drop=True are also excluded.
 
-        Populates self.containers with one FeatureContainer per detected type,
+        Populates self.containers with one FeatureContainer per detected model_based,
         preserving the order in which types were first encountered.
         """
         grouped: dict[Enum, list[FeatureConfig]] = defaultdict(list)
@@ -116,7 +116,7 @@ class PreprocessingBuilder:
         """Routes a FeatureContainer to the correct pipeline builder function.
 
         Each FeatureType maps to a dedicated builder that understands the
-        metadata specific to that type. Unrecognized or unimplemented types
+        metadata specific to that model_based. Unrecognized or unimplemented types
         are logged as warnings and return an empty list, causing those columns
         to be silently dropped by ColumnTransformer(remainder="drop").
 

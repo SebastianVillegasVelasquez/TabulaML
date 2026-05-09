@@ -23,7 +23,7 @@ class BaseTuner(ABC):
 
     @abstractmethod
     def get_tuner_strategy(self) -> TunerStrategy:
-        """Return the strategy type for this tuner"""
+        """Return the strategy model_based for this tuner"""
         ...
 
     def _get_hyperparameters(self, model_name: str) -> dict:
@@ -94,7 +94,7 @@ class OptunaTunerStrategy(BaseTuner):
                 params[param_name] = trial.suggest_categorical(param_name, choices)
 
             else:
-                raise ValueError(f"Unsupported param type: {param_type}")
+                raise ValueError(f"Unsupported param model_based: {param_type}")
 
         return params
 

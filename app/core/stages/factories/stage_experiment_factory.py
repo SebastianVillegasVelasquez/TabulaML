@@ -28,11 +28,7 @@ class StageExperimentFactory:
     }
 
     @classmethod
-    def create(
-        cls,
-        stage: Stages,
-        context: Context = None,
-    ):
+    def create(cls, stage: Stages):
         """Create experiment factory for the given stage."""
         if stage not in cls._FACTORIES:
             logger.debug(f"Stage '{stage}' no tiene un factory registrado.")

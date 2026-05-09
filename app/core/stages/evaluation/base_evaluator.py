@@ -14,7 +14,7 @@ from typing import Any
 
 from app.core.context.context import Context
 from app.core.enums import Stages
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 from app.utils.logger import logger
 
 
@@ -36,7 +36,7 @@ class BaseEvaluator(ABC):
         Initialize evaluator.
 
         Args:
-            stage: The stage type being evaluated
+            stage: The stage model_based being evaluated
             context: The pipeline context
         """
         self.stage = stage
@@ -69,13 +69,12 @@ class BaseEvaluator(ABC):
 
         self._update_context(sorted_results, best_experiment, stage_specific_data)
 
-
     # ========== Hook Methods (Override in Subclasses) ==========
 
     @abstractmethod
     def _extract_stage_specific_data(
         self, sorted_results: list[ExperimentResult], best_experiment: ExperimentResult
-    ) -> dict[str, Any] | list[dict[str, Any]] :
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         """
         Extract stage-specific data from results.
 

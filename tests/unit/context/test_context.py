@@ -9,7 +9,7 @@ class TestContext:
     """Unit tests for Context class."""
 
     def test_context_create_classification(self, dataset_bundle):
-        """Test Context creation with classification problem type."""
+        """Test Context creation with classification problem model_based."""
         context = Context.create(
             dataset=dataset_bundle,
             problem_type=ProblemType.CLASSIFICATION,
@@ -24,7 +24,7 @@ class TestContext:
         assert context.metadata.columns_length == 2
 
     def test_context_create_regression(self, dataset_bundle):
-        """Test Context creation with regression problem type."""
+        """Test Context creation with regression problem model_based."""
         context = Context.create(
             dataset=dataset_bundle,
             problem_type=ProblemType.REGRESSION,
@@ -87,8 +87,8 @@ class TestContext:
         assert context.config.priority_metric_normalized == "accuracy"
 
     def test_context_invalid_problem_type(self, dataset_bundle):
-        """Test Context creation with invalid problem type raises error."""
-        with pytest.raises(ValueError, match="Invalid problem type"):
+        """Test Context creation with invalid problem model_based raises error."""
+        with pytest.raises(ValueError, match="Invalid problem model_based"):
             Context.create(
                 dataset=dataset_bundle,
                 problem_type="invalid_type",

@@ -11,7 +11,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 from app.core.stages.evaluation.evaluators.feature_selection_evaluator import (
     FeatureSelectionEvaluator,
 )
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 from app.core.context.context import Context, StageResult, ProjectConfig
 from app.core.enums import Stages
 
@@ -252,7 +252,7 @@ class TestFeatureSelectionEvaluatorEdgeCases:
         assert context.update_context.called
 
     def test_multiple_results_same_selector(self, minimal_setup):
-        """Test evaluation with multiple results of same selector type."""
+        """Test evaluation with multiple results of same selector model_based."""
         evaluator, context = minimal_setup
 
         results = []

@@ -1,4 +1,8 @@
+from typing import Optional
+
+from app.core.context import Context
 from app.core.enums import ModelRetrieveType, ProblemType
+from app.core.model_bank import BaseModelRetriever
 
 
 class ModelRetrieveFactory:
@@ -20,15 +24,22 @@ class ModelRetrieveFactory:
     def register_defaults(cls):
         from app.core.model_bank import BaselineModelRetriever
         from app.core.model_bank import SelectorModelRetriever
+        from app.core.model_bank import PredictorModelRetriever
 
         if not cls._MODELS_TYPE_TO_FACTORY:
             cls._MODELS_TYPE_TO_FACTORY = {
                 ModelRetrieveType.BASELINE: BaselineModelRetriever,
                 ModelRetrieveType.SELECTOR: SelectorModelRetriever,
+                ModelRetrieveType.PREDICTOR: PredictorModelRetriever,
             }
 
     @classmethod
-    def create(cls, model_retrieve_type: ModelRetrieveType, problem_type: ProblemType):
+    def create(
+        cls,
+        model_retrieve_type: ModelRetrieveType,
+        problem_type: ProblemType,
+        context: Optional[Context] = None,
+    ) -> BaseModelRetriever:
         cls.register_defaults()
         model_bank_class = cls._MODELS_TYPE_TO_FACTORY.get(model_retrieve_type)
-        return model_bank_class(problem_type=problem_type)
+        return model_bank_class(problem_type=problem_type, context=context)

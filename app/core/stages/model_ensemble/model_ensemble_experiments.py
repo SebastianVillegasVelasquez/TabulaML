@@ -2,12 +2,12 @@ from typing import List, Tuple, Any
 
 from sklearn.base import BaseEstimator
 
-from experiments import ExperimentDefinition
+from app.core.experiments import ExperimentDefinition
 from app.core.enums import ProblemType
 from app.core.context.context import Context
 from app.core.enums import Stages
 from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
-from experiments import ExperimentResult
+from app.core.experiments import ExperimentResult
 
 
 def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinition]:
@@ -30,7 +30,7 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
             - Fine-tuned model results
             - Preprocessing configuration
             - Feature selection metadata
-            - Problem type configuration
+            - Problem model_based configuration
 
     Returns:
         PipelineBuilder: A pipeline pipeline_builder instance that constructs a pipeline with the following steps:
@@ -38,7 +38,7 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
             - Feature Selection
             - Ensemble Model (voting or stacking)
     """
-    from experiments import ExperimentDefinition
+    from app.core.experiments import ExperimentDefinition
 
     fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
     feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata[
@@ -100,12 +100,12 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
 
 
 def get_models(problem_type: ProblemType, results) -> list[Tuple[str, Any]]:
-    """Builds ensemble models based on the problem type and training results.
+    """Builds ensemble models based on the problem model_based and training results.
 
     This function orchestrates the creation of ensemble models by:
     - Extracting pipelines from previous results
     - Building estimators
-    - Selecting appropriate ensemble strategies depending on the problem type
+    - Selecting appropriate ensemble strategies depending on the problem model_based
     - Configuring voting strategy when applicable (classification only)
 
     Args:
@@ -139,7 +139,7 @@ def get_models(problem_type: ProblemType, results) -> list[Tuple[str, Any]]:
             )
 
         case _:
-            raise ValueError(f"Unsupported problem type: {problem_type}")
+            raise ValueError(f"Unsupported problem model_based: {problem_type}")
 
 
 def _build_estimators(pipelines: List[Any]) -> List[Tuple[str, Any]]:

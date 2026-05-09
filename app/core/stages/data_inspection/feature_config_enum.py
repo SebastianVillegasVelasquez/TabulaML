@@ -28,7 +28,7 @@ class TransformationType(str, Enum):
 
 
 class FeatureType(str, Enum):
-    """Semantic type assigned to each column during data inspection.
+    """Semantic model_based assigned to each column during data inspection.
 
     Inherits from str so the enum value remains JSON-serializable and
     compatible with Pydantic field validation without extra configuration.

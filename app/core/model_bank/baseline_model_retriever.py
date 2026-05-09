@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 
 from app.core.enums import ModelSpecType
 from app.core.model_bank.base_model_retriever import BaseModelRetriever
-from app.core.model_bank.model_spects import ModelSpec
+from app.core.model_bank.model_spec import ModelSpec
 
 
 class BaselineModelRetriever(BaseModelRetriever):
@@ -31,7 +31,7 @@ class BaselineModelRetriever(BaseModelRetriever):
             name="LogisticRegression",
             factory=lambda: LogisticRegression(solver="liblinear", max_iter=1000, random_state=42),
             spec_type=ModelSpecType.LINEAR,
-            type=ModelSpecType.LINEAR,
+            model_based=ModelSpecType.LINEAR,
         )
 
     @staticmethod
@@ -45,5 +45,5 @@ class BaselineModelRetriever(BaseModelRetriever):
                 n_jobs=-1,
             ),
             spec_type=ModelSpecType.NON_LINEAR,
-            type=ModelSpecType.TREE,
+            model_based=ModelSpecType.TREE,
         )

@@ -156,7 +156,7 @@ class Context(BaseModel):
             ValueError: If the problem_type is not supported.
         """
         if problem_type not in [ProblemType.CLASSIFICATION, ProblemType.REGRESSION]:
-            raise ValueError(f"Invalid problem type: {problem_type}")
+            raise ValueError(f"Invalid problem model_based: {problem_type}")
 
         config = ProjectConfig(
             problem_type=problem_type,
@@ -182,7 +182,7 @@ class Context(BaseModel):
         """Internal helper to determine the priority metric string for optimization.
 
         Args:
-            problem_type (ProblemType): The type of ML task.
+            problem_type (ProblemType): The model_based of ML task.
             priority_metric (Optional[str]): User-defined priority metric.
 
         Returns:
