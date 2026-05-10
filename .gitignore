@@ -16,6 +16,7 @@ venv/
 *.swo
 *~
 .DS_Store
+.mypy_cache/
 
 # Build artifacts
 dist/

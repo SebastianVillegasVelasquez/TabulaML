@@ -22,12 +22,18 @@ pytest = "^9.0.3"
 jupyter = "^1.1.1"
 black = "^26.3.1"
 pandas-stubs = "^3.0.0.260204"
+pre-commit = "^4.6.0"
+ruff = "^0.15.12"
+mypy = "^2.0.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-ra -q"
 pythonpath = ["."]
+markers = [
+    "unit: marks tests as unit tests",
+]
 
 [tool.black]
 line-length = 100

@@ -65,7 +65,9 @@ class BaseEvaluator(ABC):
             logger.warning(f"No results to evaluate for {self.stage.value}")
             return
 
-        stage_specific_data = self._extract_stage_specific_data(sorted_results, best_experiment)
+        stage_specific_data = self._extract_stage_specific_data(
+            sorted_results, best_experiment
+        )
 
         self._update_context(sorted_results, best_experiment, stage_specific_data)
 
@@ -143,7 +145,15 @@ class BaseEvaluator(ABC):
         model_name = experiment.config.get("model", "unknown")
         return str(model_name)
 
-    def _extract_top_k_by_family(self, sorted_results: list[ExperimentResult], k: int = 3) -> dict:
+    def _log_best_experiment(self, best_experiment: ExperimentResult) -> None:
+        """Log summary of the best experiment."""
+        model = best_experiment.config.get("model", "unknown")
+        metrics = best_experiment.metrics
+        logger.info(f"Best experiment: model={model}, metrics={metrics}")
+
+    def _extract_top_k_by_family(
+        self, sorted_results: list[ExperimentResult], k: int = 3
+    ) -> dict:
         """
         Extract top-k results grouping by model family.
 

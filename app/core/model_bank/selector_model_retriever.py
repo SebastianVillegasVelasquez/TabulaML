@@ -19,12 +19,12 @@ class ShapSelector:
 
     Attributes:
         model_factory: A zero-argument callable that returns a fitted-able
-            tree model (e.g., ``lambda: RandomForestClassifier()``).
+            tree model (e.g., "lambda: RandomForestClassifier()").
         k: Number of top features to retain.
-        model: The tree model instance created by ``model_factory`` and
-            trained during :meth:`fit`. ``None`` before fitting.
+        model: The tree model instance created by "model_factory" and
+            trained during :meth:`fit`. "None" before fitting.
         selected_idx_: 1-D integer array of column indices (into the
-            transformed feature matrix) that were selected. ``None``
+            transformed feature matrix) that were selected. "None"
             before fitting.
 
     Example:
@@ -59,18 +59,18 @@ class ShapSelector:
     def fit(self, X, y) -> "ShapSelector":
         """Fits the internal model and computes SHAP-based feature importance.
 
-        Trains a tree model via ``model_factory``, computes SHAP values
+        Trains a tree model via "model_factory", computes SHAP values
         with :class:`shap.TreeExplainer`, and stores the indices of the
         *k* most important features in :attr:`selected_idx_`.
 
-        Multi-class SHAP outputs (shape ``[n_samples, n_features,
-        n_classes]``) are reduced by averaging across classes before
+        Multi-class SHAP outputs (shape "[n_samples, n_features,
+        n_classes]") are reduced by averaging across classes before
         ranking.
 
         Args:
-            X: Training feature matrix of shape ``(n_samples, n_features)``.
+            X: Training feature matrix of shape "(n_samples, n_features)".
                 Accepts any array-like accepted by the underlying model.
-            y: Target labels of shape ``(n_samples,)``.
+            y: Target labels of shape "(n_samples,)".
 
         Returns:
             self: The fitted selector instance, enabling method chaining.
@@ -105,17 +105,17 @@ class ShapSelector:
         """Reduces the feature matrix to the columns selected during fitting.
 
         Args:
-            X: Feature matrix of shape ``(n_samples, n_features)``.
+            X: Feature matrix of shape "(n_samples, n_features)".
                 Must have at least as many columns as the matrix used in
                 :meth:`fit`.
 
         Returns:
             numpy.ndarray: Reduced matrix of shape
-            ``(n_samples, k)``, containing only the selected columns.
+            "(n_samples, k)", containing only the selected columns.
 
         Raises:
             ValueError: If :meth:`fit` has not been called yet and
-                :attr:`selected_idx_` is ``None``.
+                :attr:`selected_idx_` is "None".
         """
         X = np.asarray(X)
         return X[:, self.selected_idx_]
@@ -127,17 +127,16 @@ class ShapSelector:
         but slightly more convenient inside pipeline definitions.
 
         Args:
-            X: Training feature matrix of shape ``(n_samples, n_features)``.
-            y: Target labels of shape ``(n_samples,)``.
+            X: Training feature matrix of shape "(n_samples, n_features)".
+            y: Target labels of shape "(n_samples,)".
 
         Returns:
-            numpy.ndarray: Reduced matrix of shape ``(n_samples, k)``.
+            numpy.ndarray: Reduced matrix of shape "(n_samples, k)".
         """
         return self.fit(X, y).transform(X)
 
 
 class SelectorModelRetriever(BaseModelRetriever):
-
     def load_defaults(self) -> list[SelectorSpec]:
         function_score = self._load_score_func()
 
@@ -152,7 +151,9 @@ class SelectorModelRetriever(BaseModelRetriever):
     def _load_score_func(self):
         from sklearn.feature_selection import f_regression, f_classif
 
-        return f_regression if self.problem_type == ProblemType.REGRESSION else f_classif
+        return (
+            f_regression if self.problem_type == ProblemType.REGRESSION else f_classif
+        )
 
     """
     Statistical models for feature selection.
@@ -265,7 +266,9 @@ class SelectorModelRetriever(BaseModelRetriever):
         return SelectorSpec(
             name="rfe_linear",
             factory=lambda: RFECV(
-                estimator=LogisticRegression(solver="liblinear", max_iter=1000, random_state=42),
+                estimator=LogisticRegression(
+                    solver="liblinear", max_iter=1000, random_state=42
+                ),
                 step=0.2,
             ),
             spec_type=ModelSpecType.LINEAR,
