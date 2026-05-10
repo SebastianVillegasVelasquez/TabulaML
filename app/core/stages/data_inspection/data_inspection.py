@@ -1,7 +1,4 @@
-from __future__ import annotations
-
-"""
-Data inspection stage for the AutoML pipeline.
+"""Data inspection stage for the AutoML pipeline.
 
 This module is responsible for the first stage of the AutoML system: scanning
 each column of the input dataset, computing its raw statistics, and mapping it
@@ -14,12 +11,18 @@ Typical usage example:
     stage.run()
     # context now holds the fitted ColumnTransformer and the feature registry
 """
-from typing import Any
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 
 from app.core.enums import Stages
+
+if TYPE_CHECKING:
+    from app.core.context import Context
 from .feature_config import (
     BooleanFeature,
     CategoricalNominalFeature,
@@ -52,7 +55,7 @@ class DataInspectionStage:
             without explicit dtype information.
         context: Shared AutoML context carrying the dataset and stage results.
         feature_configs: List of typed feature instances built during inspection.
-            Populated after ``run()`` is called.
+            Populated after "run()" is called.
 
         CYCLIC_DOMAINS: Mapping of (min, max, keywords) tuples to the corresponding
         ciclyc domain name. Used to detect periodic columns more easily.
@@ -98,7 +101,6 @@ class DataInspectionStage:
     _SEMANTIC_TOKEN_THRESHOLD: float = 6.0
 
     def __init__(self, context: "Context") -> None:
-
         self.context = context
         self.feature_configs: list[FeatureConfig] = []
 
@@ -145,7 +147,9 @@ class DataInspectionStage:
         preprocessing_builder = PreprocessingBuilder(self.feature_configs).build()
         self._handle_update_context(transformer=preprocessing_builder, df=df)
 
-    def _handle_update_context(self, transformer: ColumnTransformer, df: pd.DataFrame) -> None:
+    def _handle_update_context(
+        self, transformer: ColumnTransformer, df: pd.DataFrame
+    ) -> None:
         """Fits the transformer and stores the result in the shared context.
 
         Args:
@@ -356,7 +360,9 @@ class DataInspectionStage:
         #    Non-uniform gaps suggest an arbitrary code → falls through to CONTINUOUS.
         if is_int and cardinality <= 15:
             sorted_vals = sorted(unique_vals)
-            gaps = {sorted_vals[i + 1] - sorted_vals[i] for i in range(len(sorted_vals) - 1)}
+            gaps = {
+                sorted_vals[i + 1] - sorted_vals[i] for i in range(len(sorted_vals) - 1)
+            }
             if len(gaps) == 1:
                 return NumericalSubtype.ORDINAL_ENCODED
 
@@ -441,7 +447,9 @@ class DataInspectionStage:
         if pd.api.types.is_object_dtype(s):
             sample = s.head(50)
             try:
-                parsed = pd.to_datetime(sample, errors="raise", infer_datetime_format=True)
+                parsed = pd.to_datetime(
+                    sample, errors="raise", infer_datetime_format=True
+                )
                 if parsed.notna().mean() > 0.8:
                     return "datetime"
             except (ValueError, TypeError):
@@ -462,7 +470,9 @@ class DataInspectionStage:
         return "categorical"
 
     @staticmethod
-    def _build_boolean_feature(col: str, series: pd.Series, missing_ratio: float) -> BooleanFeature:
+    def _build_boolean_feature(
+        col: str, series: pd.Series, missing_ratio: float
+    ) -> BooleanFeature:
         """Computes binary statistics and instantiates a BooleanFeature.
 
         By the time this builder is called, _detect_feature_type has already
@@ -488,7 +498,9 @@ class DataInspectionStage:
             # The positive class is whichever value maps to True in common usage.
             # We use the less frequent value as a proxy (minority = positive class).
             positive_proxies = {"true", "yes", "si", "1", "y"}
-            true_ratio = float(s.astype(str).str.lower().str.strip().isin(positive_proxies).mean())
+            true_ratio = float(
+                s.astype(str).str.lower().str.strip().isin(positive_proxies).mean()
+            )
 
         return BooleanFeature(
             name=col,
@@ -519,7 +531,9 @@ class DataInspectionStage:
         s = series.dropna()
         cardinality = int(s.nunique())
         value_counts = s.value_counts(normalize=True)
-        most_frequent_ratio = float(value_counts.iloc[0]) if not value_counts.empty else 0.0
+        most_frequent_ratio = (
+            float(value_counts.iloc[0]) if not value_counts.empty else 0.0
+        )
         has_rare = bool((value_counts < 0.01).any())
 
         common_kwargs = dict(
@@ -533,7 +547,9 @@ class DataInspectionStage:
 
         if self._detect_ordinal_semantics(series):
             category_order = self._infer_ordinal_order(series)
-            return CategoricalOrdinalFeature(**common_kwargs, category_order=category_order)
+            return CategoricalOrdinalFeature(
+                **common_kwargs, category_order=category_order
+            )
 
         return CategoricalNominalFeature(**common_kwargs)
 
@@ -554,7 +570,9 @@ class DataInspectionStage:
         s = pd.to_datetime(series, errors="coerce").dropna()
 
         has_time = bool((s.dt.hour != 0).any() or (s.dt.minute != 0).any())
-        granularity = DatetimeGranularity.DATETIME if has_time else DatetimeGranularity.DATE
+        granularity = (
+            DatetimeGranularity.DATETIME if has_time else DatetimeGranularity.DATE
+        )
 
         return DatetimeFeature(
             name=col,
@@ -566,7 +584,9 @@ class DataInspectionStage:
             missing_ratio=missing_ratio,
         )
 
-    def _build_text_feature(self, col: str, series: pd.Series, missing_ratio: float) -> TextFeature:
+    def _build_text_feature(
+        self, col: str, series: pd.Series, missing_ratio: float
+    ) -> TextFeature:
         """Computes text corpus statistics and instantiates a TextFeature.
 
         Args:
@@ -603,9 +623,9 @@ class DataInspectionStage:
         """Removes structurally uninformative columns from the dataframe.
 
         A column is considered redundant if it meets any of the following:
-            - Its null ratio exceeds ``_NULL_THRESHOLD``.
+            - Its null ratio exceeds "_NULL_THRESHOLD".
             - It is constant (cardinality <= 1).
-            - Its unique-value ratio exceeds ``_ID_UNIQUE_RATIO_THRESHOLD``
+            - Its unique-value ratio exceeds "_ID_UNIQUE_RATIO_THRESHOLD"
               for object or integer dtypes, indicating an ID-like column.
 
         Dropped columns are registered as IdentifierFeature instances so the
@@ -634,11 +654,15 @@ class DataInspectionStage:
                 identifier_configs.append(self._make_identifier(col, series, n_rows))
                 continue
 
-            if pd.api.types.is_object_dtype(series) or pd.api.types.is_integer_dtype(series):
+            if pd.api.types.is_object_dtype(series) or pd.api.types.is_integer_dtype(
+                series
+            ):
                 unique_ratio = series.nunique() / n_rows
                 if unique_ratio > self._ID_UNIQUE_RATIO_THRESHOLD:
                     columns_to_drop.append(col)
-                    identifier_configs.append(self._make_identifier(col, series, n_rows))
+                    identifier_configs.append(
+                        self._make_identifier(col, series, n_rows)
+                    )
                     continue
 
         return df.drop(columns=columns_to_drop), identifier_configs
@@ -652,20 +676,20 @@ class DataInspectionStage:
         """Infers the semantic model_based of a column from its dtype and value set.
 
         Detection priority:
-            1. Boolean dtype → ``'boolean'``
-            2. Two-value object or numeric → ``'boolean'``
-            3. Datetime-parseable object → ``'datetime'``
-            4. Long free-text strings → ``'text'``
-            5. Explicit CategoricalDtype or object with > 2 unique values → ``'categorical'``
-            6. Numeric → ``'numerical'``
-            7. Fallback → ``'categorical'``
+            1. Boolean dtype → "'boolean'"
+            2. Two-value object or numeric → "'boolean'"
+            3. Datetime-parseable object → "'datetime'"
+            4. Long free-text strings → "'text'"
+            5. Explicit CategoricalDtype or object with > 2 unique values → "'categorical'"
+            6. Numeric → "'numerical'"
+            7. Fallback → "'categorical'"
 
         Args:
             series: The pandas Series to evaluate.
 
         Returns:
-            One of: ``'boolean'``, ``'datetime'``, ``'text'``,
-            ``'categorical'``, or ``'numerical'``.
+            One of: "'boolean'", "'datetime'", "'text'",
+            "'categorical'", or "'numerical'".
         """
         s = series.dropna()
 
@@ -682,7 +706,9 @@ class DataInspectionStage:
         if pd.api.types.is_object_dtype(s):
             sample = s.head(50)
             try:
-                parsed = pd.to_datetime(sample, errors="raise", infer_datetime_format=True)
+                parsed = pd.to_datetime(
+                    sample, errors="raise", infer_datetime_format=True
+                )
                 if parsed.notna().mean() > 0.8:
                     return "datetime"
             except (ValueError, TypeError):
@@ -708,7 +734,7 @@ class DataInspectionStage:
         """Heuristically detects whether a categorical column is ordinal.
 
         Checks whether at least two unique values in the column match a keyword
-        from ``ORDINAL_KEYWORDS``. A match is a substring match, so 'very high
+        from "ORDINAL_KEYWORDS". A match is a substring match, so 'very high
         risk' would match 'very high'.
 
         Args:
@@ -719,7 +745,9 @@ class DataInspectionStage:
         """
         values = series.dropna().astype(str).str.lower().str.strip().unique()
         matches = sum(
-            1 for val in values if any(keyword in val for keyword in cls.ORDINAL_KEYWORDS)
+            1
+            for val in values
+            if any(keyword in val for keyword in cls.ORDINAL_KEYWORDS)
         )
         return matches >= 2
 
@@ -777,7 +805,9 @@ class DataInspectionStage:
         )
 
     @staticmethod
-    def _fit_and_log_transformer(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
+    def _fit_and_log_transformer(
+        transformer: ColumnTransformer, df: pd.DataFrame
+    ) -> pd.DataFrame:
         """Fits the ColumnTransformer and logs the resulting feature names.
 
         Resets the DataFrame index before fitting to prevent the index-mismatch

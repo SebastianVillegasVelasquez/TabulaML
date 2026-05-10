@@ -8,7 +8,9 @@ from app.core.enums import EvaluationType
 from app.core.enums import Stages
 from app.core.experiments.experiment_result import ExperimentResult
 from app.core.stages.data_inspection.pipeline_builder import PipelineBuilder
-from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
+from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import (
+    EvaluationStrategy,
+)
 from app.utils.logger import logger
 
 
@@ -42,9 +44,9 @@ class Experiment:
         threshold: Optional decision threshold forwarded to the
             evaluation strategy.
         selected_features: List of feature name strings chosen by the
-            selector step.  Populated only when ``stage`` is
+            selector step.  Populated only when "stage" is
             :attr:`~app.core.enums.Stages.FEATURE_SELECTION`;
-            ``None`` otherwise.
+            "None" otherwise.
     """
 
     def __init__(
@@ -62,7 +64,7 @@ class Experiment:
 
         Args:
             name: Human-readable label for this experiment (e.g.
-                ``"lasso_feature_selection"``).
+                ""lasso_feature_selection"").
             pipeline: A :class:`PipelineBuilder` whose
                 :meth:`~PipelineBuilder.build` method returns a fresh
                 :class:`sklearn.pipeline.Pipeline` each time it is called.
@@ -79,7 +81,7 @@ class Experiment:
                 result (e.g. hyperparameter grid search coordinates).
                 Defaults to an empty dict.
             threshold: Optional decision threshold forwarded verbatim to
-                the evaluation strategy.  When ``None`` the strategy uses
+                the evaluation strategy.  When "None" the strategy uses
                 its own default.
             evaluation_type: :class:`~app.core.enums.EvaluationType`
                 constant that selects the concrete evaluation strategy
@@ -112,7 +114,7 @@ class Experiment:
         Args:
             X: Input feature matrix.  Column names must be strings so
                 that selected feature names can be propagated correctly.
-            y: Target label series aligned with ``X``.
+            y: Target label series aligned with "X".
 
         Returns:
             ExperimentResult: Container holding the pipeline, aggregated
@@ -166,33 +168,35 @@ class Experiment:
         return EvaluationFactory.create(self.evaluation_type)
 
     @staticmethod
-    def _extract_features(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series) -> list[str]:
+    def _extract_features(
+        pipeline: Pipeline, X: pd.DataFrame, y: pd.Series
+    ) -> list[str]:
         """Fits the pipeline and extracts the names of the selected features.
 
         Supports two selector protocols:
 
         - **sklearn selectors** — any step that exposes a
-          ``get_support()`` method (e.g. :class:`~sklearn.feature_selection.SelectKBest`,
+          "get_support()" method (e.g. :class:`~sklearn.feature_selection.SelectKBest`,
           :class:`~sklearn.feature_selection.RFE`).
         - **ShapSelector** — the custom selector that stores chosen
-          column positions in a ``selected_idx_`` attribute.
+          column positions in a "selected_idx_" attribute.
 
         The selector is assumed to be the second-to-last step in the
         pipeline (or the first step when the pipeline has only two
         steps).  All earlier steps are treated as preprocessors and are
         used to map transformed column positions back to the **original**
-        DataFrame column names supplied via ``X``.
+        DataFrame column names supplied via "X".
 
         .. important::
-            ``X`` **must** be a :class:`pandas.DataFrame` with string
+            "X" **must** be a :class:`pandas.DataFrame` with string
             column names.  Passing a plain numpy array will cause the
             method to fall back to positional string labels
-            (``"0"``, ``"1"``, …) rather than meaningful feature names.
+            (""0"", ""1"", …) rather than meaningful feature names.
 
         Args:
             pipeline: A **fitted** (or about to be fitted)
                 :class:`~sklearn.pipeline.Pipeline`.  The method calls
-                ``pipeline.fit(X, y)`` internally, so do **not** pass an
+                "pipeline.fit(X, y)" internally, so do **not** pass an
                 already-fitted instance if refitting would be harmful.
             X: Input feature matrix as a :class:`pandas.DataFrame`.
                 Column names are used to reconstruct the names of the
@@ -233,7 +237,9 @@ class Experiment:
             # This handles transformers like OneHotEncoder correctly.
             if hasattr(preprocessor, "get_feature_names_out"):
                 try:
-                    feature_cols = list(preprocessor.get_feature_names_out(original_feature_cols))
+                    feature_cols = list(
+                        preprocessor.get_feature_names_out(original_feature_cols)
+                    )
                     logger.debug(
                         f"Retrieved {len(feature_cols)} feature names from preprocessor via get_feature_names_out()"
                     )
@@ -254,14 +260,18 @@ class Experiment:
         else:
             X_transformed = X
             feature_cols = original_feature_cols
-            logger.debug(f"No preprocessing, using original features: {len(feature_cols)}")
+            logger.debug(
+                f"No preprocessing, using original features: {len(feature_cols)}"
+            )
 
         # Resolve selected feature names according to the selector protocol.
         if hasattr(selector, "get_support"):
             # Standard sklearn selector protocol.
             support_mask = selector.get_support()
             selected_feature_names = [
-                feature_cols[i] for i, is_selected in enumerate(support_mask) if is_selected
+                feature_cols[i]
+                for i, is_selected in enumerate(support_mask)
+                if is_selected
             ]
 
         elif hasattr(selector, "selected_idx_"):

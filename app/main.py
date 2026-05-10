@@ -18,7 +18,7 @@ def main():
     # Load data using DataLoader
     loader = DataLoader()
     dataset = loader.load_data(
-        file_path="D:\\Workspace\\TabulaML\\data_test\\train.csv",
+        file_path="C:\\WorkSpace\\TabulaML\\test_data\\train.csv",
         target="Survived",
     )
     logger.info("Dataset loaded successfully.")
