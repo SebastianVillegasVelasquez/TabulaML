@@ -23,10 +23,14 @@ def get_fine_tuning_experiments(context: Context):
 
     experiments = []
 
-    for model_name, model_results in stage_results.metadata["top_k_models_by_family"].items():
+    for model_name, model_results in stage_results.metadata[
+        "top_k_models_by_family"
+    ].items():
         tuner_strategy = define_tuner_strategy(model_name)
         logger.info(f"Fine tuning with {tuner_strategy} for {model_name}")
-        tuner = FineTunerFactory.create_tuner(tuner_strategy=tuner_strategy, context=context)
+        tuner = FineTunerFactory.create_tuner(
+            tuner_strategy=tuner_strategy, context=context
+        )
         try:
             pipeline = clone(model_results.pipeline)
 
@@ -38,7 +42,9 @@ def get_fine_tuning_experiments(context: Context):
                 ExperimentDefinition(
                     name=f"{model_name}_fine_tuning_{tuner_strategy.value}",
                     stage=Stages.FINE_TUNING,
-                    pipeline_builder=lambda prep, pipe=tuned_pipeline: pipe,  # This returns the pipeline
+                    pipeline_builder=lambda prep, pipe=tuned_pipeline: (
+                        pipe
+                    ),  # This returns the pipeline
                     metadata={
                         "model": model_name,
                         "tuner_strategy": tuner_strategy.value,
@@ -57,7 +63,12 @@ def get_fine_tuning_experiments(context: Context):
 def define_tuner_strategy(model_name: str):
     if model_name in ["logistic_regression", "ridge_classifier", "sgd_classifier"]:
         return TunerStrategy.GRID_SEARCH
-    elif model_name in ["random_forest", "gradient_boosting", "extra_trees", "decision_tree"]:
+    elif model_name in [
+        "random_forest",
+        "gradient_boosting",
+        "extra_trees",
+        "decision_tree",
+    ]:
         return TunerStrategy.OPTUNA
     else:
         return TunerStrategy.OPTUNA

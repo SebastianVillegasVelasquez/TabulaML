@@ -1,9 +1,12 @@
+from typing import Optional
+
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.linear_model import LogisticRegression
 
-from app.core.enums import ModelSpecType
+from app.core.enums import ModelSpecType, ProblemType
 from app.core.model_bank.base_model_retriever import BaseModelRetriever
 from app.core.model_bank.model_spec import ModelSpec
+from app.core.context import Context
 
 
 class BaselineModelRetriever(BaseModelRetriever):
@@ -19,6 +22,15 @@ class BaselineModelRetriever(BaseModelRetriever):
     each representing a BaseModel with a name and a factory function for lazy loading.
     """
 
+    def __init__(self, problem_type: ProblemType, context: Optional[Context] = None):
+        """Initialize the BaselineModelRetriever.
+
+        Args:
+            problem_type: Task type (CLASSIFICATION or REGRESSION).
+            context: Optional shared runtime context.
+        """
+        super().__init__(problem_type=problem_type, context=context)
+
     def load_defaults(self) -> list[ModelSpec]:
         return [
             self._build_logisticregression(),
@@ -29,7 +41,9 @@ class BaselineModelRetriever(BaseModelRetriever):
     def _build_logisticregression() -> ModelSpec:
         return ModelSpec(
             name="LogisticRegression",
-            factory=lambda: LogisticRegression(solver="liblinear", max_iter=1000, random_state=42),
+            factory=lambda: LogisticRegression(
+                solver="liblinear", max_iter=1000, random_state=42
+            ),
             spec_type=ModelSpecType.LINEAR,
             model_based=ModelSpecType.LINEAR,
         )

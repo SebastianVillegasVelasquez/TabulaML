@@ -56,8 +56,14 @@ tuning = {
             "model__learning_rate": [0.01, 0.1],
             "model__max_depth": [3, 5],
         },
-        "decision_tree": {"model__max_depth": [5, 10, None], "model__min_samples_split": [2, 10]},
-        "kneighbors": {"model__n_neighbors": [3, 5, 7], "model__weights": ["uniform", "distance"]},
+        "decision_tree": {
+            "model__max_depth": [5, 10, None],
+            "model__min_samples_split": [2, 10],
+        },
+        "kneighbors": {
+            "model__n_neighbors": [3, 5, 7],
+            "model__weights": ["uniform", "distance"],
+        },
     },
 }
 
@@ -70,7 +76,6 @@ def _convert_to_optuna_space(param_grid: dict) -> dict:
     optuna_space = {}
 
     for param, values in param_grid.items():
-
         if any(v is None for v in values):
             optuna_space[param] = ("categorical", values)
             continue

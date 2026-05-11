@@ -5,7 +5,6 @@ from app.core.stages.data_inspection import BooleanFeature, FeatureConfig, Featu
 
 
 class TestFeatureConfig:
-
     def test_init_success(self, feature_config):
         assert feature_config.name == "age"
         assert feature_config.dtype == "int64"
@@ -16,7 +15,9 @@ class TestFeatureConfig:
         assert feature_config.notes == "Test feature"
 
     def test_defaults(self):
-        feature = FeatureConfig(name="test", dtype="float64", feature_type=FeatureType.NUMERICAL)
+        feature = FeatureConfig(
+            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL
+        )
 
         assert feature.missing_ratio == 0.0
         assert feature.is_target is False
@@ -28,32 +29,47 @@ class TestFeatureConfig:
 
     def test_needs_imputation_false(self):
         feature = FeatureConfig(
-            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL, missing_ratio=0.0
+            name="test",
+            dtype="float64",
+            feature_type=FeatureType.NUMERICAL,
+            missing_ratio=0.0,
         )
         assert feature.needs_imputation is False
 
     def test_is_high_missing_true(self):
         feature = FeatureConfig(
-            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL, missing_ratio=0.7
+            name="test",
+            dtype="float64",
+            feature_type=FeatureType.NUMERICAL,
+            missing_ratio=0.7,
         )
         assert feature.is_high_missing is True
 
     def test_is_high_missing_false(self):
         feature = FeatureConfig(
-            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL, missing_ratio=0.5
+            name="test",
+            dtype="float64",
+            feature_type=FeatureType.NUMERICAL,
+            missing_ratio=0.5,
         )
         assert feature.is_high_missing is False
 
     @pytest.mark.parametrize("value", [0.0, 1.0])
     def test_missing_ratio_edge_values(self, value):
         feature = FeatureConfig(
-            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL, missing_ratio=value
+            name="test",
+            dtype="float64",
+            feature_type=FeatureType.NUMERICAL,
+            missing_ratio=value,
         )
         assert feature.missing_ratio == value
 
     def test_is_high_missing_boundary(self):
         feature = FeatureConfig(
-            name="test", dtype="float64", feature_type=FeatureType.NUMERICAL, missing_ratio=0.6
+            name="test",
+            dtype="float64",
+            feature_type=FeatureType.NUMERICAL,
+            missing_ratio=0.6,
         )
         assert feature.is_high_missing is False
 
@@ -94,13 +110,15 @@ class TestFeatureConfig:
 
     def test_target_flag(self):
         feature = FeatureConfig(
-            name="target", dtype="int64", feature_type=FeatureType.NUMERICAL, is_target=True
+            name="target",
+            dtype="int64",
+            feature_type=FeatureType.NUMERICAL,
+            is_target=True,
         )
         assert feature.is_target is True
 
 
 class TestBooleanFeature:
-
     def test_boolean_feature_init(self):
         assert BooleanFeature(name="test", dtype="bool") is not None
 
@@ -108,13 +126,13 @@ class TestBooleanFeature:
         bool = BooleanFeature(name="test", dtype="bool")
 
         assert bool.true_ratio == 0.5
-        assert bool.cast_to_int == True
-        assert bool.is_imbalanced == False
+        assert bool.cast_to_int
+        assert not bool.is_imbalanced
 
     def test_boolean_custom_true_ratio(self):
         bool = BooleanFeature(name="test", dtype="bool", true_ratio=0.7)
         assert bool.true_ratio == 0.7
-        assert bool.is_imbalanced == False
+        assert not bool.is_imbalanced
 
     @pytest.mark.parametrize(
         "ratios, expected",
@@ -143,8 +161,10 @@ class TestBooleanFeature:
 
     def test_boolean_cast_to_int(self):
         bool = BooleanFeature(name="test", dtype="bool", cast_to_int=False)
-        assert bool.cast_to_int == False
+        assert not bool.cast_to_int
 
     def test_boolean_model_validate(self):
         model = {"name": "test", "dtype": "bool"}
-        assert BooleanFeature.model_validate(model) == BooleanFeature(name="test", dtype="bool")
+        assert BooleanFeature.model_validate(model) == BooleanFeature(
+            name="test", dtype="bool"
+        )

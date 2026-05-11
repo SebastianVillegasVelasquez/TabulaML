@@ -42,14 +42,18 @@ class FeatureConfig(BaseModel):
 
     name: str = Field(..., description="Original column name.")
     dtype: str = Field(..., description="Detected pandas/numpy dtype.")
-    feature_type: FeatureType = Field(..., description="Semantic model_based of the feature.")
+    feature_type: FeatureType = Field(
+        ..., description="Semantic model_based of the feature."
+    )
     missing_ratio: float = Field(
         default=0.0,
         ge=0.0,
         le=1.0,
         description="Proportion of missing values [0, 1].",
     )
-    is_target: bool = Field(default=False, description="True if this is the target variable.")
+    is_target: bool = Field(
+        default=False, description="True if this is the target variable."
+    )
     drop: bool = Field(
         default=False,
         description="True if this feature should be excluded from the pipeline.",
@@ -238,7 +242,11 @@ class NumericalFeature(FeatureConfig):
 
         # Count data: Poisson-distributed right tail, log1p is the natural fix
         if self.subtype == NumericalSubtype.COUNT:
-            return TransformationType.LOG1P if self.zero_ratio > 0 else TransformationType.LOG
+            return (
+                TransformationType.LOG1P
+                if self.zero_ratio > 0
+                else TransformationType.LOG
+            )
 
         # CONTINUOUS from here — distribution-based logic
         if self.has_negative_values:
@@ -253,7 +261,11 @@ class NumericalFeature(FeatureConfig):
         if self.zero_ratio > 0.0:
             return TransformationType.LOG1P
 
-        return TransformationType.LOG if self.skewness > 1.0 else TransformationType.YEO_JOHNSON
+        return (
+            TransformationType.LOG
+            if self.skewness > 1.0
+            else TransformationType.YEO_JOHNSON
+        )
 
     @property
     def suggested_scaler(self) -> Optional[ScalerStrategy]:
@@ -460,7 +472,11 @@ class CategoricalNominalFeature(CategoricalFeature):
         if self.cardinality > 50:
             return EncodingType.HASHING
         if self.cardinality > 20:
-            return EncodingType.TARGET if not self.has_rare_categories else EncodingType.FREQUENCY
+            return (
+                EncodingType.TARGET
+                if not self.has_rare_categories
+                else EncodingType.FREQUENCY
+            )
         if self.has_rare_categories:
             return EncodingType.FREQUENCY
         return EncodingType.ONEHOT
@@ -503,7 +519,9 @@ class CategoricalOrdinalFeature(CategoricalFeature):
 
     @field_validator("category_order")
     @classmethod
-    def validate_category_order_not_empty(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+    def validate_category_order_not_empty(
+        cls, v: Optional[list[str]]
+    ) -> Optional[list[str]]:
         """Validates that the category order list is not empty when provided.
 
         Args:
@@ -568,8 +586,12 @@ class DatetimeFeature(FeatureConfig):
         default=DatetimeGranularity.DATE,
         description="Detected temporal granularity level.",
     )
-    min_date: Optional[str] = Field(default=None, description="Minimum date (ISO 8601).")
-    max_date: Optional[str] = Field(default=None, description="Maximum date (ISO 8601).")
+    min_date: Optional[str] = Field(
+        default=None, description="Minimum date (ISO 8601)."
+    )
+    max_date: Optional[str] = Field(
+        default=None, description="Maximum date (ISO 8601)."
+    )
     has_timezone: bool = Field(
         default=False, description="True if values include timezone information."
     )
@@ -629,12 +651,16 @@ class TextFeature(FeatureConfig):
     vocabulary_size: int = Field(
         default=0, ge=0, description="Number of unique terms in the corpus."
     )
-    language: Optional[str] = Field(default=None, description="Detected language code (ISO 639-1).")
+    language: Optional[str] = Field(
+        default=None, description="Detected language code (ISO 639-1)."
+    )
     is_semantic: bool = Field(
         default=False,
         description="True if the text is semantic (sentences). False for short text or codes.",
     )
-    max_features: int = Field(default=5000, gt=0, description="Feature limit for vectorizers.")
+    max_features: int = Field(
+        default=5000, gt=0, description="Feature limit for vectorizers."
+    )
 
     @property
     def suggested_vectorization(self) -> TextVectorizationType:
@@ -714,7 +740,9 @@ class IdentifierFeature(FeatureConfig):
     """
 
     feature_type: FeatureType = Field(default=FeatureType.IDENTIFIER)
-    drop: bool = Field(default=True, description="Always True: ID columns must be excluded.")
+    drop: bool = Field(
+        default=True, description="Always True: ID columns must be excluded."
+    )
     cardinality: int = Field(..., gt=0, description="Number of unique values detected.")
     is_primary_key: bool = Field(
         default=True, description="True if each value is unique in the dataset."

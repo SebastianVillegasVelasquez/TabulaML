@@ -2,7 +2,6 @@ from app.core.context import Context
 
 
 class Deployment:
-
     def __init__(self, context: Context):
         self.context = context
 

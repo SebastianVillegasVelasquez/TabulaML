@@ -57,12 +57,17 @@ class TestContext:
             target_column="target",
         )
 
-        stage_result = StageResult(name=Stages.DATA_HANDLER, artifacts_path="/tmp/artifacts")
+        stage_result = StageResult(
+            name=Stages.DATA_HANDLER, artifacts_path="/tmp/artifacts"
+        )
         context.update_stage_context(Stages.DATA_HANDLER, stage_result)
 
         assert context.current_stage == Stages.DATA_HANDLER
         assert Stages.DATA_HANDLER in context.stage_results
-        assert context.stage_results[Stages.DATA_HANDLER].artifacts_path == "/tmp/artifacts"
+        assert (
+            context.stage_results[Stages.DATA_HANDLER].artifacts_path
+            == "/tmp/artifacts"
+        )
 
     def test_context_priority_metric_default_classification(self, dataset_bundle):
         """Test default priority metric for classification."""
@@ -130,7 +135,9 @@ class TestDatasetBundle:
         X_test = pd.DataFrame({"a": [5], "b": [6]})
         y_test = pd.Series([1])
 
-        bundle = DatasetBundle(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+        bundle = DatasetBundle(
+            X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test
+        )
 
         assert bundle.X_train is X_train
         assert bundle.y_train is y_train

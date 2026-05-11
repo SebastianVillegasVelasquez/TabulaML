@@ -38,7 +38,6 @@ class BaseTuner(ABC):
 
 
 class OptunaTunerStrategy(BaseTuner):
-
     def get_tuner_strategy(self) -> TunerStrategy:
         return TunerStrategy.OPTUNA
 
@@ -57,7 +56,11 @@ class OptunaTunerStrategy(BaseTuner):
             pipeline.set_params(**params)
 
             score = cross_val_score(
-                pipeline, X, y, cv=3, scoring=get_primary_metric(self.context.config.problem_type)
+                pipeline,
+                X,
+                y,
+                cv=3,
+                scoring=get_primary_metric(self.context.config.problem_type),
             ).mean()
 
             return score
@@ -104,7 +107,6 @@ class OptunaTunerStrategy(BaseTuner):
 
 
 class GridSearchCVTunerStrategy(BaseTuner):
-
     def get_tuner_strategy(self) -> TunerStrategy:
         return TunerStrategy.GRID_SEARCH
 
@@ -119,7 +121,12 @@ class GridSearchCVTunerStrategy(BaseTuner):
         scoring = get_primary_metric(self.context.config.problem_type)
 
         grid_search = GridSearchCV(
-            estimator=pipeline, param_grid=param_grid, cv=3, scoring=scoring, n_jobs=-1, verbose=1
+            estimator=pipeline,
+            param_grid=param_grid,
+            cv=3,
+            scoring=scoring,
+            n_jobs=-1,
+            verbose=1,
         )
 
         grid_search.fit(X, y)

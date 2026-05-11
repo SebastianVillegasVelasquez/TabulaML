@@ -6,12 +6,11 @@ from app.core.stages.final_evaluation.final_evaluation_experiments import (
 
 
 class FinalEvaluationFactory(BaseExperimentFactory):
-
     def create_experiments(self, context: Context = None):
         if context is None:
             raise ValueError(
-                f"Context parameter must not be None for ModelEnsembleExperimentFactory\n"
-                f"It has to be able to get the models from the feature selection stage"
+                "Context parameter must not be None for ModelEnsembleExperimentFactory\n"
+                "It has to be able to get the models from the feature selection stage"
             )
 
         return get_final_evaluation_experiments(context=context)

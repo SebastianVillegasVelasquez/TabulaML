@@ -48,7 +48,9 @@ class PipelineBuilder:
         """Adds a new step to the pipeline at the beginning."""
         self.steps.insert(0, step)
 
-    def add_step(self, step: Tuple[str, BaseEstimator], at_index: Optional[int] = None) -> None:
+    def add_step(
+        self, step: Tuple[str, BaseEstimator], at_index: Optional[int] = None
+    ) -> None:
         """Adds a new step to the pipeline.
 
         Args:
@@ -75,7 +77,9 @@ class PipelineBuilder:
         self.steps.append(step)
 
     @staticmethod
-    def _validate_steps(steps: List[Tuple[str, BaseEstimator]]) -> List[Tuple[str, BaseEstimator]]:
+    def _validate_steps(
+        steps: List[Tuple[str, BaseEstimator]],
+    ) -> List[Tuple[str, BaseEstimator]]:
         """Validates pipeline steps.
 
         Ensures that:

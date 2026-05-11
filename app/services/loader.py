@@ -116,4 +116,6 @@ class DataLoader:
         data = self.read_csv_file(file_path)
         self.validate_dataset(data, target)
         (X_train, y_train), (X_test, y_test) = self.split_dataset(data, target)
-        return DatasetBundle(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+        return DatasetBundle(
+            X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test
+        )

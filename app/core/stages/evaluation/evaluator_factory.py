@@ -1,13 +1,20 @@
+from mypy.nodes import Enum, Callable
+
 from app.core.enums import Stages
-from app.core.stages.evaluation.evaluators.fine_tuning_evaluation import FineTuningEvaluator
-from app.core.stages.evaluation.evaluators.model_ensemble_evaluator import ModelEnsembleEvaluator
+from app.core.stages.evaluation.evaluators.fine_tuning_evaluation import (
+    FineTuningEvaluator,
+)
+from app.core.stages.evaluation.evaluators.model_ensemble_evaluator import (
+    ModelEnsembleEvaluator,
+)
 from app.utils.logger import logger
+from app.core.stages.evaluation import BaseEvaluator
 
 
 class EvaluatorFactory:
     """Factory for creating stage-specific evaluators."""
 
-    _EVALUATORS = {}
+    _EVALUATORS: dict[Enum, Callable[..., BaseEvaluator]] = {}
 
     @classmethod
     def _register_defaults(cls):

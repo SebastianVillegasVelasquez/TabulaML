@@ -1,13 +1,12 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from app.core.enums import Stages
 from app.core.enums import ExecutionStatus
+from app.core.enums import Stages
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass
-class StageExecution:
+class StageExecution(BaseModel):
     """
     Tracks execution metrics and status for a single pipeline stage.
 
@@ -24,6 +23,7 @@ class StageExecution:
     duration_seconds: float = 0.0  # Total execution time
     retry_count: int = 0  # Number of retry attempts
     skip_reason: Optional[str] = None  # Reason if stage was skipped
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     def is_complete(self) -> bool:

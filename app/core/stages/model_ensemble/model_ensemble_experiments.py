@@ -55,7 +55,9 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
     for name, model in models:
 
         def _build_pipeline(
-            preprocessing_step, feature_selection_step=feature_selection_step, model=model
+            preprocessing_step,
+            feature_selection_step=feature_selection_step,
+            model=model,
         ) -> PipelineBuilder:
             """Constructs a unified pipeline for an ensemble model.
 
@@ -195,7 +197,9 @@ def get_sigla(name: str) -> str:
     return sigla[:2] if len(sigla) >= 2 else name[:2].lower()
 
 
-def _supports_proba(pipeline: list | None = None, estimator: BaseEstimator | None = None) -> bool:
+def _supports_proba(
+    pipeline: list | None = None, estimator: BaseEstimator | None = None
+) -> bool:
     """Determines whether estimators support probability predictions.
 
     This function checks if a given estimator or a collection of estimators

@@ -137,6 +137,7 @@ class Experiment:
 
         if self.stage == Stages.FEATURE_SELECTION:
             self.selected_features = self._extract_features(pipeline, X, y)
+            self.metadata["selected_features"] = self.selected_features
 
         experiment_result = ExperimentResult(
             name=self.name,
@@ -144,11 +145,6 @@ class Experiment:
             metrics=mean_metrics,
             config={"cv": self.cv},
             metadata=self.metadata,
-            selected_features=self.selected_features,
-        )
-
-        logger.info(
-            f"Experiment {experiment_result.name} finished with features: {experiment_result.selected_features}"
         )
 
         return experiment_result

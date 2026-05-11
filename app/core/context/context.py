@@ -2,7 +2,6 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any, Optional
 
-import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.core.enums import ProblemType
@@ -71,6 +70,7 @@ class Metadata(BaseModel):
 
     columns: list[str]
     columns_length: int
+    dataset_length: int
     target_column: str | None = None
 
 
@@ -171,6 +171,7 @@ class Context(BaseModel):
             columns=list(dataset.X_train.columns),
             columns_length=len(dataset.X_train.columns),
             target_column=target_column or None,
+            dataset_length=len(dataset.X_train),
         )
 
         return cls(config=config, metadata=metadata)

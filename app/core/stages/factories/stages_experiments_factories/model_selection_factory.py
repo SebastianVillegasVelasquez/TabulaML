@@ -9,12 +9,11 @@ from app.core.stages.model_selection.model_selection_experiments import (
 
 
 class ModelSelectionExperimentsFactory(BaseExperimentFactory):
-
     def create_experiments(self, context: Context = None) -> List[ExperimentDefinition]:
         if context is None:
             raise ValueError(
-                f"Context parameter must not be None for ModelSelectionExperimentsFactory\n"
-                f"It has to be able to get the models from the feature selection stage"
+                "Context parameter must not be None for ModelSelectionExperimentsFactory\n"
+                "It has to be able to get the models from the feature selection stage"
             )
 
         return get_model_selection_experiments(context=context)
