@@ -45,6 +45,8 @@ class EvaluationStage:
         stage_result = self.context.stage_results.get(self.stage, {})
 
         if not stage_result or not stage_result.results:
-            raise RuntimeError(f"No experiments found for stage {self.context.stage_results} ")
+            raise RuntimeError(
+                f"No experiments found for stage {self.context.stage_results} "
+            )
 
         return stage_result.results

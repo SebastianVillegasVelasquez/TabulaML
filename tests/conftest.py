@@ -4,17 +4,20 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))  # noqa: E402
 
-from app.core.context import Context, DatasetBundle  # noqa: E402
-from app.core.enums import ProblemType, ModelRetrieveType  # noqa: E402
-from app.core.model_bank import ModelRetrieveFactory  # noqa: E402
+from app.core.context import Context, DatasetBundle
+from app.core.enums import ProblemType, ModelRetrieveType
+from app.core.model_bank import ModelRetrieveFactory
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 pytest_plugins = [
-    "tests.fixtures.feature_config_fixture",
+    "tests.fixtures.feature_config_fixtures",
     "tests.fixtures.context_fixtures",
     "tests.fixtures.experiment_fixtures",
+    "tests.fixtures.feature_selection_evaluator_fixtures",
+    "tests.fixtures.model_retriever_fixtures",
 ]
 
 

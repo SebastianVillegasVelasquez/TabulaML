@@ -2,7 +2,6 @@ from app.core.stages.evaluation.base_evaluator import BaseEvaluator
 
 
 class ModelEnsembleEvaluator(BaseEvaluator):
-
     def _extract_stage_specific_data(self, sorted_results, best_experiment):
         # For ensemble, we might want to extract the top models that will be part of the ensemble
 

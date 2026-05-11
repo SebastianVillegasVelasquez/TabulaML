@@ -2,7 +2,9 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 
 from app.core.context import Context
-from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
+from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import (
+    EvaluationStrategy,
+)
 
 
 class DefaultEvaluationStrategy(EvaluationStrategy):
@@ -46,10 +48,11 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
 
         for metric_name, values in scores.items():
             if metric_name.startswith("train_") or metric_name.startswith("test_"):
-
                 mean_value = np.mean(values)
 
-                if metric_name.endswith(("neg_mean_squared_error", "neg_mean_absolute_error")):
+                if metric_name.endswith(
+                    ("neg_mean_squared_error", "neg_mean_absolute_error")
+                ):
                     mean_value = -mean_value
 
                 mean_metrics[metric_name] = mean_value

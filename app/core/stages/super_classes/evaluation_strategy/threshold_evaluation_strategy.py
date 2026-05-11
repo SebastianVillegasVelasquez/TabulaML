@@ -1,9 +1,10 @@
-from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import EvaluationStrategy
+from app.core.stages.super_classes.evaluation_strategy.evaluation_strategy import (
+    EvaluationStrategy,
+)
 from app.utils.logger import logger
 
 
 class ThresholdEvaluationStrategy(EvaluationStrategy):
-
     def evaluate(self, pipeline, X, y, context, cv=5, threshold=None):
         """Evaluate a model using probability thresholding.
 

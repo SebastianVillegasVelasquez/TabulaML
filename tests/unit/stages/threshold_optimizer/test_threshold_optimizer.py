@@ -37,7 +37,9 @@ def context_recall():
 
 @pytest.fixture
 def optimizer(context_f1):
-    from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+    from app.core.stages.threshold_optimizer.threshold_optimizer import (
+        ThresholdOptimizer,
+    )
 
     return ThresholdOptimizer(context=context_f1)
 
@@ -59,7 +61,9 @@ def optimizer(context_f1):
     ],
 )
 def test_is_model_probabilistic(model, expected):
-    from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+    from app.core.stages.threshold_optimizer.threshold_optimizer import (
+        ThresholdOptimizer,
+    )
 
     result = ThresholdOptimizer._is_the_model_probabilistic(model)
     assert result is expected
@@ -72,7 +76,9 @@ def test_is_model_probabilistic(model, expected):
     ["f1", "precision", "recall"],
 )
 def test_get_score_supported_metrics(metric):
-    from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+    from app.core.stages.threshold_optimizer.threshold_optimizer import (
+        ThresholdOptimizer,
+    )
 
     context = DummyContext(metric=metric)
 
@@ -87,7 +93,9 @@ def test_get_score_supported_metrics(metric):
 
 @pytest.mark.unit
 def test_get_score_invalid_metric():
-    from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+    from app.core.stages.threshold_optimizer.threshold_optimizer import (
+        ThresholdOptimizer,
+    )
 
     context = DummyContext(metric="invalid_metric")
 
@@ -150,7 +158,9 @@ def test_find_best_threshold_with_different_metrics():
     """
     Verifica funcionamiento con diferentes métricas configuradas
     """
-    from app.core.stages.threshold_optimizer.threshold_optimizer import ThresholdOptimizer
+    from app.core.stages.threshold_optimizer.threshold_optimizer import (
+        ThresholdOptimizer,
+    )
 
     for metric in ["f1", "precision", "recall"]:
         context = DummyContext(metric=metric)

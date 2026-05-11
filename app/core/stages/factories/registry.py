@@ -6,7 +6,9 @@ from app.core.experiments import ExperimentDefinition
 from app.core.stages.factories.stage_experiment_factory import StageExperimentFactory
 
 
-def get_stage_experiments(stage: Stages, context: Context = None) -> List[ExperimentDefinition]:
+def get_stage_experiments(
+    stage: Stages, context: Context = None
+) -> List[ExperimentDefinition]:
     """
     It communicates with the Experiment factory and passes a certain stage
     to retrieve the factory for that stage.

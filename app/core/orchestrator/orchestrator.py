@@ -20,9 +20,8 @@ import traceback
 from datetime import datetime
 from typing import List, Dict, Any
 
-from app.core.context.context import Context
-from app.core.enums import ExecutionStatus
-from app.core.enums import Stages
+from app.core.context import Context
+from app.core.enums import ExecutionStatus, Stages
 from app.core.orchestrator.pipeline_stage import PipelineStage
 from app.core.orchestrator.stage_execution import StageExecution
 from app.core.orchestrator.stages_adapters import (
@@ -127,7 +126,9 @@ class Orchestrator:
                     is_valid, error_msg = validator.validate(self.context)
                     if not is_valid:
                         # Preconditions not met - skip stage
-                        logger.warning(f"[{stage_type.value}] Precondition failed: {error_msg}")
+                        logger.warning(
+                            f"[{stage_type.value}] Precondition failed: {error_msg}"
+                        )
                         execution.status = ExecutionStatus.SKIPPED
                         execution.skip_reason = error_msg
                         execution.end_time = datetime.now()
@@ -146,7 +147,8 @@ class Orchestrator:
                         self._run_evaluation(stage_type)
                     except Exception as e:
                         logger.error(
-                            f"[{stage_type.value}] Evaluation failed: {str(e)}", exc_info=True
+                            f"[{stage_type.value}] Evaluation failed: {str(e)}",
+                            exc_info=True,
                         )
                         # Stage succeeded, only evaluation had issues
 
@@ -155,7 +157,9 @@ class Orchestrator:
 
             except Exception as e:
                 # Unexpected unhandled error
-                logger.error(f"[{stage_type.value}] Unexpected error: {str(e)}", exc_info=True)
+                logger.error(
+                    f"[{stage_type.value}] Unexpected error: {str(e)}", exc_info=True
+                )
                 execution.status = ExecutionStatus.FAILED
                 execution.error = e
                 execution.error_traceback = traceback.format_exc()
@@ -202,7 +206,9 @@ class Orchestrator:
                 execution.start_time = datetime.now()
                 execution.retry_count = attempt
 
-                logger.info(f"[{stage_type.value}] Execution attempt {attempt}/{self.max_retries}")
+                logger.info(
+                    f"[{stage_type.value}] Execution attempt {attempt}/{self.max_retries}"
+                )
 
                 # Execute stage logic
                 stage.execute(self.context)
@@ -222,7 +228,9 @@ class Orchestrator:
 
             except Exception as e:
                 # Log failure and retry if applicable
-                logger.warning(f"[{stage_type.value}] Attempt {attempt} failed: {str(e)}")
+                logger.warning(
+                    f"[{stage_type.value}] Attempt {attempt} failed: {str(e)}"
+                )
 
                 if attempt == self.max_retries:
                     # All retries exhausted
@@ -235,7 +243,9 @@ class Orchestrator:
                             execution.end_time - execution.start_time
                         ).total_seconds()
 
-                    logger.error(f"[{stage_type.value}] Failed after {self.max_retries} attempts")
+                    logger.error(
+                        f"[{stage_type.value}] Failed after {self.max_retries} attempts"
+                    )
 
                     return execution
 
@@ -266,7 +276,8 @@ class Orchestrator:
 
         except Exception as e:
             logger.error(
-                f"[EVALUATION] Evaluation failed for {stage.value}: {str(e)}", exc_info=True
+                f"[EVALUATION] Evaluation failed for {stage.value}: {str(e)}",
+                exc_info=True,
             )
             raise
 

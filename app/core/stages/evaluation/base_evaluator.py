@@ -76,7 +76,7 @@ class BaseEvaluator(ABC):
     @abstractmethod
     def _extract_stage_specific_data(
         self, sorted_results: list[ExperimentResult], best_experiment: ExperimentResult
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any] | list[dict[str, Any]] | None:
         """
         Extract stage-specific data from results.
 

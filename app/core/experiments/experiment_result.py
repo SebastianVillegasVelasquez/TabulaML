@@ -1,7 +1,5 @@
 from typing import Dict, Any, DefaultDict
 
-import numpy as np
-from pandas import Index
 from sklearn.pipeline import Pipeline
 
 from pydantic import BaseModel, Field

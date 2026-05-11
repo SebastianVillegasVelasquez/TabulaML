@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.core.context import Context, StageResult
+from app.core.context import Context
 from app.core.enums import ProblemType
 from app.core.model_bank.model_spec import ModelSpec
 
@@ -19,8 +19,8 @@ class BaseModelRetriever(ABC):
 
     def __init__(self, problem_type: ProblemType, context: Optional[Context] = None):
         self.problem_type = problem_type
-        self.models = self.load_defaults()
         self.context = context
+        self.models = self.load_defaults()
 
     def retrieve_models(self) -> list[ModelSpec]:
         """

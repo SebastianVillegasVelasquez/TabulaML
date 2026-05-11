@@ -51,5 +51,7 @@ class Stage(ABC):
             results.append(result)
 
         self.context.stage_results[self.stage] = StageResult(
-            name=self.stage, results=results, metadata={"total_experiments": len(results)}
+            name=self.stage,
+            results=results,
+            metadata={"total_experiments": len(results)},
         )

@@ -114,4 +114,6 @@ class ThresholdOptimizer:
             case "recall":
                 return recall_score(y_val, y_pred, zero_division=0)
             case _:
-                raise ValueError(f"Unsupported metric for threshold optimization: {metric}")
+                raise ValueError(
+                    f"Unsupported metric for threshold optimization: {metric}"
+                )

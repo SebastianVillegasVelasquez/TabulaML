@@ -1,11 +1,11 @@
-from __future__ import annotations
-
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, Optional
 
 from app.core.enums import ModelSpecType, ProblemType
 from app.core.model_bank import ModelSpec, BaseModelRetriever
+from app.core.context import StageResult, Metadata, Context
 from app.utils.logger import logger
-from app.core.context import StageResult
+from app.core.enums import Stages
 
 _BOOST_MIN_SAMPLES: int = 1_000
 """Minimum number of training rows required to include XGBoost / LightGBM."""
@@ -14,67 +14,161 @@ _BOOST_MIN_FEATURES: int = 10
 """Minimum number of selected features required to include XGBoost / LightGBM."""
 
 
+@dataclass
+class ChainModelPairing:
+    """A selector chain paired with the candidate models suggested for it.
+
+    Attributes:
+        chain_metadata: The chain dict produced by
+            :meth:`FeatureSelectionEvaluator._extract_top_k_chain_selectors`,
+            containing ``"selectors"``, ``"model"``, ``"model_type"``,
+            ``"model_based"``, and ``"selected_features"``.
+        suggested_models: Ordered list of :class:`ModelSpec` instances
+            recommended for this chain, derived from its ``model_type``
+            and ``model_based`` values.
+    """
+
+    chain_metadata: dict[str, Any]
+    suggested_models: list[ModelSpec] = field(default_factory=list)
+
+
 class PredictorModelRetriever(BaseModelRetriever):
-    """Produces :class:`ModelSpec` lists for the model-selection stage.
+    """Produces candidate-model pairings for every feature-selection chain.
 
-    Reads the feature-selection outcome stored by the previous stage in
-    ``context.stage_results[FEATURE_SELECTION].metadata``, which is a
-    list of dicts produced by :func:`_extract_top_k_chain_selectors`.
-    The first entry in that list corresponds to the best-performing
-    feature-selection chain and drives the model-pool decision.
+    Reads the feature-selection outcome from
+    ``context.stage_results[Stages.FEATURE_SELECTION]``.  That
+    :class:`~app.core.context.StageResult` contains:
 
-    Decision logic in :meth:`load_defaults`:
+    - ``best_experiment`` — the single top-performing result whose
+      ``model_type`` / ``model_based`` drive the primary model pool.
+    - ``metadata`` — a list of runner-up chain dicts (ranks 2 … k+1),
+      each also carrying ``model_type`` / ``model_based``.
 
-    - ``model_type == LINEAR`` → logistic/linear regression family only.
-    - ``model_type == NON_LINEAR`` → random-forest + extra-trees as the
-      base pool; SVM added when ``model_based != TREE``.
-    - ``model_based == TREE`` AND ``n_samples > 1 000`` AND
-      ``n_features > 10`` → XGBoost and LightGBM appended.
+    :meth:`load_defaults` returns a flat :class:`list` of
+    :class:`ModelSpec` objects built from the **best** chain, preserving the
+    existing contract expected by the experiment builder.
+
+    :meth:`load_all_chain_pairings` returns a :class:`list` of
+    :class:`ChainModelPairing` objects — one per chain (best + runner-ups) —
+    so that callers who want per-chain model suggestions can iterate over
+    them directly.
+
+    Decision logic (applied independently per chain):
+
+    - ``model_type == LINEAR`` → logistic/linear regression family.
+    - ``model_type == NON_LINEAR`` → random forest + extra-trees; SVM added
+      when ``model_based != TREE``.
+    - ``model_based == TREE`` **and** dataset passes size thresholds
+      (``n_samples > 1 000``, ``n_features > 10``) → XGBoost and LightGBM
+      appended.
 
     Attributes:
         problem_type: Task type (``CLASSIFICATION`` or ``REGRESSION``).
-            Controls which estimator variants are instantiated.
-        context: Shared runtime context that exposes dataset statistics
-            and the results of previous stages.
+        context: Shared runtime context exposing stage results and dataset
+            metadata.
     """
+
+    def __init__(self, problem_type: ProblemType, context: Optional[Context] = None):
+        """Initialize the PredictorModelRetriever.
+
+        Args:
+            problem_type: Task type (CLASSIFICATION or REGRESSION).
+            context: Optional shared runtime context.
+        """
+        super().__init__(problem_type=problem_type, context=context)
 
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
     def load_defaults(self) -> list[ModelSpec]:
-        """Returns the default candidate models for the model-selection stage.
+        """Returns candidate models for the best feature-selection chain.
 
-        Resolves ``model_type`` and ``model_based`` from the
-        feature-selection stage metadata stored in the context, then
-        combines those signals with dataset statistics to build the pool.
+        Reads ``model_type`` and ``model_based`` from the best experiment
+        stored in the feature-selection :class:`~app.core.context.StageResult`,
+        then builds the appropriate model pool.
 
-        Linear problems yield a lightweight regression/logistic family.
-        Non-linear problems yield tree ensembles; boosting libraries are
-        appended only when the dataset is large enough to justify the
-        memory and compute cost.
+        This method preserves the flat :class:`list` contract so it is a
+        drop-in replacement for the previous implementation.
 
         Returns:
-            list[ModelSpec]: Ordered list of model specifications ready
-            to be wrapped in
-            :class:`~app.core.experiments.experiment.Experiment` instances.
-            Falls back to the full non-linear pool when metadata is
-            missing or ambiguous.
+            list[ModelSpec]: Ordered model specifications for the best chain.
+            Falls back to the full non-linear pool when metadata is absent.
         """
-        best_chain_meta = self._read_best_chain_metadata()
-        model_type: ModelSpecType = best_chain_meta.get(
+        best_meta = self._read_best_experiment_metadata()
+        return self._build_pool_for_chain(best_meta)
+
+    def load_all_chain_pairings(self) -> list[ChainModelPairing]:
+        """Returns model suggestions paired with every stored selector chain.
+
+        Combines the best experiment (from
+        :attr:`~app.core.context.StageResult.best_experiment`) with the
+        runner-up chains (from
+        :attr:`~app.core.context.StageResult.metadata`) and builds a
+        :class:`ChainModelPairing` for each one.
+
+        The first element in the returned list always corresponds to the best
+        chain; subsequent elements correspond to runner-ups in descending
+        performance order.
+
+        Returns:
+            list[ChainModelPairing]: One pairing per chain.  Empty list when
+            the feature-selection stage has not yet run or its context entry
+            is missing.
+        """
+        stage_result = self._read_stage_result()
+        if stage_result is None:
+            return []
+
+        pairings: list[ChainModelPairing] = []
+
+        # --- best experiment ---
+        best_meta = self._metadata_from_best_experiment(stage_result)
+        pairings.append(
+            ChainModelPairing(
+                chain_metadata=best_meta,
+                suggested_models=self._build_pool_for_chain(best_meta),
+            )
+        )
+
+        # --- runner-up chains ---
+        runner_ups: list[dict[str, Any]] = stage_result.metadata or []
+        for chain_meta in runner_ups:
+            pairings.append(
+                ChainModelPairing(
+                    chain_metadata=chain_meta,
+                    suggested_models=self._build_pool_for_chain(chain_meta),
+                )
+            )
+
+        return pairings
+
+    # ------------------------------------------------------------------
+    # Pool builder (core decision logic)
+    # ------------------------------------------------------------------
+
+    def _build_pool_for_chain(self, chain_meta: dict[str, Any]) -> list[ModelSpec]:
+        """Builds the model pool appropriate for a single selector chain.
+
+        Args:
+            chain_meta: A chain metadata dict containing at minimum the keys
+                ``"model_type"`` and ``"model_based"``.  Missing keys trigger
+                safe fallback values.
+
+        Returns:
+            list[ModelSpec]: Ordered model specifications for this chain.
+        """
+        model_type: ModelSpecType = chain_meta.get(
             "model_type", ModelSpecType.NON_LINEAR
         )
-        model_based: ModelSpecType = best_chain_meta.get(
-            "model_based", ModelSpecType.TREE
-        )
+        model_based: ModelSpecType = chain_meta.get("model_based", ModelSpecType.TREE)
 
         if model_type == ModelSpecType.LINEAR:
             return self._build_linear_pool()
 
         specs = self._build_non_linear_pool(model_based)
 
-        if model_based == ModelSpecType.TREE and self._boost_eligible(best_chain_meta):
+        if model_based == ModelSpecType.TREE and self._boost_eligible(chain_meta):
             specs.extend(self._build_boosting_pool())
 
         return specs
@@ -87,7 +181,7 @@ class PredictorModelRetriever(BaseModelRetriever):
         """Returns all linear model specs appropriate for the problem type.
 
         For regression: Ridge, Lasso, ElasticNet.
-        For classification: LogisticRegression (L2 and elasticnet penalties).
+        For classification: LogisticRegression with L2 and elasticnet penalties.
 
         Returns:
             list[ModelSpec]: Linear model specifications.
@@ -106,15 +200,14 @@ class PredictorModelRetriever(BaseModelRetriever):
     def _build_non_linear_pool(self, model_based: ModelSpecType) -> list[ModelSpec]:
         """Returns the base non-linear model specs.
 
-        Always includes random forest and extra-trees.  SVM is appended
+        Random forest and extra-trees are always included.  SVM is appended
         when ``model_based`` is not ``TREE``, because SVMs add meaningful
         diversity to non-tree ensembles but overlap heavily with trees on
         structured tabular data.
 
         Args:
-            model_based: Structural sub-family from the feature-selection
-                metadata.  Only :attr:`~app.core.enums.ModelSpecType.TREE`
-                suppresses the SVM addition.
+            model_based: Structural sub-family from the chain metadata.
+                :attr:`~app.core.enums.ModelSpecType.TREE` suppresses SVM.
 
         Returns:
             list[ModelSpec]: Non-linear model specifications.
@@ -130,14 +223,12 @@ class PredictorModelRetriever(BaseModelRetriever):
     def _build_boosting_pool(self) -> list[ModelSpec]:
         """Returns XGBoost and LightGBM specs when their libraries are available.
 
-        Each library is imported lazily and silently skipped if not
-        installed, so the rest of the pipeline is never blocked by an
-        optional dependency.
+        Each library is imported lazily and silently omitted when not installed,
+        so the rest of the pipeline is never blocked by an optional dependency.
 
         Returns:
-            list[ModelSpec]: Boosting model specifications for whichever
-            libraries are importable.  May be empty if neither is
-            installed.
+            list[ModelSpec]: Boosting specs for whichever libraries are
+            importable.  May be empty if neither is installed.
         """
         specs: list[ModelSpec] = []
         xgb = self._build_xgboost()
@@ -173,7 +264,8 @@ class PredictorModelRetriever(BaseModelRetriever):
         """Builds a Lasso regression spec.
 
         Returns:
-            ModelSpec: Lasso regression with default alpha.
+            ModelSpec: Lasso regression with default alpha and extended
+            iteration budget to aid convergence on sparse problems.
         """
         from sklearn.linear_model import Lasso
 
@@ -205,8 +297,8 @@ class PredictorModelRetriever(BaseModelRetriever):
         """Builds a logistic regression spec with L2 regularisation.
 
         Returns:
-            ModelSpec: LogisticRegression with L2 penalty and liblinear
-            solver, suitable for small-to-medium datasets.
+            ModelSpec: LogisticRegression with L2 penalty and the
+            ``liblinear`` solver, suitable for small-to-medium datasets.
         """
         from sklearn.linear_model import LogisticRegression
 
@@ -257,8 +349,9 @@ class PredictorModelRetriever(BaseModelRetriever):
         """Builds a Random Forest spec appropriate for the problem type.
 
         Returns:
-            ModelSpec: RandomForestClassifier or RandomForestRegressor
-            with conservative defaults safe for cross-validation.
+            ModelSpec: ``RandomForestClassifier`` or
+            ``RandomForestRegressor`` with conservative defaults safe for
+            cross-validation.
         """
         if self.problem_type == ProblemType.REGRESSION:
             from sklearn.ensemble import RandomForestRegressor
@@ -266,10 +359,7 @@ class PredictorModelRetriever(BaseModelRetriever):
             return ModelSpec(
                 name="random_forest",
                 factory=lambda: RandomForestRegressor(
-                    n_estimators=100,
-                    max_depth=10,
-                    n_jobs=-1,
-                    random_state=42,
+                    n_estimators=100, max_depth=10, n_jobs=-1, random_state=42
                 ),
                 spec_type=ModelSpecType.NON_LINEAR,
                 model_based=ModelSpecType.TREE,
@@ -280,10 +370,7 @@ class PredictorModelRetriever(BaseModelRetriever):
         return ModelSpec(
             name="random_forest",
             factory=lambda: RandomForestClassifier(
-                n_estimators=100,
-                max_depth=10,
-                n_jobs=-1,
-                random_state=42,
+                n_estimators=100, max_depth=10, n_jobs=-1, random_state=42
             ),
             spec_type=ModelSpecType.NON_LINEAR,
             model_based=ModelSpecType.TREE,
@@ -292,11 +379,12 @@ class PredictorModelRetriever(BaseModelRetriever):
     def _build_extra_trees(self) -> ModelSpec:
         """Builds an Extra Trees spec appropriate for the problem type.
 
-        Extra Trees introduces more randomness than Random Forest, which
-        often reduces variance at the cost of a slight bias increase.
+        Extra Trees introduces additional randomness compared to Random
+        Forest, which often reduces variance at the cost of a slight bias
+        increase.
 
         Returns:
-            ModelSpec: ExtraTreesClassifier or ExtraTreesRegressor.
+            ModelSpec: ``ExtraTreesClassifier`` or ``ExtraTreesRegressor``.
         """
         if self.problem_type == ProblemType.REGRESSION:
             from sklearn.ensemble import ExtraTreesRegressor
@@ -304,10 +392,7 @@ class PredictorModelRetriever(BaseModelRetriever):
             return ModelSpec(
                 name="extra_trees",
                 factory=lambda: ExtraTreesRegressor(
-                    n_estimators=100,
-                    max_depth=10,
-                    n_jobs=-1,
-                    random_state=42,
+                    n_estimators=100, max_depth=10, n_jobs=-1, random_state=42
                 ),
                 spec_type=ModelSpecType.NON_LINEAR,
                 model_based=ModelSpecType.TREE,
@@ -318,10 +403,7 @@ class PredictorModelRetriever(BaseModelRetriever):
         return ModelSpec(
             name="extra_trees",
             factory=lambda: ExtraTreesClassifier(
-                n_estimators=100,
-                max_depth=10,
-                n_jobs=-1,
-                random_state=42,
+                n_estimators=100, max_depth=10, n_jobs=-1, random_state=42
             ),
             spec_type=ModelSpecType.NON_LINEAR,
             model_based=ModelSpecType.TREE,
@@ -334,7 +416,7 @@ class PredictorModelRetriever(BaseModelRetriever):
         tree-based, to maximise hypothesis diversity in the pool.
 
         Returns:
-            ModelSpec: SVC or SVR with an RBF kernel; probability
+            ModelSpec: ``SVC`` or ``SVR`` with an RBF kernel; probability
             estimates enabled for classifiers.
         """
         if self.problem_type == ProblemType.REGRESSION:
@@ -351,12 +433,7 @@ class PredictorModelRetriever(BaseModelRetriever):
 
         return ModelSpec(
             name="svm",
-            factory=lambda: SVC(
-                kernel="rbf",
-                C=1.0,
-                probability=True,
-                random_state=42,
-            ),
+            factory=lambda: SVC(kernel="rbf", C=1.0, probability=True, random_state=42),
             spec_type=ModelSpecType.NON_LINEAR,
             model_based=ModelSpecType.SVM,
         )
@@ -368,12 +445,12 @@ class PredictorModelRetriever(BaseModelRetriever):
     def _build_xgboost(self) -> ModelSpec | None:
         """Builds an XGBoost spec, or returns ``None`` if not installed.
 
-        The library is imported lazily so that environments without
-        XGBoost are not affected.
+        The library is imported lazily so that environments without XGBoost
+        are not affected.
 
         Returns:
-            ModelSpec | None: XGBoost spec, or ``None`` when the
-            ``xgboost`` package is not importable.
+            ModelSpec | None: XGBoost spec, or ``None`` when the ``xgboost``
+            package is not importable.
         """
         try:
             if self.problem_type == ProblemType.REGRESSION:
@@ -422,8 +499,8 @@ class PredictorModelRetriever(BaseModelRetriever):
     def _build_lightgbm(self) -> ModelSpec | None:
         """Builds a LightGBM spec, or returns ``None`` if not installed.
 
-        The library is imported lazily so that environments without
-        LightGBM are not affected.
+        The library is imported lazily so that environments without LightGBM
+        are not affected.
 
         Returns:
             ModelSpec | None: LightGBM spec, or ``None`` when the
@@ -476,53 +553,82 @@ class PredictorModelRetriever(BaseModelRetriever):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _read_best_chain_metadata(self) -> dict[str, Any]:
-        """Reads the metadata dict for the best feature-selection chain.
-
-        The feature-selection stage stores a *list* of top-k chain dicts
-        in ``StageResult.metadata``; the first entry is the best one.
-        This method navigates that chain safely and returns the first
-        entry, or an empty dict when the chain is incomplete.
-
-        The keys available in the returned dict (written by
-        :func:`_extract_top_k_chain_selectors`) are:
-
-        - "selectors" — list of selector names.
-        - "model" — predictor name string.
-        - "model_type" — :class:`~app.core.enums.ModelSpecType`.
-        - "model_based" — :class:`~app.core.enums.ModelSpecType`.
-        - "selected_features" — list of feature name strings.
+    def _read_stage_result(self) -> StageResult | None:
+        """Retrieves the feature-selection :class:`StageResult` from context.
 
         Returns:
-            dict[str, Any]: Metadata for the best chain, or ``{}`` on
-            failure.
+            StageResult | None: The stored result, or ``None`` when it
+            cannot be found.
         """
         try:
             assert self.context is not None
-            from app.core.enums import Stages
-
-            stage_result: StageResult = self.context.stage_results[
-                Stages.FEATURE_SELECTION
-            ]
-            top_k: list[dict[str, Any]] = stage_result.metadata or []
-
-            if not top_k:
-                logger.warning(
-                    "Feature-selection stage metadata is empty; "
-                    "falling back to default model pool."
-                )
-                return {}
-
-            return top_k[0]
-
-        except (AttributeError, KeyError, TypeError):
+            return self.context.stage_results[Stages.FEATURE_SELECTION]
+        except (AssertionError, KeyError, AttributeError, TypeError):
             logger.warning(
-                "Could not read feature-selection metadata from context; "
+                "Feature-selection stage result not found in context; "
                 "falling back to default model pool."
             )
+            return None
+
+    def _read_best_experiment_metadata(self) -> dict[str, Any]:
+        """Reads the metadata dict reconstructed from the best experiment.
+
+        The best experiment's own ``metadata`` dict no longer carries
+        ``"model_type"`` or ``"model_based"`` (they are popped during
+        :meth:`FeatureSelectionEvaluator._update_context`).  Instead, this
+        method reconstructs an equivalent dict from the attributes of
+        ``best_experiment`` itself — specifically ``selected_features`` —
+        and fills ``"model_type"`` / ``"model_based"`` from
+        ``best_experiment.metadata`` for any keys that were not removed (e.g.
+        ``"selectors"``, ``"model"``).
+
+        To retrieve ``model_type`` and ``model_based`` for the best chain,
+        callers should use :meth:`load_all_chain_pairings` where the first
+        pairing corresponds to the best experiment, or read them from
+        ``stage_result.metadata[0]`` (the first runner-up), acknowledging
+        that the best experiment's type info lives only in the evaluator's
+        pop-before-store logic.
+
+        Returns:
+            dict[str, Any]: Best-experiment metadata enriched with
+            ``"selected_features"``, or ``{}`` on failure.
+        """
+        stage_result = self._read_stage_result()
+        if stage_result is None or stage_result.best_experiment is None:
             return {}
 
-    def _boost_eligible(self, best_chain_meta: dict[str, Any]) -> bool:
+        best = stage_result.best_experiment
+        meta: dict[str, Any] = dict(best.metadata or {})
+        meta.setdefault("selected_features", best.selected_features)
+        return meta
+
+    @staticmethod
+    def _metadata_from_best_experiment(stage_result: StageResult) -> dict[str, Any]:
+        """Extracts a chain-compatible metadata dict from the best experiment.
+
+        Builds the same dict shape that runner-up chains use, sourcing
+        ``"selected_features"`` from
+        :attr:`~app.core.experiments.ExperimentResult.selected_features`
+        and the remaining keys from
+        :attr:`~app.core.experiments.ExperimentResult.metadata`.
+
+        Args:
+            stage_result: The feature-selection
+                :class:`~app.core.context.StageResult`.
+
+        Returns:
+            dict[str, Any]: Chain-compatible metadata dict, or ``{}`` when
+            ``best_experiment`` is ``None``.
+        """
+        best = stage_result.best_experiment
+        if best is None:
+            return {}
+
+        meta = dict(best.metadata or {})
+        meta.setdefault("selected_features", best.selected_features)
+        return meta
+
+    def _boost_eligible(self, chain_meta: dict[str, Any]) -> bool:
         """Returns ``True`` when the dataset is large enough for boosting.
 
         Both conditions must hold simultaneously:
@@ -530,34 +636,39 @@ class PredictorModelRetriever(BaseModelRetriever):
         - ``n_samples > _BOOST_MIN_SAMPLES`` (default 1 000)
         - ``n_features > _BOOST_MIN_FEATURES`` (default 10)
 
-        The feature count is taken from ``selected_features`` in the
-        best chain metadata (the post-selection count), falling back to
-        the raw feature count stored in the context.  The post-selection
-        count is preferred because it is the number of features that the
-        boosting model will actually process.
+        The feature count is taken from ``"selected_features"`` in the chain
+        metadata (the post-selection count), falling back to ``n_features``
+        stored in :attr:`~app.core.context.Metadata`.  The post-selection
+        count is preferred because it is the actual number of columns the
+        boosting model will process.
 
         Args:
-            best_chain_meta: The dict returned by
-                :meth:`_read_best_chain_metadata`.
+            chain_meta: A chain metadata dict, as returned by
+                :meth:`_read_best_experiment_metadata` or from
+                :attr:`~app.core.context.StageResult.metadata`.
 
         Returns:
-            bool: Whether XGBoost and LightGBM should be included.
+            bool: ``True`` when both size thresholds are satisfied.
         """
-        n_samples: int = getattr(self.context, "n_samples", 0)
+        assert self.context is not None
 
-        selected: list[str] | None = best_chain_meta.get("selected_features")
-        if selected is not None:
-            n_features = len(selected)
-        else:
-            n_features = getattr(self.context, "n_features", 0)
+        dataset_metadata: Metadata = self.context.metadata
+        n_samples: int = getattr(dataset_metadata, "dataset_length", 0)
+
+        selected: list[str] | None = chain_meta.get("selected_features")
+        n_features: int = (
+            len(selected)
+            if selected is not None
+            else getattr(dataset_metadata, "n_features", 0)
+        )
 
         eligible = n_samples > _BOOST_MIN_SAMPLES and n_features > _BOOST_MIN_FEATURES
 
         if not eligible:
             logger.debug(
-                f"Boosting skipped: n_samples={n_samples} "
-                f"(min={_BOOST_MIN_SAMPLES}), "
-                f"n_features={n_features} (min={_BOOST_MIN_FEATURES})."
+                f"Boosting skipped — n_samples={n_samples} "
+                f"(threshold={_BOOST_MIN_SAMPLES}), "
+                f"n_features={n_features} (threshold={_BOOST_MIN_FEATURES})."
             )
 
         return eligible

@@ -1,70 +1,21 @@
 """Tests for FeatureSelectionEvaluator."""
 
-import pytest
+from unittest.mock import Mock, MagicMock
+
 import numpy as np
 import pandas as pd
-from unittest.mock import Mock, MagicMock
-from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
+import pytest
 from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
 
+from app.core.context.context import Context, StageResult, ProjectConfig
+from app.core.enums import Stages
+from app.core.experiments import ExperimentResult
+from app.core.stages.evaluation.base_evaluator import BaseEvaluator
 from app.core.stages.evaluation.evaluators.feature_selection_evaluator import (
     FeatureSelectionEvaluator,
 )
-from app.core.stages.evaluation.base_evaluator import BaseEvaluator
-from app.core.experiments import ExperimentResult
-from app.core.context.context import Context, StageResult, ProjectConfig
-from app.core.enums import Stages
-
-
-@pytest.fixture
-def mock_config():
-    config = Mock(spec=ProjectConfig)
-    config.priority_metric = "test_accuracy"
-    config.scoring = ["accuracy"]
-    return config
-
-
-@pytest.fixture
-def mock_context(mock_config):
-    context = Mock(spec=Context)
-    context.config = mock_config
-    context.stage_results = {}
-    context.update_stage_context = MagicMock()
-    return context
-
-
-@pytest.fixture
-def evaluator(mock_context):
-    return FeatureSelectionEvaluator(
-        stage=Stages.FEATURE_SELECTION, context=mock_context
-    )
-
-
-@pytest.fixture
-def sample_results():
-    results = []
-    selectors = ["SelectKBest", "SelectKBest", "RFE", "RFE", "VarianceThreshold"]
-    metrics = [0.95, 0.85, 0.93, 0.80, 0.90]
-
-    for selector, metric in zip(selectors, metrics):
-        pipeline = Pipeline([("feature_selection", SelectKBest(f_classif, k=3))])
-        result = ExperimentResult(
-            name=f"exp_{selector}_{metric}",
-            pipeline=pipeline,
-            metrics={"test_accuracy": metric},
-            config={"selector": selector, "predictor": "LogisticRegression"},
-            metadata={
-                "selectors": [selector],
-                "model": "LogisticRegression",
-                "model_type": "LINEAR",
-                "model_based": "TREE",
-            },
-            selected_features=["feature1", "feature2", "feature3"],
-        )
-        results.append(result)
-    return results
-
 
 class TestFeatureSelectionEvaluator:
     def test_evaluator_inheritance(self, evaluator):
@@ -89,7 +40,7 @@ class TestFeatureSelectionEvaluator:
         assert len(data) <= 3
 
     def test_extract_stage_specific_data_has_required_keys(
-        self, evaluator, sample_results
+            self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,
@@ -105,7 +56,7 @@ class TestFeatureSelectionEvaluator:
             assert "selected_features" in item
 
     def test_extract_top_k_chain_selectors_returns_list(
-        self, evaluator, sample_results
+            self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,
@@ -117,7 +68,7 @@ class TestFeatureSelectionEvaluator:
         assert len(top_k) <= 3
 
     def test_extract_top_k_chain_selectors_selected_features(
-        self, evaluator, sample_results
+            self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,

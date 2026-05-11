@@ -74,7 +74,9 @@ class FeatureSelectionStageAdapter(PipelineStage):
         return FeatureSelectionValidator()
 
     def execute(self, context: Context) -> None:
-        from app.core.stages.feature_selection.feature_selection_stage import FeatureSelectionStage
+        from app.core.stages.feature_selection.feature_selection_stage import (
+            FeatureSelectionStage,
+        )
 
         logger.debug("Executing feature selection stage...")
         FeatureSelectionStage(context=context).run()
@@ -99,7 +101,9 @@ class ModelSelectionStageAdapter(PipelineStage):
         return ModelSelectionValidator()
 
     def execute(self, context: Context) -> None:
-        from app.core.stages.model_selection.model_selection_stage import ModelSelectionStage
+        from app.core.stages.model_selection.model_selection_stage import (
+            ModelSelectionStage,
+        )
 
         logger.debug("Executing model selection stage...")
         ModelSelectionStage(context=context).run()
@@ -150,7 +154,9 @@ class ModelEnsambleStageAdapter(PipelineStage):
         return ModelEnsembleValidator()
 
     def execute(self, context: Context) -> None:
-        from app.core.stages.model_ensemble.model_ensemble_stage import ModelEnsembleStage
+        from app.core.stages.model_ensemble.model_ensemble_stage import (
+            ModelEnsembleStage,
+        )
 
         logger.debug("Executing model ensamble stage...")
         ModelEnsembleStage(context=context).run()

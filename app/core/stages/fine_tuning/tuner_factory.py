@@ -21,7 +21,9 @@ class FineTunerFactory:
                 }
                 logger.info("Default tuners registered successfully")
             except Exception as e:
-                logger.error(f"Error registering default tuners: {str(e)}", exc_info=True)
+                logger.error(
+                    f"Error registering default tuners: {str(e)}", exc_info=True
+                )
 
     @classmethod
     def create_tuner(cls, tuner_strategy: TunerStrategy, context: Context):
@@ -36,6 +38,8 @@ class FineTunerFactory:
     @classmethod
     def register_tuner(cls, tuner_name: str, tuner_class):
         if tuner_name in cls._TUNERS:
-            logger.warning(f"Tuner '{tuner_name}' is already registered and will be overwritten")
+            logger.warning(
+                f"Tuner '{tuner_name}' is already registered and will be overwritten"
+            )
         cls._TUNERS[tuner_name] = tuner_class
         logger.info(f"Tuner '{tuner_name}' registered successfully")

@@ -139,7 +139,9 @@ def _build_scaler(strategy: ScalerStrategy) -> Any:
     }
     scaler = mapping.get(strategy)
     if scaler is None:
-        raise ValueError(f"ScalerStrategy.{strategy.name} has no registered sklearn scaler.")
+        raise ValueError(
+            f"ScalerStrategy.{strategy.name} has no registered sklearn scaler."
+        )
     return scaler
 
 
@@ -167,16 +169,24 @@ def _build_transform_step(transformation: TransformationType) -> tuple[str, Any]
         return None
 
     if transformation == TransformationType.LOG:
-        return ("log", FunctionTransformer(np.log, validate=True, feature_names_out="one-to-one"))
+        return (
+            "log",
+            FunctionTransformer(np.log, validate=True, feature_names_out="one-to-one"),
+        )
 
     if transformation == TransformationType.LOG1P:
         return (
             "log1p",
-            FunctionTransformer(np.log1p, validate=True, feature_names_out="one-to-one"),
+            FunctionTransformer(
+                np.log1p, validate=True, feature_names_out="one-to-one"
+            ),
         )
 
     if transformation == TransformationType.SQRT:
-        return ("sqrt", FunctionTransformer(np.sqrt, validate=True, feature_names_out="one-to-one"))
+        return (
+            "sqrt",
+            FunctionTransformer(np.sqrt, validate=True, feature_names_out="one-to-one"),
+        )
 
     if transformation == TransformationType.YEO_JOHNSON:
         return ("yeo_johnson", PowerTransformer(method="yeo-johnson"))
@@ -384,12 +394,16 @@ def _build_categorical_pipeline(
         pipeline = Pipeline(steps).set_output(transform="pandas")
         name = f"cat_nominal_{i}_{encoding.value}"
         transformers.append((name, pipeline, cols))
-        logger.debug("Nominal pipeline '%s': cols=%s encoding=%s", name, cols, encoding.value)
+        logger.debug(
+            "Nominal pipeline '%s': cols=%s encoding=%s", name, cols, encoding.value
+        )
 
     # --- Ordinal ---
     if ordinal:
         cols = [f.name for f in ordinal]
-        categories_param = [f.category_order if f.has_defined_order else "auto" for f in ordinal]
+        categories_param = [
+            f.category_order if f.has_defined_order else "auto" for f in ordinal
+        ]
         pipeline = Pipeline(
             [
                 ("imputer", SimpleImputer(strategy="most_frequent")),

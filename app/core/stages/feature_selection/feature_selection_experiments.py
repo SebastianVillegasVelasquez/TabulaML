@@ -17,13 +17,15 @@ def get_feature_selection_experiments(context: Context):
 
     selectors = (
         ModelRetrieveFactory.create(
-            model_retrieve_type=ModelRetrieveType.SELECTOR, problem_type=ProblemType.CLASSIFICATION
+            model_retrieve_type=ModelRetrieveType.SELECTOR,
+            problem_type=ProblemType.CLASSIFICATION,
         )
     ).load_defaults()
 
     models = (
         ModelRetrieveFactory.create(
-            model_retrieve_type=ModelRetrieveType.BASELINE, problem_type=ProblemType.CLASSIFICATION
+            model_retrieve_type=ModelRetrieveType.BASELINE,
+            problem_type=ProblemType.CLASSIFICATION,
         )
     ).load_defaults()
 

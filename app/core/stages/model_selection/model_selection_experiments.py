@@ -6,7 +6,9 @@ from app.utils.logger import logger
 
 def get_model_selection_experiments(context: Context):
     models = ModelRetrieveFactory.create(
-        model_retrieve_type=ModelRetrieveType.PREDICTOR, problem_type=ProblemType.CLASSIFICATION
+        model_retrieve_type=ModelRetrieveType.PREDICTOR,
+        problem_type=ProblemType.CLASSIFICATION,
+        context=context,
     ).load_defaults()
 
     logger.info(f"Models loaded in the model selection stage: {models}")

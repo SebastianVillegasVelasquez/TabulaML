@@ -39,7 +39,6 @@ class CompositionRule:
 
 
 class SelectorChainFactory:
-
     def __init__(self, selectors: list[SelectorSpec]):
         self.selectors = selectors
 
@@ -47,7 +46,9 @@ class SelectorChainFactory:
 
         chains = []
 
-        filters, embedded, rfe, shap = self._decoupled_selectors(selectors=self.selectors)
+        filters, embedded, rfe, shap = self._decoupled_selectors(
+            selectors=self.selectors
+        )
 
         # Collect all selectors from the list of selectors,
         # then filter each group of selectors based on the model_based attribute.
@@ -62,10 +63,14 @@ class SelectorChainFactory:
         for f in filters:
             for e in embedded:
                 chains.append(
-                    SelectorChain([f, e], name=f"{f.name}__{e.name}", type="filter_embedded")
+                    SelectorChain(
+                        [f, e], name=f"{f.name}__{e.name}", type="filter_embedded"
+                    )
                 )
             for r in rfe:
-                chains.append(SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe"))
+                chains.append(
+                    SelectorChain([f, r], name=f"{f.name}__{r.name}", type="rfe")
+                )
 
         # These filters combine a quick filter first such as SelectKBest
         # with a more complex RFE selector such as RFECV.
@@ -78,7 +83,11 @@ class SelectorChainFactory:
         # This is a combination for a heavy-duty task
         for f in filters:
             for s in shap:
-                chains.append(SelectorChain([f, s], name=f"{f.name}__{s.name}", type="filter_shap"))
+                chains.append(
+                    SelectorChain(
+                        [f, s], name=f"{f.name}__{s.name}", type="filter_shap"
+                    )
+                )
         return chains
 
     @staticmethod
@@ -103,7 +112,12 @@ class SelectorChainFactory:
         embedded = [
             s
             for s in selectors
-            if s.type in {SelectorSpecType.TREE_BASED, SelectorSpecType.L1, SelectorSpecType.L1_L2}
+            if s.type
+            in {
+                SelectorSpecType.TREE_BASED,
+                SelectorSpecType.L1,
+                SelectorSpecType.L1_L2,
+            }
         ]
 
         rfe = [s for s in selectors if s.type == SelectorSpecType.RFE]
@@ -188,7 +202,10 @@ _RULES: list[CompositionRule] = [
             "perform sparsity. Still valid but not optimal."
         ),
         match=lambda chain, model: (
-            any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
+            any(
+                s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2}
+                for s in chain.selectors
+            )
             and model.spec_type == ModelSpecType.LINEAR
         ),
         priority=ExperimentPriority.BLOCKED,
@@ -214,7 +231,10 @@ _RULES: list[CompositionRule] = [
             "for nonlinear tree-based models."
         ),
         match=lambda chain, model: (
-            any(s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2} for s in chain.selectors)
+            any(
+                s.type in {SelectorSpecType.L1, SelectorSpecType.L1_L2}
+                for s in chain.selectors
+            )
             and model.model_based == ModelSpecType.TREE
         ),
         priority=ExperimentPriority.LOW,
@@ -274,7 +294,8 @@ _RULES: list[CompositionRule] = [
         name="efficient_multistage",
         description="Combines multiple selectors and models to create a powerful feature selection pipeline.",
         match=lambda chain, model: (
-            len(chain.selectors) >= 2 and chain.selectors[0].type == SelectorSpecType.STATISTICAL
+            len(chain.selectors) >= 2
+            and chain.selectors[0].type == SelectorSpecType.STATISTICAL
         ),
         priority=ExperimentPriority.HIGH,
     ),
@@ -314,7 +335,9 @@ class ExperimentComposer:
         models (list[ModelSpec]): Available predictive models.
     """
 
-    def __init__(self, context: Context, selectors: list[SelectorSpec], models: list[ModelSpec]):
+    def __init__(
+        self, context: Context, selectors: list[SelectorSpec], models: list[ModelSpec]
+    ):
         """
         Initialize the ExperimentComposer.
 
@@ -348,7 +371,6 @@ class ExperimentComposer:
         chains = SelectorChainFactory(self.selectors).build()
         for chain in chains:
             for model in self.models:
-
                 priority = self._evaluate_chain(chain, model)
 
                 if priority == ExperimentPriority.BLOCKED:
@@ -392,7 +414,9 @@ class ExperimentComposer:
         return min(priorities, key=lambda p: _PRIORITY_ORDER[p])
 
     @staticmethod
-    def _build_experiment(chain: SelectorChain, model: ModelSpec, priority: ExperimentPriority):
+    def _build_experiment(
+        chain: SelectorChain, model: ModelSpec, priority: ExperimentPriority
+    ):
         """
         Build an ExperimentDefinition from a selector chain and model.
 

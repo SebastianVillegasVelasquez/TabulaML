@@ -137,6 +137,15 @@ class ShapSelector:
 
 
 class SelectorModelRetriever(BaseModelRetriever):
+    def __init__(self, problem_type, context=None):
+        """Initialize the SelectorModelRetriever.
+
+        Args:
+            problem_type: Task type (CLASSIFICATION or REGRESSION).
+            context: Optional shared runtime context.
+        """
+        super().__init__(problem_type=problem_type, context=context)
+
     def load_defaults(self) -> list[SelectorSpec]:
         function_score = self._load_score_func()
 

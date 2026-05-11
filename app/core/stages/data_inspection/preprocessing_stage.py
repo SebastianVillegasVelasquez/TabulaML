@@ -144,11 +144,14 @@ class PreprocessingBuilder:
 
         if f_type in (FeatureType.DATETIME, FeatureType.TEXT):
             logger.warning(
-                "FeatureType.%s pipeline is not yet implemented. " "Columns %s will be dropped.",
+                "FeatureType.%s pipeline is not yet implemented. "
+                "Columns %s will be dropped.",
                 f_type.name,
                 [f.name for f in features],
             )
             return []
 
-        logger.warning("Unhandled FeatureType '%s'. Columns will be dropped.", f_type.value)
+        logger.warning(
+            "Unhandled FeatureType '%s'. Columns will be dropped.", f_type.value
+        )
         return []
