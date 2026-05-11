@@ -31,7 +31,7 @@ class StageResult(BaseModel):
     name: Stages
     artifacts_path: str | None = None
     results: list[Any] | dict[str, Any] | None = None
-    best_pipeline_path: str | Path = None
+    best_pipeline_path: str | Path | None = None
     best_experiment: Any | None = None
     metadata: list[Any] | dict[str, Any] | None = None
 
@@ -93,9 +93,9 @@ class Context(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     config: ProjectConfig
-    current_stage: Stages = None
+    current_stage: Stages | None = field(default=None)
     stage_results: dict[str, StageResult] = field(default_factory=dict)
-    metadata: dict[str, Any] | Metadata = None
+    metadata: dict[str, Any] | Metadata | None = field(default=None)
 
     @field_validator("config", mode="before")
     @classmethod

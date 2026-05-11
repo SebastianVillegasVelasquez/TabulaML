@@ -11,7 +11,7 @@ class BaseExperimentFactory(ABC):
     """
 
     @abstractmethod
-    def create_experiments(self, context: Context = None) -> List[ExperimentDefinition]:
+    def create_experiments(self, context: Context | None = None) -> List[ExperimentDefinition]:
         """
         Creates and returns all experiment definitions for this stage.
 

@@ -4,7 +4,7 @@ from app.utils.logger import logger
 
 
 class FineTunerFactory:
-    _TUNERS = {}
+    _TUNERS: dict[str, type] = {}
 
     @classmethod
     def _register_defaults(cls):
@@ -27,7 +27,6 @@ class FineTunerFactory:
 
     @classmethod
     def create_tuner(cls, tuner_strategy: TunerStrategy, context: Context):
-
         cls._register_defaults()
         try:
             logger.info(f"Creating tuner for {tuner_strategy}")

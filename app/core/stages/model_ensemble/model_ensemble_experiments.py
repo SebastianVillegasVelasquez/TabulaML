@@ -40,10 +40,27 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
     """
     from app.core.experiments import ExperimentDefinition
 
-    fine_tuned_results = context.stage_results[Stages.FINE_TUNING].results
-    feature_selection_step = context.stage_results[Stages.FEATURE_SELECTION].metadata[
-        "selector_estimator"
-    ]
+    fine_tuning_stage_result = context.stage_results.get(Stages.FINE_TUNING.value)
+    if fine_tuning_stage_result is None:
+        raise ValueError("Fine tuning stage result not found")
+
+    fine_tuned_results = fine_tuning_stage_result.results
+
+    feature_selection_stage_result = context.stage_results.get(Stages.FEATURE_SELECTION.value)
+    if feature_selection_stage_result is None:
+        raise ValueError("Feature selection stage result not found")
+
+    feature_selection_metadata_raw = feature_selection_stage_result.metadata
+    feature_selection_step = None
+
+    if isinstance(feature_selection_metadata_raw, dict):
+        feature_selection_step = feature_selection_metadata_raw.get("selector_estimator")
+    elif isinstance(feature_selection_metadata_raw, list) and len(feature_selection_metadata_raw) > 0:
+        if isinstance(feature_selection_metadata_raw[0], dict):
+            feature_selection_step = feature_selection_metadata_raw[0].get("selector_estimator")
+
+    if feature_selection_step is None:
+        raise ValueError("Feature selection step not found in metadata")
 
     results = []
 
@@ -53,47 +70,19 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
     )
 
     for name, model in models:
+        # Create a pipeline builder directly with the ensemble model
+        steps = [
+            ("selector", feature_selection_step),
+            ("model", model)
+        ]
 
-        def _build_pipeline(
-            preprocessing_step,
-            feature_selection_step=feature_selection_step,
-            model=model,
-        ) -> PipelineBuilder:
-            """Constructs a unified pipeline for an ensemble model.
-
-            This pipeline applies a shared preprocessing and feature selection
-            workflow before passing the transformed data to the ensemble model.
-
-            The design ensures that all ensemble models operate under the same
-            data transformation conditions used during previous training stages,
-            improving consistency and comparability of results.
-
-            This may changed in a futuro for better individualization of the models,
-            each having it's own preprocessing and feature selection steps.
-
-            Args:
-                preprocessing_step: A scikit-learn compatible transformer for data preprocessing.
-                feature_selection_step: A scikit-learn compatible transformer for feature selection.
-                model: An instantiated ensemble model (e.g., VotingClassifier, StackingRegressor)
-                coming from the 'get_models' function.
-
-            Returns:
-                PipelineBuilder: A pipeline pipeline_builder instance that constructs a pipeline with the following steps:
-                    - Preprocessing
-                    - Feature Selection
-                    - Ensemble Model
-            """
-            steps = [("preprocessing", preprocessing_step)]
-            steps.append(("selector", feature_selection_step))
-            steps.append(("model", model))
-
-            return PipelineBuilder(steps=steps)
+        pipeline_builder = PipelineBuilder(steps=steps)
 
         results.append(
             ExperimentDefinition(
                 name=f"{name}_{context.config.problem_type.value}",
-                stage="model_ensemble",
-                pipeline_builder=_build_pipeline,
+                stage=Stages.MODEL_ENSEMBLE,
+                pipeline_builder=pipeline_builder,
                 metadata={"model": name},
             )
         )

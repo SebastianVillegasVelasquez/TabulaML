@@ -108,7 +108,7 @@ class Orchestrator:
         self._pipeline = self._build_pipeline()
 
         # Initialize execution summary
-        summary = {"success": [], "failed": [], "skipped": []}
+        summary: Dict[str, Any] = {"success": [], "failed": [], "skipped": []}
 
         # Execute each stage in the pipeline
         for stage in self._pipeline:

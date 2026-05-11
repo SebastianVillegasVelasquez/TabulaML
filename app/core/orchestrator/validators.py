@@ -24,11 +24,11 @@ class FeatureSelectionValidator(StageValidator):
 
     def validate(self, context: Context) -> Tuple[bool, Optional[str]]:
         # Check if DATA_HANDLER stage exists in context
-        if Stages.DATA_HANDLER not in context.stage_results:
+        if Stages.DATA_HANDLER.value not in context.stage_results:
             return False, "DATA_HANDLER stage not completed"
 
         # Check if DATA_HANDLER produced any results
-        data_handler_result = context.stage_results[Stages.DATA_HANDLER]
+        data_handler_result = context.stage_results[Stages.DATA_HANDLER.value]
         if data_handler_result.results is None or len(data_handler_result.results) == 0:
             return False, "DATA_HANDLER produced no results"
 
@@ -80,7 +80,7 @@ class ModelEnsembleValidator(StageValidator):
 
     def validate(self, context: Context) -> Tuple[bool, Optional[str]]:
         # Check if MODEL_SELECTION stage exists in context
-        if Stages.FINE_TUNING not in context.stage_results:
+        if Stages.FINE_TUNING.value not in context.stage_results:
             return False, "FINE_TUNING stages not completed"
         # All preconditions met
         return True, None
