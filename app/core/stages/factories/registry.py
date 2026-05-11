@@ -7,7 +7,7 @@ from app.core.stages.factories.stage_experiment_factory import StageExperimentFa
 
 
 def get_stage_experiments(
-    stage: Stages, context: Context = None
+    stage: Stages, context: Context | None = None
 ) -> List[ExperimentDefinition]:
     """
     It communicates with the Experiment factory and passes a certain stage

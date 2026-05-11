@@ -1,4 +1,5 @@
 """Tests for BaseEvaluator abstract class and template method pattern."""
+
 from typing import Any
 
 import pytest
@@ -15,10 +16,17 @@ from app.core.context.context import Context, StageResult, ProjectConfig
 class ConcreteEvaluator(BaseEvaluator):
     """Concrete implementation for testing BaseEvaluator."""
 
-    def _extract_stage_specific_data(self, sorted_results:list[ExperimentResult], best_experiment:ExperimentResult):
+    def _extract_stage_specific_data(
+        self, sorted_results: list[ExperimentResult], best_experiment: ExperimentResult
+    ):
         return {"test_data": "test_value", "best_name": best_experiment.name}
 
-    def _update_context(self, sorted_results:list[ExperimentResult], best_experiment:ExperimentResult, stage_specific_data:dict[str, Any]|list[dict[str, Any]]):
+    def _update_context(
+        self,
+        sorted_results: list[ExperimentResult],
+        best_experiment: ExperimentResult,
+        stage_specific_data: dict[str, Any] | list[dict[str, Any]],
+    ):
         stage_result = StageResult(
             name=self.stage,
             best_experiment=best_experiment,

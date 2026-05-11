@@ -78,7 +78,6 @@ class OptunaTunerStrategy(BaseTuner):
 
     @staticmethod
     def _build_optuna_params(trial, param_config: dict):
-
         params = {}
 
         for param_name, config in param_config.items():
@@ -113,8 +112,8 @@ class GridSearchCVTunerStrategy(BaseTuner):
     def tune(self, model_name: str, pipeline: Pipeline):
         from sklearn.model_selection import GridSearchCV
 
-        X = self.context.config.X_train
-        y = self.context.config.y_train
+        X = self.context.config.dataset.X_train
+        y = self.context.config.dataset.y_train
 
         param_grid = self._get_hyperparameters(model_name=model_name)
 

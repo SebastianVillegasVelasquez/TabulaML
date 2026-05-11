@@ -1,4 +1,7 @@
+from typing import List
+
 from app.core.context.context import Context
+from app.core.experiments import ExperimentDefinition
 from app.core.stages.factories.base_experiment_registry import BaseExperimentFactory
 from app.core.stages.model_ensemble.model_ensemble_experiments import (
     get_model_ensemble_experiments,
@@ -6,7 +9,7 @@ from app.core.stages.model_ensemble.model_ensemble_experiments import (
 
 
 class ModelEnsembleExperimentFactory(BaseExperimentFactory):
-    def create_experiments(self, context: Context = None):
+    def create_experiments(self, context: Context | None = None) -> List[ExperimentDefinition]:
         if context is None:
             raise ValueError(
                 "Context parameter must not be None for ModelEnsembleExperimentFactory\n"

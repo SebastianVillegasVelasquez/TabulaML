@@ -28,8 +28,8 @@ class ThresholdOptimizer:
             logger.info("Model is not probabilistic, cannot optimize threshold.")
             return model
 
-        X = self.context.config.X_train
-        y = self.context.config.y_train
+        X = self.context.config.dataset.X_train
+        y = self.context.config.dataset.y_train
 
         X_train, X_val, y_train, y_val = train_test_split(
             X, y, test_size=0.2, random_state=42, stratify=y
@@ -44,7 +44,7 @@ class ThresholdOptimizer:
         fpr, tpr, thresholds = roc_curve(y_val, y_proba)
 
         # Calcular el métrica para cada threshold
-        best_score = -1
+        best_score: float = -1.0
         best_threshold = 0.5
 
         for threshold in thresholds:

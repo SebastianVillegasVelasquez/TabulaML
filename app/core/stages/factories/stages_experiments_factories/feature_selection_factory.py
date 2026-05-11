@@ -9,5 +9,5 @@ from app.core.stages.feature_selection.feature_selection_experiments import (
 
 
 class FeatureSelectionExperimentFactory(BaseExperimentFactory):
-    def create_experiments(self, context: Context = None) -> List[ExperimentDefinition]:
+    def create_experiments(self, context: Context | None = None) -> List[ExperimentDefinition]:
         return get_feature_selection_experiments(context=context)

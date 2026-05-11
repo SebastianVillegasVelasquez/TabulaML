@@ -2,6 +2,7 @@ from typing import List, Tuple, Optional
 
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
+from typing_extensions import Any
 
 
 class PipelineBuilder:
@@ -23,7 +24,7 @@ class PipelineBuilder:
 
     def __init__(
         self,
-        steps: List[Tuple[str, BaseEstimator]] = None,
+        steps: List[Tuple[str, Any]] | None = None,
     ):
         """Initializes the PipelineBuilder with validated steps.
 

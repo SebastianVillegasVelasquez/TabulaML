@@ -27,7 +27,7 @@ class DefaultEvaluationStrategy(EvaluationStrategy):
         context: Context,
         return_estimator: bool = False,
         cv: int = 5,
-        threshold: float = None,
+        threshold: float | None = None,
     ):
         from sklearn.model_selection import cross_validate
         import numpy as np

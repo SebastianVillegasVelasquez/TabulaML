@@ -17,6 +17,7 @@ from app.core.stages.evaluation.evaluators.feature_selection_evaluator import (
     FeatureSelectionEvaluator,
 )
 
+
 class TestFeatureSelectionEvaluator:
     def test_evaluator_inheritance(self, evaluator):
         assert isinstance(evaluator, BaseEvaluator)
@@ -40,7 +41,7 @@ class TestFeatureSelectionEvaluator:
         assert len(data) <= 3
 
     def test_extract_stage_specific_data_has_required_keys(
-            self, evaluator, sample_results
+        self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,
@@ -56,7 +57,7 @@ class TestFeatureSelectionEvaluator:
             assert "selected_features" in item
 
     def test_extract_top_k_chain_selectors_returns_list(
-            self, evaluator, sample_results
+        self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,
@@ -68,7 +69,7 @@ class TestFeatureSelectionEvaluator:
         assert len(top_k) <= 3
 
     def test_extract_top_k_chain_selectors_selected_features(
-            self, evaluator, sample_results
+        self, evaluator, sample_results
     ):
         sorted_results = sorted(
             sample_results,

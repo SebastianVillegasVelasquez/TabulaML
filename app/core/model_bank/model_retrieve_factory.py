@@ -14,7 +14,7 @@ class ModelRetrieveFactory:
 
     """
 
-    _MODELS_TYPE_TO_FACTORY = {}
+    _MODELS_TYPE_TO_FACTORY: dict[ModelRetrieveType, type] = {}
 
     @classmethod
     def register(cls, model_type, builder):
@@ -42,4 +42,6 @@ class ModelRetrieveFactory:
     ) -> BaseModelRetriever:
         cls.register_defaults()
         model_bank_class = cls._MODELS_TYPE_TO_FACTORY.get(model_retrieve_type)
+        if model_bank_class is None:
+            raise ValueError(f"No model retriever for type: {model_retrieve_type}")
         return model_bank_class(problem_type=problem_type, context=context)

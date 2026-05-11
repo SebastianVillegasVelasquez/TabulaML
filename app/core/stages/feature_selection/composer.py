@@ -43,7 +43,6 @@ class SelectorChainFactory:
         self.selectors = selectors
 
     def build(self):
-
         chains = []
 
         filters, embedded, rfe, shap = self._decoupled_selectors(

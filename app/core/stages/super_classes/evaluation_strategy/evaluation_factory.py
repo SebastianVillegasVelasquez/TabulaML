@@ -2,7 +2,7 @@ from app.core.enums import EvaluationType
 
 
 class EvaluationFactory:
-    _EVALUATIONS = {}
+    _EVALUATIONS: dict = {}
 
     @classmethod
     def _register_defaults(cls):

@@ -33,6 +33,7 @@ def evaluator(mock_context):
         stage=Stages.FEATURE_SELECTION, context=mock_context
     )
 
+
 @pytest.fixture
 def sample_results():
     results = []

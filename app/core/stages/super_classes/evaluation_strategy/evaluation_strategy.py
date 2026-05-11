@@ -20,6 +20,6 @@ class EvaluationStrategy(ABC):
         context: Context,
         return_estimator: bool = False,
         cv: int = 5,
-        threshold: float = None,
+        threshold: float | None = None,
     ):
         pass
