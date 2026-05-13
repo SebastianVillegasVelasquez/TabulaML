@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ExperimentResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    
+
     name: str | None = None
     pipeline: Pipeline | None = None
     metrics: Dict[str, float] = Field(default_factory=dict)

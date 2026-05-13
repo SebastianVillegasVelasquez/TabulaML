@@ -46,7 +46,9 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
 
     fine_tuned_results = fine_tuning_stage_result.results
 
-    feature_selection_stage_result = context.stage_results.get(Stages.FEATURE_SELECTION.value)
+    feature_selection_stage_result = context.stage_results.get(
+        Stages.FEATURE_SELECTION.value
+    )
     if feature_selection_stage_result is None:
         raise ValueError("Feature selection stage result not found")
 
@@ -54,10 +56,17 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
     feature_selection_step = None
 
     if isinstance(feature_selection_metadata_raw, dict):
-        feature_selection_step = feature_selection_metadata_raw.get("selector_estimator")
-    elif isinstance(feature_selection_metadata_raw, list) and len(feature_selection_metadata_raw) > 0:
+        feature_selection_step = feature_selection_metadata_raw.get(
+            "selector_estimator"
+        )
+    elif (
+        isinstance(feature_selection_metadata_raw, list)
+        and len(feature_selection_metadata_raw) > 0
+    ):
         if isinstance(feature_selection_metadata_raw[0], dict):
-            feature_selection_step = feature_selection_metadata_raw[0].get("selector_estimator")
+            feature_selection_step = feature_selection_metadata_raw[0].get(
+                "selector_estimator"
+            )
 
     if feature_selection_step is None:
         raise ValueError("Feature selection step not found in metadata")
@@ -71,10 +80,7 @@ def get_model_ensemble_experiments(context: Context) -> list[ExperimentDefinitio
 
     for name, model in models:
         # Create a pipeline builder directly with the ensemble model
-        steps = [
-            ("selector", feature_selection_step),
-            ("model", model)
-        ]
+        steps = [("selector", feature_selection_step), ("model", model)]
 
         pipeline_builder = PipelineBuilder(steps=steps)
 

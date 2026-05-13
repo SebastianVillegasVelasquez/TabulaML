@@ -27,8 +27,12 @@ class EvaluatorFactory:
                 from app.core.stages.evaluation.evaluators.model_selection_evaluator import (
                     ModelSelectionEvaluator,
                 )
+                from app.core.stages.evaluation.evaluators.data_handler_evaluator import (
+                    DataHandlerEvaluator,
+                )
 
                 cls._EVALUATORS = {
+                    Stages.DATA_HANDLER: DataHandlerEvaluator,
                     Stages.FEATURE_SELECTION: FeatureSelectionEvaluator,
                     Stages.MODEL_SELECTION: ModelSelectionEvaluator,
                     Stages.FINE_TUNING: FineTuningEvaluator,
@@ -40,11 +44,22 @@ class EvaluatorFactory:
 
     @classmethod
     def create(cls, stage, context):
-        """Create an evaluator for the given stage."""
+        """Create an evaluator for the given stage.
+
+        Returns None if no evaluator is registered for the stage,
+        allowing callers to handle missing evaluators gracefully.
+        """
         cls._register_defaults()
-        evaluator_class = cls._EVALUATORS.get(stage)
+        try:
+            evaluator_class = cls._EVALUATORS.get(stage)
+        except ValueError as e:
+            raise ValueError(f"Invalid stage: {stage}") from e
         if not evaluator_class:
-            raise ValueError(f"No evaluator for stage: {stage}")
+            logger.warning(
+                f"No evaluator registered for stage: {stage}. "
+                f"Skipping evaluation for this stage."
+            )
+            return None
         return evaluator_class(stage=stage, context=context)
 
     @classmethod

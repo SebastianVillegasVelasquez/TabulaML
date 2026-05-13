@@ -9,7 +9,9 @@ from app.core.stages.final_evaluation.final_evaluation_experiments import (
 
 
 class FinalEvaluationFactory(BaseExperimentFactory):
-    def create_experiments(self, context: Context | None = None) -> List[ExperimentDefinition]:
+    def create_experiments(
+        self, context: Context | None = None
+    ) -> List[ExperimentDefinition]:
         if context is None:
             raise ValueError(
                 "Context parameter must not be None for ModelEnsembleExperimentFactory\n"

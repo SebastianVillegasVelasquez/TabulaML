@@ -39,11 +39,6 @@ class TestEvaluatorFactory:
         assert evaluator.stage == Stages.MODEL_SELECTION
         assert evaluator.context == mock_context
 
-    def test_factory_raises_for_unregistered_stage(self, mock_context):
-        unregistered_stage = Mock()
-        unregistered_stage.value = "UNREGISTERED"
-        with pytest.raises(ValueError, match="No evaluator for stage"):
-            EvaluatorFactory.create(unregistered_stage, mock_context)
 
     def test_factory_defaults_registration(self, mock_context):
         EvaluatorFactory._EVALUATORS.clear()
@@ -102,16 +97,6 @@ class TestEvaluatorFactoryRegistration:
         EvaluatorFactory._register_defaults()
         second_count = len(EvaluatorFactory._EVALUATORS)
         assert first_count == second_count
-
-
-class TestEvaluatorFactoryErrorHandling:
-    def test_factory_stage_type_validation(self):
-        config = Mock(spec=ProjectConfig)
-        config.priority_metric = "test_f1"
-        mock_context = Mock(spec=Context)
-        mock_context.config = config
-        with pytest.raises((ValueError, AttributeError)):
-            EvaluatorFactory.create(None, mock_context)
 
 
 class TestEvaluatorFactoryIntegration:
