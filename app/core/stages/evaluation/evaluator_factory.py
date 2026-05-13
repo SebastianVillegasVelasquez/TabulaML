@@ -50,7 +50,10 @@ class EvaluatorFactory:
         allowing callers to handle missing evaluators gracefully.
         """
         cls._register_defaults()
-        evaluator_class = cls._EVALUATORS.get(stage)
+        try:
+            evaluator_class = cls._EVALUATORS.get(stage)
+        except ValueError as e:
+            raise ValueError(f"Invalid stage: {stage}") from e
         if not evaluator_class:
             logger.warning(
                 f"No evaluator registered for stage: {stage}. "

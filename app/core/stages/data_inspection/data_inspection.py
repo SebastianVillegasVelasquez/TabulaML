@@ -17,7 +17,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
-from babel.messages import catalog
 from sklearn.compose import ColumnTransformer
 
 from app.core.enums import Stages
@@ -121,6 +120,7 @@ class DataInspectionStage:
             logger.info("Data inspection completed successfully.")
         except Exception as e:
             logger.error(f"Data inspection failed: {e}")
+
     # ------------------------------------------------------------------
     # Core inspection logic
     # ------------------------------------------------------------------
