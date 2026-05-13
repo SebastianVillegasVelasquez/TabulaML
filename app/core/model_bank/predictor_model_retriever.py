@@ -658,7 +658,7 @@ class PredictorModelRetriever(BaseModelRetriever):
         else:
             # Fallback when metadata is a dict or None
             return False
-        
+
         n_samples: int = getattr(dataset_metadata, "dataset_length", 0)
 
         selected: list[str] | None = chain_meta.get("selected_features")

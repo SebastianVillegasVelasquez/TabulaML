@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
+from babel.messages import catalog
 from sklearn.compose import ColumnTransformer
 
 from app.core.enums import Stages
@@ -115,8 +116,11 @@ class DataInspectionStage:
         stores the fitted preprocessing transformer back into the shared context.
         """
         logger.info("Running data inspection stage...")
-        self._inspect_data()
-
+        try:
+            self._inspect_data()
+            logger.info("Data inspection completed successfully.")
+        except Exception as e:
+            logger.error(f"Data inspection failed: {e}")
     # ------------------------------------------------------------------
     # Core inspection logic
     # ------------------------------------------------------------------
@@ -173,21 +177,6 @@ class DataInspectionStage:
                 },
             ),
         )
-
-    # @staticmethod
-    # def _tranform_df(transformer: ColumnTransformer, df: pd.DataFrame) -> pd.DataFrame:
-    #     """Applies the transformer to the DataFrame and returns the result."""
-    #
-    #     # Reset dataframe index to align with the one used in fitting
-    #     df.reset_index()
-    #
-    #     # Apply allthe transformation in the original dataframe
-    #     data = transformer.fit_transform(df)
-    #
-    #     df_transformed = pd.DataFrame(
-    #         data, columns=transformer.get_feature_names_out(), index=df.index
-    #     )
-    #     return df_transformed
 
     def _build_feature_config(self, col: str, series: pd.Series) -> FeatureConfig:
         """Detects the feature model_based and instantiates the correct typed class.

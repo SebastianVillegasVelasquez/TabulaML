@@ -26,10 +26,19 @@ class EvaluationStage:
         """Execute the evaluation workflow."""
         logger.info(f"Running evaluation stage: {self.stage}...")
 
-        experiments = self._get_experiments()
+        # Get experiments from context
+        try:
+            experiments = self._get_experiments()
+        except RuntimeError as e:
+            logger.warning(f"No experiments to evaluate for {self.stage.value}: {e}")
+            return
 
         # Delegate to stage-specific evaluator
         evaluator = EvaluatorFactory.create(self.stage, self.context)
+
+        if not evaluator:
+            logger.info(f"No evaluator for {self.stage.value}, skipping evaluation")
+            return
 
         try:
             evaluator.evaluate(experiments)

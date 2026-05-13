@@ -68,7 +68,9 @@ tuning = {
 }
 
 
-def _convert_to_optuna_space(param_grid: dict) -> dict[str, Union[tuple[str, Any], tuple[str, Any, Any]]]:
+def _convert_to_optuna_space(
+    param_grid: dict,
+) -> dict[str, Union[tuple[str, Any], tuple[str, Any, Any]]]:
     """
     Transform helper param_grid to Optuna space.
     """

@@ -146,11 +146,10 @@ class Orchestrator:
                     try:
                         self._run_evaluation(stage_type)
                     except Exception as e:
-                        logger.error(
-                            f"[{stage_type.value}] Evaluation failed: {str(e)}",
-                            exc_info=True,
+                        logger.warning(
+                            f"[{stage_type.value}] Evaluation failed (stage still considered successful): {str(e)}",
+                            exc_info=False,
                         )
-                        # Stage succeeded, only evaluation had issues
 
                 # Record outcome
                 summary[execution.status.value].append(stage_type.value)
